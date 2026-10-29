@@ -1,0 +1,25 @@
+{
+  "state": "semantics-fixed-awaiting-final-candidate",
+  "prospective": true,
+  "corpus": "cases/explain-398-implementation-first/corpus.json",
+  "corpus_sha256": "d6abc2ef60985f61c5f37e4c3c7c10842334f766ac6fec6120b7cf4d8d965d15",
+  "candidate_sha": null,
+  "selected_cases": [
+    "explain-398-session-flow",
+    "explain-398-infrastructure"
+  ],
+  "trials_per_case": 1,
+  "sample_count": 2,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "scope": "Parent starts exactly2 candidate sample tasks, presents actual responses to Human, then stops for judgment.",
+  "stop": "No automatic full evaluation, additional cases, repetitions, version update, or PR.",
+  "old_rounds_preserved": [
+    "rounds/explain-398-004",
+    "rounds/explain-398-code-centered-005"
+  ],
+  "historical_result_use": "Old outputs/results are retained and are not evidence of conformance to this new presentation requirement.",
+  "publication_scope": "Synthetic fixture and requirement summaries only; no private conversation transcript or execution logs."
+}
