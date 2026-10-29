@@ -1,0 +1,1802 @@
+{
+  "schema": "nonnormal-output-quality-public-v1",
+  "skill": "test-report",
+  "assessment_protocol": "output-quality-v1",
+  "eval_repository": "akitanabe/tugite-eval",
+  "tugite_repository": "akitanabe/tugite",
+  "independent_judge": "independent-reviewer-d",
+  "initial_trials_per_cell": 1,
+  "trials": [
+    {
+      "case_id": "test-report-boundary",
+      "category": "boundary",
+      "version": "v7.3.7",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-boundary--v7.3.7--1/input.json",
+      "input_sha256": "022b6458718b8082f6baace40e665a47dc1dd081b86757aca4811b292653f37b",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "886e919a16ff6d318ed824ab53e8335362261c95",
+      "skill_source_sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "empty-tests/ を対象に静的報告してください。ここは意図的にテスト0件です。要求は requirements.md です。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "empty-tests/.keep": "",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "`empty-tests/` のテストは静的観測で **0件**でした。対象範囲は解決できており、その全内容は空の `empty-tests/.keep`（0バイト）だけです。対象範囲の未読テストはありません。\n\n要求として指定された `requirements.md:2` を、配送料の振る舞いと期待する観測の根拠にしました。対応する実装候補は `app.py:1–5` の `quote` です。\n\n| 要求上の振る舞い・条件 | 期待する観測 | `empty-tests/` 内の対応 |\n| --- | --- | --- |\n| 正の整数 weight の通常配送料 | weight が5以下なら100、5超なら200を返す | 対応するシナリオ・検証根拠は観測されず |\n| express=True の追加料金 | 同じ weight の通常額に50を加えた額を返す（5以下なら150、5超なら250） | 対応するシナリオ・検証根拠は観測されず |\n| weight が0以下の拒否 | ValueError が生じる | 対応するシナリオ・検証根拠は観測されず |\n| 外部作用を伴わない計算 | 呼び出しに伴う外部作用がない | 対応するシナリオ・検証根拠は観測されず |\n\nこれらは要求から導いた観測内容であり、実際に実行して得た結果ではありません。正の整数以外の型について、要求にない受理・拒否の規則は補っていません。読んだ要求の範囲で、上記の導出を左右する未解決の条件や根拠間の競合は確認されませんでした。\n\n要求上の振る舞いと期待する観測は整理できましたが、対象ディレクトリにテストがないため、対応づける意味的なシナリオ（Case）と検証根拠（Evidence）はありません。この不在は、全内容を確認した `empty-tests/` に限定した観測です。範囲外の `tests/` は読んでおらず、リポジトリ全体にテストがないとは述べていません。\n\n実行可能性を判定する対象テストもありません。未実行指定されたテストや、対応関係が未解決のテストとして数えてはいません。テスト・実装・CIは実行しておらず、成功・失敗や実行時の外部作用は未確認です。実装の正しさ、テストの品質・十分性・カバレッジは評価していません。ファイルの変更も行っていません。\n\n実際に読んだファイルと操作：\n\n- 固定Skill：`/workspace/quality-stage/distribution/plugins/codex/skills/test-report/SKILL.md`。\n- 固定参照：`/workspace/quality-stage/distribution/plugins/codex/references/` 配下の `model-construction.md`、`agentic-model-construction.md`、`behavior-model-observation.md`、`verification-topology.md`、`human-facing-projection.md`。\n- 依頼文：`/workspace/quality-stage/prompt.txt`。\n- 対象fixture：`/workspace/quality-stage/workspace/requirements.md`、`app.py`、`.gitignore`。`empty-tests/.keep` はサイズが0バイトであることを確認しました。\n- 静的確認コマンド：`cat`（依頼文・Skill・参照）、`rg --files --hidden /workspace/quality-stage/workspace`（パス列挙）、作業ディレクトリで `ls -la`、`ls -la empty-tests`、`nl -ba requirements.md`、`nl -ba app.py`、`nl -ba .gitignore`、`wc -c empty-tests/.keep`。\n\n静的報告を妨げるブロッカーはありません。\n",
+      "response_sha256": "3539f781f9ee2c5cb729664ebf4a4a22567efb30628cf3f8581d9caf2f82dd52",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "delivered",
+        "reason": "Requested bounded output delivered; inspect judgment for scope or evidence limits."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Correctly resolves the intentionally empty empty-tests/ scope to zero tests and no unread members; does not confuse absence, unresolved scope, skip or runtime pass. Maintains independent requirement-derived behaviors and scope-relative evidence absence.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "topology-only": {
+            "result": "pass",
+            "reason": "Returns requirement → expected observation mapping and empty Case/Evidence relationships, with concrete sources and static limitations, without quality, coverage or remediation verdicts.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Accurate and useful static report of intentionally zero tests: scope is resolved, independent expected behaviors are retained, and scope-relative evidence absence is not inflated into project-wide absence or execution success. Version-specific topology-only versus static-diagnostic responsibility is respected.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 15 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Accurate and useful static report of intentionally zero tests: scope is resolved, independent expected behaviors are retained, and scope-relative evidence absence is not inflated into project-wide absence or execution success. Version-specific topology-only versus static-diagnostic responsibility is respected.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/empty-tests/.keep",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "解決済み0件と scope 未解決を区別し、未観測や要求側の根拠を保持する。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "- test quality / sufficiency / coverage の評価、改善提案、remediation",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              }
+            },
+            "expectation": "静的 topology と限界を返し品質診断・改善提案をしない。",
+            "id": "topology-only",
+            "versions": [
+              "v7.3.7"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "bd13bc2707c530a5be867671d1252bacca0d6aa5b244bb7eace931e80a5d0dad",
+        "seal_sha256": "7e6466523e4a18c7ba5dc148a1a1f2785039a5667a48b9386c29964abaa2b082",
+        "sealed_members": 15,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "022b6458718b8082f6baace40e665a47dc1dd081b86757aca4811b292653f37b",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "test-report-boundary",
+      "category": "boundary",
+      "version": "v7.4.0",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-boundary--v7.4.0--1/input.json",
+      "input_sha256": "6ad2e9a2ce684a524501e1669a78000e2f57fc684723b2aa88791715e8cad14d",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "7578104046e97bc93d8cddffb882983827db3b0f",
+      "skill_source_sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "empty-tests/ を対象に静的報告してください。ここは意図的にテスト0件です。要求は requirements.md です。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "empty-tests/.keep": "",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "指定された `empty-tests/` のテストは **0件**です。ディレクトリ内の全ファイルを列挙し、空の `.keep` だけであることを確認しました。範囲は解決できており、テストを発見できなかったための判定不能とは区別しています。以下は静的報告であり、テスト成功や実装の実行結果を示すものではありません。\n\n対象は `/workspace/quality-stage/workspace`、観測した HEAD は `c89864ee21ee66138fae729fa59eb360bdeab81b` です。`git status --porcelain=v1 --untracked-files=all` の出力は空でした。テストの解決済み集合・観測済み集合はいずれも空集合、対象内のファイル集合はいずれも `{empty-tests/.keep}` で、未読 member はありません。要求の読取範囲は `requirements.md:1–2`、対応する対象コードは `app.py:1–5` です。ルートの `tests/` は指定範囲外であり、内容は読んでいません。テスト不在の判断は `empty-tests/` のみに相対化します。\n\n要求の根拠はユーザーが指定した `requirements.md:2` です。実装やテストから仕様を逆算していません。要求から導いた振る舞いと期待する観測、その証拠の状態は次のとおりです。\n\n| 識別子・振る舞い | 条件と期待する観測 | 実装上の参照 | 指定テスト範囲の対応 |\n| --- | --- | --- | --- |\n| B1 / E1 入力の下限 | 整数 weight が0以下なら ValueError。境界の0と負数を含む | `app.py:2–3` に該当する分岐と例外送出 | 対応する Case・Evidence・assertion なし |\n| B2 / E2 通常配送の低重量側 | 正の整数 weight が5以下、express省略またはFalseなら100。最小の1と上限5を含む | `app.py:1,4–5` に既定値と金額の分岐 | 同上 |\n| B2 / E3 通常配送の高重量側 | 整数 weight が5超、express省略またはFalseなら200。境界直後の6を含む | `app.py:1,4–5` | 同上 |\n| B3 / E4 速達加算の低重量側 | 正の整数 weight が5以下、express=Trueなら通常額100に50を加えて150 | `app.py:4–5` | 同上 |\n| B3 / E5 速達加算の高重量側 | 整数 weight が5超、express=Trueなら通常額200に50を加えて250 | `app.py:4–5` | 同上 |\n| B1 / E6 不正重量と速達指定 | weightが0以下ならexpress=TrueでもValueError。速達指定は重量の拒否条件を変えない | `app.py:2–3` は加算より先に位置する | 同上 |\n| B4 / E7 外部作用の不在 | 要求対象の呼出しで外部作用を生じない | `app.py:1–5` に外部I/Oや外部状態更新の明示的な処理は見当たらない | 同上 |\n\n各行の期待値はすべて `requirements.md:2` に根拠があります。B3は通常額との「+50」という関係を含み、E4・E5はB2の重量条件にも対応します。E6はB1と速達指定との組合せです。これらは要求から導いた観測項目であって、実在するテストシナリオを表す Case ではありません。対象内にはテストの入力・fixture・setup・teardown・oracle・assertionが一切なく、未対応の Evidence もありません。\n\n明示された正の整数入力、0以下の拒否、重量5の境界、速達の加算、外部作用については上記の観測項目へ導出できています。この導出は要求の意味を整理したものであり、テスト網羅や要求検証の完了を意味しません。整数以外の入力やTrue/False以外のexpress値の扱いは、この要求から追加の期待値を作っていません。\n\n静的診断は次の2点です。\n\n- **D1：要求に対応するテスト証拠の不在を静的に確認。** `empty-tests/` は空の `.keep` のみであり、E1～E7を確かめる証拠はこの範囲にありません。意図的な0件という依頼内容と一致しています。重量境界の誤り、ValueErrorの欠落、速達加算の誤り、外部作用の混入を、この範囲のテストが識別するとは言えません。次に検証対象を選ぶ際はE1～E7を参照できますが、本報告はテスト追加・実行・修復を許可するものではありません。範囲外にも証拠がないとは主張しません。\n- **D2：実装の明示的な分岐に要求との不一致は見つからず、実行時の成立は未確認。** `app.py:2–5` は、0以下の拒否、5以下／5超の通常額、速達時の50加算という要求の構造に対応しています。`app.py:1–5` に外部作用の明示的な処理も見当たりません。この静的読解を実行成功や不具合不存在の証明にはしません。次に確認する場合は、要求上の境界と条件ごとの値・例外・外部作用が観測対象です。\n\nテスト・対象コード・CIは実行していません。実行済み、PASS、FAIL、skip、設定による非実行のいずれも報告する根拠はありません。テストが0件なので、対応するEvidenceの実行可能性を判定する対象もありません。runnerの実行確認は行っていません。source・test・configは変更せず、fixture内にreport artifactも作成していません。\n\n実際に内容を読んだファイルは、`/workspace/quality-stage/prompt.txt`、`/workspace/quality-stage/workspace/requirements.md`、同 `empty-tests/.keep`（0バイト）、同 `app.py`、および以下の固定配布ファイルです。\n\n- `/workspace/quality-stage/distribution/plugins/codex/skills/test-report/SKILL.md`\n- `/workspace/quality-stage/distribution/plugins/codex/skills/test-report/references/observation-and-diagnosis.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/model-construction.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/agentic-model-construction.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/verification-topology.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/behavior-model-observation.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/human-facing-projection.md`\n\n静的調査で使用したコマンドは `cat`（固定Skill・参照文書）、`rg --files -uu -g '!.git/**'`（fixtureファイル列挙）、固定配布内の `rg --files … | rg 'behavior-model-observation|BMO'`（参照先特定）、`nl -ba requirements.md`、`nl -ba empty-tests/.keep`、`nl -ba app.py`、`ls -la empty-tests`、`git rev-parse --show-toplevel`、`git rev-parse HEAD`、`git status --porcelain=v1 --untracked-files=all` です。静的報告を妨げるブロッカーはありません。\n",
+      "response_sha256": "1495e2c943556fd111dd8860b888eb5c13234427434bc13bb3731b5915b4c370",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "delivered",
+        "reason": "Requested bounded output delivered; inspect judgment for scope or evidence limits."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Correctly resolves the intentionally empty empty-tests/ scope to zero tests and no unread members; does not confuse absence, unresolved scope, skip or runtime pass. Maintains independent requirement-derived behaviors and scope-relative evidence absence.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "static-diagnosis": {
+            "result": "pass",
+            "reason": "Reports complete scoped member set and detailed requirement/static-code mapping, identifies scoped evidence absence while distinguishing it from fixture/implementation failure, and separates static consistency from unobserved runtime behavior.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Accurate and useful static report of intentionally zero tests: scope is resolved, independent expected behaviors are retained, and scope-relative evidence absence is not inflated into project-wide absence or execution success. Version-specific topology-only versus static-diagnostic responsibility is respected.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 15 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Accurate and useful static report of intentionally zero tests: scope is resolved, independent expected behaviors are retained, and scope-relative evidence absence is not inflated into project-wide absence or execution success. Version-specific topology-only versus static-diagnostic responsibility is respected.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/empty-tests/.keep",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "解決済み0件と scope 未解決を区別し、未観測や要求側の根拠を保持する。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "Topology と観測した要求・test・source・config の根拠を照合し、静的に確認できた問題、実行確認が必要な疑い、判断材料の不足を区別します。各指摘に選択用の識別子、確認状態、根拠と location、見逃しうる問題、次に確認する点を残します。診断は `references/observation-and-diagnosis.md` に従い、静的診断を runtime 実証として扱いません。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "Topology と観測した要求・test・source・config の根拠を照合し、静的に確認できた問題、実行確認が必要な疑い、判断材料の不足を区別します。各指摘に選択用の識別子、確認状態、根拠と location、見逃しうる問題、次に確認する点を残します。診断は `references/observation-and-diagnosis.md` に従い、静的診断を runtime 実証として扱いません。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "全観測範囲の詳細と根拠付き静的診断、実行が必要な疑い、材料不足を分ける。",
+            "id": "static-diagnosis",
+            "versions": [
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "7233e09b7e66cfaec12b4fffebec986f99580b793aacd0b360f6932ba8cac50b",
+        "seal_sha256": "23e9912b926961e2ac9948d6d40366cb8cfe34fc9658aaf7e7a1c6edfc2bb658",
+        "sealed_members": 15,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "6ad2e9a2ce684a524501e1669a78000e2f57fc684723b2aa88791715e8cad14d",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "test-report-boundary",
+      "category": "boundary",
+      "version": "v7.5.0",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-boundary--v7.5.0--1/input.json",
+      "input_sha256": "262e6893b55bab1d7b71392518d17d3f0a0fc4f9f50e10057fc19592cdab53f7",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "skill_source_sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "empty-tests/ を対象に静的報告してください。ここは意図的にテスト0件です。要求は requirements.md です。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "empty-tests/.keep": "",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "`empty-tests/` の静的報告です。対象ディレクトリは解決できており、テストは意図どおり0件です。これは範囲の解決失敗ではありません。要求から導ける振る舞いは保持しましたが、この範囲にはそれを確認する Case、assertion、Evidence はありません。テスト・対象コード・CI は実行していません。\n\n観測範囲と根拠\n\n対象は `/workspace/quality-stage/workspace/empty-tests/` 以下です。隠しファイルを含む一覧と再帰的なファイル一覧を照合し、存在するファイルは空の `empty-tests/.keep` のみでした。解決済みテスト集合と観測済みテスト集合はいずれも空集合で、未読の対象テストはありません。`.keep` はテストではなく、行もありません。\n\n要求の根拠は、ユーザーが指定した `requirements.md:2` です。関連する実装単位として `app.py:1–5` の `quote` を読みました。実装は要求の正当性の根拠にはしていません。ルートの一覧に runner 設定ファイルは見当たらず、`.gitignore:1–3` は `.agents/`、`.codex/`、`__pycache__/` の除外でした。runner の起動・探索範囲の拡張は行っていません。範囲外の `tests/` は内容を読んでいないため、そこでの証拠の有無は判断しません。\n\n観測した作業ツリーの Git HEAD は `9b8739b097a00475139431c85f5daab753a42901` です。remote の出力はなく、origin URL は不明です。`git status --porcelain=v1 --untracked-files=all` の出力は空でした。以下はこの fixture と ref、指定範囲に限った報告です。\n\n要求からの詳細な対応\n\n各行の期待観測は `requirements.md:2` から独立に導出しました。Case と Evidence が空のため、対応不明な既存テストや未対応の assertion もありません。以下の条件は要求上の区別であり、既存のテストシナリオを表すものではありません。\n\n| 識別子・振る舞い | 条件と期待観測 | 実装の静的観測 | 対象範囲の Case → Evidence・実行状態 |\n| --- | --- | --- | --- |\n| B1 通常配送料 | 正の整数 weight に対し、express を省略または False としたとき、1〜5は100、5超は200。5は低額側で、次の整数6は高額側となる。 | `app.py:1` の既定値は False。`app.py:4` は `weight <= 5` で100、そうでなければ200、`:5` は express が偽なら加算0。 | Case なし、assertion なし、Evidence なし。指定範囲内に対応証拠を観測せず。実行結果なし。 |\n| B2 express 加算 | 正の整数 weight で express=True のとき、通常額に50を加える。したがって1〜5は150、5超は250。同じ正の整数 weight の通常額との差は50。 | `app.py:4–5` は通常額の分岐後に50を加算する形。 | Case なし、assertion なし、Evidence なし。指定範囲内に対応証拠を観測せず。実行結果なし。 |\n| B3 非正値の拒否 | weight が0または負の整数なら ValueError。要求に express による例外はなく、False/True いずれにも適用される。例外メッセージの内容は要求されていない。 | `app.py:2–3` は `weight <= 0` で ValueError を送出し、配送料計算・express 加算より先に配置されている。 | Case なし、assertion なし、Evidence なし。指定範囲内に対応証拠を観測せず。実行結果なし。 |\n| B4 外部作用なし | 要求対象の quote 呼び出しに外部作用がないこと。正常な料金計算と非正値の拒否のいずれにも、外部作用の例外は記されていない。 | `app.py:1–5` に現れるのは比較、ローカル変数への代入、加算、return、例外送出であり、外部I/Oや外部状態への書き込みはこの関数本文には見当たらない。 | Case なし、assertion なし、Evidence なし。指定範囲内に対応証拠を観測せず。実行結果なし。 |\n\n要求に記載された条件分岐、加算関係、例外、外部作用の制約は上の期待観測に反映しています。これは要求の意味からの導出であり、テストの十分性や実際の実装動作を確認したという判定ではありません。正の整数という入力領域と明示された非正値以外について、文字列・小数等の拒否方法や express の型検査を追加の仕様として導出していません。\n\n静的診断と限界\n\nG1【静的確認済み：指定範囲の証拠の欠落】B1〜B4 に対するテスト証拠は `empty-tests/` 内にありません。根拠は `requirements.md:2` と、空の `.keep` だけからなる対象の完全なファイル一覧です。したがって、この範囲のテストからは通常額の誤り、5/6の境界の誤り、express 加算の欠落、非正値の受理、外部作用を識別できません。意図された0件という状態と一致しており、これ自体を fixture の不具合や実装の失敗とは判定しません。次に確認する対象としては、必要なら B1〜B4 のどれを検証対象にするかをこの識別子で選択できます。\n\nS1【静的整合・実行未確認】`app.py:1–5` の記述は、明示された整数入力について上表の料金、加算、ValueError と整合しています。関数本文に外部作用の操作も見当たりません。ただし、実行時の成功・失敗、実環境での外部作用の不存在は実証していません。具体的な不一致が観測されていないため、追加の実行時不具合を推測で指摘しません。\n\n対象に skip されたテストがあるという状態ではありません。対象テストそのものが0件であり、PASS、FAIL、実行可能な証拠あり、skip、対応不明のいずれの結果にも置き換えません。また、範囲外のテスト群やプロジェクト全体に証拠がないとは主張しません。今回の静的報告を妨げる未取得項目はありません。\n\n読み取り・操作記録\n\n使用した固定 Skill は `/workspace/quality-stage/distribution/plugins/codex/skills/test-report/SKILL.md` です。実際に読んだ固定参照は次の6件です。\n\n- `/workspace/quality-stage/distribution/plugins/codex/references/model-construction.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/agentic-model-construction.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/verification-topology.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/behavior-model-observation.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/human-facing-projection.md`\n- `/workspace/quality-stage/distribution/plugins/codex/skills/test-report/references/observation-and-diagnosis.md`\n\nこれに加え、staged prompt `/workspace/quality-stage/prompt.txt`、fixture 内の `requirements.md`、`app.py`、`.gitignore`、空の `empty-tests/.keep` を読みました。ファイル一覧には他のファイル名も現れますが、その内容は読んでいません。\n\nfixture の静的調査で使ったコマンドは `rg --files --hidden -g '!.git/**' -g '!node_modules/**'`、`nl -ba requirements.md`、`ls -la empty-tests`、`nl -ba app.py`、`nl -ba .gitignore`、`ls -ld .git`、`rg --files --hidden empty-tests`、`git rev-parse --show-toplevel`、`git rev-parse HEAD`、`git remote -v`、`git status --porcelain=v1 --untracked-files=all`、`ls -la`、`nl -ba empty-tests/.keep`、`find empty-tests -type f -print` です。固定 Skill・参照には `cat`、BMO 参照のファイル名解決には固定 distribution の references 配下に限定した `rg --files ... -g '*behavior*'` を使いました。\n\nテスト、対象コード、CI の実行、修復、`test-verify` の起動は行っていません。fixture 内に報告書を書き出す指定はないため、fixture の source・test・config・その他のファイルは変更していません。\n",
+      "response_sha256": "56a94bf24db8f4648ab28dff3e06929b6d9270a4e2165ba288216679604d2211",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "delivered",
+        "reason": "Requested bounded output delivered; inspect judgment for scope or evidence limits."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Correctly resolves the intentionally empty empty-tests/ scope to zero tests and no unread members; does not confuse absence, unresolved scope, skip or runtime pass. Maintains independent requirement-derived behaviors and scope-relative evidence absence.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "static-diagnosis": {
+            "result": "pass",
+            "reason": "Reports complete scoped member set and detailed requirement/static-code mapping, identifies scoped evidence absence while distinguishing it from fixture/implementation failure, and separates static consistency from unobserved runtime behavior.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Accurate and useful static report of intentionally zero tests: scope is resolved, independent expected behaviors are retained, and scope-relative evidence absence is not inflated into project-wide absence or execution success. Version-specific topology-only versus static-diagnostic responsibility is respected.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/empty-tests/.keep",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 15 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Accurate and useful static report of intentionally zero tests: scope is resolved, independent expected behaviors are retained, and scope-relative evidence absence is not inflated into project-wide absence or execution success. Version-specific topology-only versus static-diagnostic responsibility is respected.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/empty-tests/.keep",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "解決済み0件と scope 未解決を区別し、未観測や要求側の根拠を保持する。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "Topology と観測した要求・test・source・config の根拠を照合し、静的に確認できた問題、実行確認が必要な疑い、判断材料の不足を区別します。各指摘に選択用の識別子、確認状態、根拠と location、見逃しうる問題、次に確認する点を残します。診断は `references/observation-and-diagnosis.md` に従い、静的診断を runtime 実証として扱いません。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "Topology と観測した要求・test・source・config の根拠を照合し、静的に確認できた問題、実行確認が必要な疑い、判断材料の不足を区別します。各指摘に選択用の識別子、確認状態、根拠と location、見逃しうる問題、次に確認する点を残します。診断は `references/observation-and-diagnosis.md` に従い、静的診断を runtime 実証として扱いません。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "全観測範囲の詳細と根拠付き静的診断、実行が必要な疑い、材料不足を分ける。",
+            "id": "static-diagnosis",
+            "versions": [
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "5ecd53a1a8b1e8499f8706d76302d482ea0eaa2373a28807659e0fe1838e10d5",
+        "seal_sha256": "de8ab65cee2bd7586dc52c42a7645361a2a02d7442b3281c5f8417e3ec9d8e57",
+        "sealed_members": 15,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "262e6893b55bab1d7b71392518d17d3f0a0fc4f9f50e10057fc19592cdab53f7",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "test-report-failure",
+      "category": "failure",
+      "version": "v7.3.7",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-failure--v7.3.7--1/input.json",
+      "input_sha256": "839f4fc291aa2aabeb3988a1c93ff86c2d34f3486db27b06bc6dce560b74af1e",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "886e919a16ff6d318ed824ab53e8335362261c95",
+      "skill_source_sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "tests/ 全体を静的に報告してください。requirements.md を独立仕様として使用してください。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_weak(self):\n        self.assertTrue(quote(6, True))\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "tests/ 全体を静的に読みました。存在するテストは、重量 6・速達の見積額が真として扱われることを観測する一つのシナリオです。テストや実装は実行していないため、実際の成功・失敗は未確認です。\n\n配送料の期待される振る舞いは、指定された独立仕様 `requirements.md:2` に基づいています。`app.py:1–5` は対応する実装として読み、テストの内容から仕様を補ってはいません。\n\n仕様とテストの対応は次のとおりです。\n\n| 仕様から導いた観測対象 | 観測したシナリオ・根拠との対応 |\n| --- | --- |\n| 正の整数の重量が 5 以下なら通常額は 100、5 超なら 200 | 通常配送を呼び出すシナリオや、通常額を直接比較する assertion は、観測した tests/ 内にはありません。 |\n| 速達なら、その重量の通常額に 50 を加える。したがって重量 5 以下では 150、5 超では 250 | 重量 6・速達のシナリオが `tests/test_app.py:5–6` にあります。`quote(6, True)` の呼び出しは後者の条件に対応しますが、assertion は `assertTrue(...)` です。戻り値が真として扱われることを観測し、250 との一致や通常額との差 50 を直接観測する記述はありません。重量 5 以下の速達シナリオも観測していません。 |\n| 重量が 0 以下なら ValueError | 0 または負の重量を渡し、例外を観測するシナリオは、観測した tests/ 内にはありません。 |\n| 見積もりには外部作用がない | 外部作用の有無を観測する assertion は、観測した tests/ 内にはありません。実装は入力比較、金額計算、戻り値または例外から成りますが、これはテストによる実行観測ではありません。 |\n\n重量 6・速達という一つのシナリオは、重量による金額の分岐と速達加算の両方に関係します。ただし、呼び出し条件が対応していることと、期待額を assertion が観測していることは区別しています。仕様からはこの条件の期待額を 250 と導けますが、真偽値の assertion だけから実際の戻り値を 250 と確定することはできません。\n\n`tests/test_app.py:1–6` は `unittest.TestCase` の `test_weak` として定義され、`app.quote` を import しています。静的に読んだ範囲では skip や無効化の指定はありません。`README.md:3` に記載された発見実行コマンドは `python3 -m unittest discover -v` です。この構造では当該テストを実行対象として扱えますが、そのコマンドは実行していません。実行結果、実行環境での import 成否、CI の状態は未確認です。\n\n対象範囲は、tests/ の全ファイル `tests/__init__.py`（空）と `tests/test_app.py` です。ファイル一覧で解決した集合と実際に読んだ集合は一致し、未読の対象ファイルはありません。対応実装は `app.py`、独立仕様は `requirements.md`、実行方法の補助情報は `README.md` と `.gitignore` から取得しました。上記の「観測していない」は、この完全に読んだ tests/ の範囲に限った記述です。テストの品質、十分性、カバレッジの良否や改善策は判定していません。\n\n実際に読んだファイルは、上記 7 ファイルのほか、`/workspace/quality-stage/prompt.txt`、固定配布の `/workspace/quality-stage/distribution/plugins/codex/skills/test-report/SKILL.md` と、同配布の `plugins/codex/references/` にある `model-construction.md`、`agentic-model-construction.md`、`behavior-model-observation.md`、`verification-topology.md`、`human-facing-projection.md` です。作業ディレクトリは `/workspace/quality-stage/workspace` です。\n\n静的調査に使ったコマンドは `rg --files`（ファイル一覧）、`cat`（固定 Skill と参照文書）、`nl -ba`（仕様・実装・テスト・補助情報の行番号付き読解）です。テスト、対象コード、CI は実行せず、ソース・テスト・設定は変更していません。静的報告を妨げる blocker は観測していません。\n",
+      "response_sha256": "01d48b67f701fddcffd0f0e995bfb8e80608a7a36206b114aa878db16467374b",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "delivered",
+        "reason": "Requested bounded output delivered; inspect judgment for scope or evidence limits."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Accurately maps the sole quote(6, True) call to truthiness assertion and independent requirement value 250 with code locations, complete scoped test membership and explicit nonexecution.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "topology-only": {
+            "result": "pass",
+            "reason": "Describes literal assertTrue observation and its non-equivalence to observing amount 250, without asserting quality/coverage/severity/remediation verdicts. Requirement/condition/Case/Evidence mapping and static limits stay within v7.3.7 responsibility.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Useful accurate static report of weak truthiness assertion, grounded independently in requirements and source locations, with unexecuted runtime status explicit. Applicable version responsibility retained: topology-only v7.3.7, static diagnosis in later versions.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 14 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Useful accurate static report of weak truthiness assertion, grounded independently in requirements and source locations, with unexecuted runtime status explicit. Applicable version responsibility retained: topology-only v7.3.7, static diagnosis in later versions.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/tests/test_app.py",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "quote(6, True) を呼ぶ Case と truthiness assertion、その仕様・コード位置との対応、観測 scope と未実行を報告する。品質診断の要否は版別観測に従う。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "- test quality / sufficiency / coverage の評価、改善提案、remediation",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              }
+            },
+            "expectation": "v7.3.7 は静的 topology、Expected Observation・Case・Evidence の対応と限界を報告し、assertion の品質 verdict・coverage verdict・severity・remediation を行わない。",
+            "id": "topology-only",
+            "versions": [
+              "v7.3.7"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "70762b3f05385c2f9dda4a0e0a69f1ef77c5103746d7b10247ed5d4c06d3cfa6",
+        "seal_sha256": "f477ee9f3ac450bd9f9802413979f874883de58500eb618fc305ea6093b94b61",
+        "sealed_members": 14,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "839f4fc291aa2aabeb3988a1c93ff86c2d34f3486db27b06bc6dce560b74af1e",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "test-report-failure",
+      "category": "failure",
+      "version": "v7.4.0",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-failure--v7.4.0--1/input.json",
+      "input_sha256": "3cf0382dcc2bf8ee57b23026ee4ad306a0f0a5705ab96da6b3b83d488a8fc073",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "7578104046e97bc93d8cddffb882983827db3b0f",
+      "skill_source_sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "tests/ 全体を静的に報告してください。requirements.md を独立仕様として使用してください。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_weak(self):\n        self.assertTrue(quote(6, True))\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "`tests/` 全体を静的に確認しました。観測できたテストは 1 件で、`quote(6, True)` の戻り値が真と評価されることだけを確認しています。独立仕様が要求する金額 250 との一致は検証していません。テスト・アプリケーション・CI は実行していません。\n\n対象は `/workspace/quality-stage/workspace`、観測時の HEAD は `6b3e88e2586bab34a2fe6f2308bcb3574537e342` です。`git status --porcelain=v1 --untracked-files=all` の出力は空でした。`requirements.md:2` をユーザー指定の独立仕様として採用し、テスト自身や実装を仕様の正当性の根拠にはしていません。\n\n範囲と観測の完了状況\n\n- 解決した test membership は `tests/test_app.py` と空の `tests/__init__.py`。両方を全文読み、未読 member はありません。テストメソッドは `QuoteTest.test_weak` の 1 件です。\n- 対象コードは `app.py:1–5` の `quote` 全体。要求は `requirements.md`、実行方法の参照は `README.md` を全文読みました。\n- `README.md:3` は `python3 -m unittest discover -v` と追加依存なしを記載しています。対象テストは `unittest.TestCase` を継承し、skip、条件付き定義、独自 setup / teardown はありません。ファイル一覧と設定名検索では専用 runner 設定を観測しませんでした。\n- 静的には標準 unittest の収集対象となる構造です。ただし import・収集・実行の成功は未確認で、実行状態は全件「未実行」です。skip と判定したケースはありません。\n\n要求と、テストが実際に観測する内容\n\n以下の期待はすべて `requirements.md:2` に由来します。C1 は「weight=6、express=True で見積もる」シナリオ、E1 は `tests/test_app.py:6` の `self.assertTrue(quote(6, True))` です。一つの C1 が通常額と速達加算の両方に関係しますが、E1 は合計額の真偽しか観測しません。\n\n| 振る舞い・期待する観測 | 対応する Case / Evidence と実際の assertion | 静的な対応と限界 |\n| --- | --- | --- |\n| B1: 正の整数 weight が 5 以下なら通常額 100。下限側の有効入力や閾値 5 でも 100。express 省略時は通常扱い。 | 対応する Case / Evidence は観測なし。 | 完全に読んだ `tests/` に相対的な証拠不足。weight=1、5、express 省略・False の確認はない。 |\n| B2: 正の整数 weight が 5 を超えれば通常額 200。特に閾値直後の 6 も該当。 | C1 / E1 は weight=6 を使うが express=True。通常額 200 自体を assert しない。 | B3 と組み合わせた経路への対応は確定。通常配送の 200、および通常額の内訳を識別する証拠はない。 |\n| B3: express=True なら各通常額に 50 加算。5 以下では 150、5 超では 250。False・省略時には加算しない。 | C1 / E1 は 5 超・速達の条件に対応する。期待合計は 250 だが、assertion は truthiness のみ。 | 対応する静的に実行可能な証拠はあるが、250 と他の真値を区別できない。軽量速達 150 や通常との +50 の関係は未観測。PASS・要求充足を意味しない。 |\n| B4: weight が 0 以下なら ValueError。0 と負値の両条件を含む。 | 対応する Case / Evidence は観測なし。 | `assertRaises` 等の例外確認はない。仕様は例外メッセージを指定していないため、その一致要求は導出しない。 |\n| B5: 外部作用がない。 | 対応する Case / Evidence は観測なし。 | E1 は戻り値だけを確認し、外部作用を観測しない。アプリケーションの静的観察と、テストによる証拠の有無を区別する。 |\n\nこの期待集合は、与えられた仕様の料金分岐、速達条件、非正値の例外、外部作用の区別を保持しています。整数以外の入力、例外メッセージ、性能など、仕様が定めていない期待は追加していません。この導出の十分性はテスト網羅や実行成功の判定ではありません。観測した唯一の Evidence は上記に対応づけられ、対応不明のテストや独立根拠のない test-only 候補はありません。\n\n診断\n\n- D1 — 静的に確認した assertion の識別不足。`requirements.md:2` に従う C1 の期待値は 250 です。`tests/test_app.py:6` の `assertTrue` は、250 のほか 200、201、1、-1 などの真値でも成立します。したがって、速達加算を落とした 200 や誤額を返す実装をこの assertion は区別できません。他のテスト assertion はなく、これを補う証拠もありません。これはテストの識別力の問題であり、現在の実装が失敗するという実行上の証明ではありません。次の確認対象は C1 の正確な合計額と、通常料金から +50 となる関係です。\n- D2 — 静的に確認した、観測範囲内の要求側の証拠不足。B1、B2 の通常配送、B3 の軽量速達および False・省略時、B4、B5 を識別する証拠は `tests/` にありません。料金区分の取り違え、境界 5 のずれ、デフォルト速達の誤り、非正値の受理、外部作用の混入を、このテスト群では取り逃し得ます。次の確認対象は仕様の各条件とその観測方法です。これは実装欠陥の実証でも、リポジトリ外を含むテスト不存在の主張でもありません。\n\n`app.py:2–5` は、非正値で ValueError、`weight <= 5` で 100、それ以外で 200、express の場合に 50 加算する記述です。仕様が対象とする整数・真偽値条件では、今回の静的読解でこの計算と仕様の不一致は見つかりませんでした。外部アクセスの呼び出しもこの関数には見当たりません。ただし、これは実行結果やテストの強さを保証しません。整数以外の扱いを、この記述だけから追加の仕様違反とは判定しません。\n\n実際に読んだファイルと操作\n\n固定配布物の基点は `/workspace/quality-stage/distribution/plugins/codex/` です。読んだ Skill / reference は次のとおりです。\n\n- `skills/test-report/SKILL.md`\n- `references/model-construction.md`\n- `references/agentic-model-construction.md`\n- `references/verification-topology.md`\n- `references/behavior-model-observation.md`\n- `skills/test-report/references/observation-and-diagnosis.md`\n- `references/human-facing-projection.md`\n\nそのほか、`/workspace/quality-stage/prompt.txt` と、作業範囲の `requirements.md`、`tests/test_app.py`、`tests/__init__.py`、`app.py`、`README.md` を読みました。静的取得には `cat`、`nl -ba`、`rg --files`、`git rev-parse --show-toplevel`、`git rev-parse HEAD`、`git status --porcelain=v1 --untracked-files=all` を使用しました。設定名検索の `rg --files` は一致なしで終了コード 1 でした。これはテスト失敗ではありません。\n\n実行を妨げる能力不足や追加確認待ちは観測していません。静的報告として終了し、source / test / config は変更していません。D1・D2 は今後 `test-verify` の対象として選べますが、この報告では実行・修復へ進めていません。\n",
+      "response_sha256": "91804a8df36c2ec2917dee1e676b61c355ae5a8e45d5de7b44a37eb4c254f663",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "delivered",
+        "reason": "Requested bounded output delivered; inspect judgment for scope or evidence limits."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Accurately maps the sole quote(6, True) call to truthiness assertion and independent requirement value 250 with code locations, complete scoped test membership and explicit nonexecution.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "static-diagnosis": {
+            "result": "pass",
+            "reason": "Uses independent expected amount 250 to diagnose truthiness discrimination gap at a concrete assertion location; distinguishes static acceptability of wrong truthy values from observed production/test execution failure.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Useful accurate static report of weak truthiness assertion, grounded independently in requirements and source locations, with unexecuted runtime status explicit. Applicable version responsibility retained: topology-only v7.3.7, static diagnosis in later versions.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 14 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Useful accurate static report of weak truthiness assertion, grounded independently in requirements and source locations, with unexecuted runtime status explicit. Applicable version responsibility retained: topology-only v7.3.7, static diagnosis in later versions.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/tests/test_app.py",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "quote(6, True) を呼ぶ Case と truthiness assertion、その仕様・コード位置との対応、観測 scope と未実行を報告する。品質診断の要否は版別観測に従う。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.4.0": {
+                "path": "skills/test-report/references/observation-and-diagnosis.md",
+                "quote": "静的に確認できた問題は、要求・条件と assertion / config の具体的な不一致や識別不能を、観測範囲と成立条件を伴って示します。実行時の失敗・成功や production defect の実証へ拡張しません。",
+                "sha256": "03b7be659e6132b4d321d6fa7f52214b3d56f2aea698c2416be297fcc147b1a5"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/references/observation-and-diagnosis.md",
+                "quote": "静的に確認できた問題は、要求・条件と assertion / config の具体的な不一致や識別不能を、観測範囲と成立条件を伴って示します。実行時の失敗・成功や production defect の実証へ拡張しません。",
+                "sha256": "03b7be659e6132b4d321d6fa7f52214b3d56f2aea698c2416be297fcc147b1a5"
+              }
+            },
+            "expectation": "v7.4.0/v7.5.0 は独立要求の250と assertTrue の識別力を照合し、例えば200でもtruthyであるという静的に確認できる不一致/識別不能を根拠・location付きで診断する。production failureの実行実証と混同しない。",
+            "id": "static-diagnosis",
+            "versions": [
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "cd0f3ebe756403ead7398eb435eb4e5ae7e9315340123261fdd2de9ffad40843",
+        "seal_sha256": "1974e6bbeb584f2fec9a49a80ed4bfb71e6785ff4e021d35dd4e91a20bedb56d",
+        "sealed_members": 14,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "3cf0382dcc2bf8ee57b23026ee4ad306a0f0a5705ab96da6b3b83d488a8fc073",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "test-report-failure",
+      "category": "failure",
+      "version": "v7.5.0",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-failure--v7.5.0--1/input.json",
+      "input_sha256": "a3dd22edfc464f78c645cd734a7e3dda690cd14ab84990380de7887226f0ef02",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "skill_source_sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "tests/ 全体を静的に報告してください。requirements.md を独立仕様として使用してください。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_weak(self):\n        self.assertTrue(quote(6, True))\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "`tests/` 全体を静的に確認しました。テストは1件で、`quote(6, True)` の戻り値が真と評価されることだけを確認しています。独立仕様が要求する金額250そのものは確認しておらず、誤った正の金額も通し得ます。テスト・実装・CIは実行していません。\n\n対象と観測範囲\n\n対象は使い捨てfixtureの `/workspace/quality-stage/workspace`、HEADは `7168056e66605d121f95e764eb46b7f597cc917b` です。作業ツリーはcleanでした。originは設定されていないため、fixtureの上流repositoryは特定できません。\n\n`tests/` の解決済み・観測済みファイルはともに `tests/test_app.py` と空の `tests/__init__.py` の2ファイルです。差分・未読memberはありません。テスト本体は `QuoteTest.test_weak` の1件です。対応する実装 `app.py`、独立仕様 `requirements.md`、実行案内 `README.md`、`.gitignore` も読みました。無関係な `material.txt`、`plan.md`、`unrelated.txt` は読んでいません。\n\n仕様の正本には、指定された `requirements.md:2` を使用しました。実装やテストから期待値を逆算していません。READMEはファイル対応とrunnerの案内にのみ使用しました。\n\n仕様とテストの対応\n\n以下の期待観測はすべて `requirements.md:2` に基づきます。「証拠なし」は、全件を読んだ今回の `tests/` 内に対応するassertionが観測されなかった意味です。\n\n| 振る舞いと条件 | 期待する観測 | 対応するCase・実際のassertion | 静的な対応状態 |\n| --- | --- | --- | --- |\n| 正の整数weight、通常配送、weight <= 5 | 戻り値が100。境界の5も100 | 該当Caseなし | 証拠なし |\n| 正の整数weight、通常配送、weight > 5 | 戻り値が200 | 該当Caseなし | 証拠なし |\n| express=True、weight <= 5 | 通常額100に50を加え、150を返す | 該当Caseなし | 証拠なし |\n| express=True、weight > 5 | 通常額200に50を加え、250を返す | C1: weight=6、express=True。`assertTrue(quote(6, True))`（`tests/test_app.py:5-6`） | 入力条件の対応は確定。金額の厳密な一致を観測しない弱いassertion |\n| weightが0以下 | ValueErrorが発生する。0と負値を含む | 該当Caseなし | 証拠なし |\n| quoteの呼び出しに外部作用がない | 金額算出・例外以外の外部作用がない | C1にも外部作用の観測はない | 証拠なし |\n\n通常額の選択とexpressによる加算は別々に成立を判断できる仕様です。C1は「5超」と「express=True」の双方に関係しますが、一つのtruthiness assertionだけであり、両方の正しさを個別に裏づける証拠にはなりません。例えば200を返して加算を省略する場合も、150を返して通常額の区分を誤る場合も真と評価され得ます。他のCaseやassertionによる識別はありません。\n\n仕様の入力領域は正の整数です。非整数をどう扱うかは定義されていないため、型拒否の期待値やテスト不足を追加していません。金額の区分、加算、0以下の拒否、外部作用なしという明記された意味については、上表で観測すべき違いを導出できました。これは期待観測の導出についての判断であり、テストの十分性や実装の動作成功を意味しません。\n\n全テストの詳細\n\nC1は `QuoteTest.test_weak`（`tests/test_app.py:4-6`）です。`unittest` をimportし、`app.quote` を直接importしています（同ファイル:1-2）。weight=6、express=Trueで呼び出し、その戻り値に `self.assertTrue` を1回適用します。独自fixture、setup、teardown、mock、skip decoratorはありません。対応する証拠E1は同ファイル:6のassertionです。250も200も150もこのassertionでは真と評価されるため、厳密な金額や50の加算を識別できません。戻り値が偽と評価される場合や呼び出しが例外で中断する場合は、テストは正常完了できない構造です。これは静的な読み取りであり、そのような結果を実行で確認したものではありません。\n\n`tests/__init__.py` は空で、追加のCaseやassertionはありません。対応不明な別のEvidenceもありません。\n\nREADME:3の案内は `python3 -m unittest discover -v`、追加依存なしです。C1は `test_` 名のファイル・メソッドと `unittest.TestCase` を使用しており、読んだ範囲に静的な除外・skip条件はありません。runner/configの別ファイルはfixtureのファイル一覧では観測されませんでした。実行可能な構造として対応づけていますが、実行環境の可用性・discover成功・PASSは確認していません。今回の状態は「未実行」であり、「skipされた」「実行失敗した」とは異なります。\n\n実装との照合\n\n`app.py:2-3` はweightが0以下ならValueErrorを送出し、:4はweight <= 5なら100、それ以外なら200を選び、:5はexpressが真なら50を加えます。指定された整数入力とexpressの条件について、読んだ式は仕様の分岐・計算に整合しています。関数内に外部呼び出しや書き込みは見当たりません。ただし、これらはソース上の観測です。テストがそれを検証しているという意味でも、実行による正しさの保証でもありません。\n\n確認対象として選べる指摘\n\n- D1／静的に確認済み：C1の金額assertionの識別力不足。根拠は `requirements.md:2` の250という期待値と `tests/test_app.py:6` のtruthiness確認の差です。weight=6、express=Trueで、通常額の誤選択や50の加算漏れによる正の戻り値を見逃し得ます。次に確認する対象は、この条件で戻り値250そのものと誤った金額を区別できるかです。現行実装が誤っている、または実際に失敗したという指摘ではありません。\n- D2／静的に確認済み：通常配送の両区分、境界5、5以下のexpress、0以下のValueErrorに対応するCase・assertionが今回の `tests/` にはありません。根拠は `requirements.md:2` と全テストの観測です。境界の取り違え、通常配送の誤額、軽量expressの誤額、0や負値の受け入れをテストで識別する証拠が欠けています。次に確認する対象はこれらの仕様条件ごとの観測です。\n- D3／静的に確認済みの証拠不足：外部作用なしという要求に対応する観測がありません（`requirements.md:2`、`tests/test_app.py:6`）。C1が金額と無関係な外部作用を見逃す可能性はありますが、現行実装に外部作用があるという証拠はありません。次に確認する対象は、仕様の外部作用禁止をどの観測で裏づけるかです。\n\n追加の実行依存の不具合仮説を、確認済みの問題としては挙げていません。報告は静的範囲で完了しており、実行・修復への自動移行は行っていません。source、test、configは変更していません。\n\n実際に読んだ固定Skill・参照\n\n以下はすべて `/workspace/quality-stage/distribution/plugins/codex/` 配下です。\n\n- `skills/test-report/SKILL.md`\n- `references/model-construction.md`\n- `references/agentic-model-construction.md`\n- `references/verification-topology.md`\n- `references/behavior-model-observation.md`\n- `skills/test-report/references/observation-and-diagnosis.md`\n- `references/human-facing-projection.md`\n\n作業指示として `/workspace/quality-stage/prompt.txt` も読みました。fixture内で実際に内容を読んだファイルは前述の `requirements.md`、`tests/test_app.py`、`tests/__init__.py`、`app.py`、`README.md`、`.gitignore` です。\n\n使用した静的確認コマンドは `cat`、`nl -ba`、`rg --files`（hiddenを含む一覧確認も実施）、`git rev-parse --show-toplevel`、`git rev-parse HEAD`、`git status --porcelain=v1 --untracked-files=all`、`git remote get-url origin` です。最後のコマンドは `No such remote 'origin'` を返しました。固定参照ファイルの所在確認にも `rg --files` を使いました。テスト、target code、CI、ネットワーク操作、依存追加はfixture作業中に行っていません。実行結果がない点とorigin未設定が観測上の限界です。\n",
+      "response_sha256": "0e701efa6f2329eea037731c350c62a43d6e7cf20f6e68aebd54a51447e99894",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "delivered",
+        "reason": "Requested bounded output delivered; inspect judgment for scope or evidence limits."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Accurately maps the sole quote(6, True) call to truthiness assertion and independent requirement value 250 with code locations, complete scoped test membership and explicit nonexecution.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "static-diagnosis": {
+            "result": "pass",
+            "reason": "Uses independent expected amount 250 to diagnose truthiness discrimination gap at a concrete assertion location; distinguishes static acceptability of wrong truthy values from observed production/test execution failure.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Useful accurate static report of weak truthiness assertion, grounded independently in requirements and source locations, with unexecuted runtime status explicit. Applicable version responsibility retained: topology-only v7.3.7, static diagnosis in later versions.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 14 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Useful accurate static report of weak truthiness assertion, grounded independently in requirements and source locations, with unexecuted runtime status explicit. Applicable version responsibility retained: topology-only v7.3.7, static diagnosis in later versions.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/tests/test_app.py",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "quote(6, True) を呼ぶ Case と truthiness assertion、その仕様・コード位置との対応、観測 scope と未実行を報告する。品質診断の要否は版別観測に従う。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.4.0": {
+                "path": "skills/test-report/references/observation-and-diagnosis.md",
+                "quote": "静的に確認できた問題は、要求・条件と assertion / config の具体的な不一致や識別不能を、観測範囲と成立条件を伴って示します。実行時の失敗・成功や production defect の実証へ拡張しません。",
+                "sha256": "03b7be659e6132b4d321d6fa7f52214b3d56f2aea698c2416be297fcc147b1a5"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/references/observation-and-diagnosis.md",
+                "quote": "静的に確認できた問題は、要求・条件と assertion / config の具体的な不一致や識別不能を、観測範囲と成立条件を伴って示します。実行時の失敗・成功や production defect の実証へ拡張しません。",
+                "sha256": "03b7be659e6132b4d321d6fa7f52214b3d56f2aea698c2416be297fcc147b1a5"
+              }
+            },
+            "expectation": "v7.4.0/v7.5.0 は独立要求の250と assertTrue の識別力を照合し、例えば200でもtruthyであるという静的に確認できる不一致/識別不能を根拠・location付きで診断する。production failureの実行実証と混同しない。",
+            "id": "static-diagnosis",
+            "versions": [
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "dd559aec7c8b9a35e9528a67003e87a60fb828998da32c2ff88f17e357dd22e0",
+        "seal_sha256": "a446de5f3c94c08ffa990d3fe0ceeb3f34aed863044ea7dfb5155c0b43d1bd79",
+        "sealed_members": 14,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "a3dd22edfc464f78c645cd734a7e3dda690cd14ab84990380de7887226f0ef02",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "test-report-ambiguous",
+      "category": "ambiguous",
+      "version": "v7.3.7",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-ambiguous--v7.3.7--1/input.json",
+      "input_sha256": "1488a787fcd9e76d6c0224fa42c2e95850946e37f56d258c035094c32893ff5f",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "886e919a16ff6d318ed824ab53e8335362261c95",
+      "skill_source_sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "テストを報告してください。requirements.md は削除済みで、README は操作方法しか記しません。テストの期待値の正しさを保証する独立資料はありません。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 要求未提供\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "静的に確認した範囲では、配送料を求める `quote` に対し、通常料金、重量の境界、速達加算、無効な重量の4つのシナリオが記述されています。ただし、期待値の正しさを裏づける独立した仕様がないため、要求される振る舞いから期待される観測結果を導き、各テストと対応づけるところまでは確定できません。\n\n対象は `tests/test_app.py` の全4テストと、呼び出し先の `app.py:1–5` です。`tests/__init__.py` は空でした。ファイル一覧からこの範囲を決め、対象ファイルをすべて静的に読みました。これは確認したテスト範囲の説明であり、必要なテストが網羅されているという判断ではありません。\n\n| テストに記述されたシナリオ | 記述されている観測内容 | 根拠位置 |\n| --- | --- | --- |\n| 通常の重量で料金を求める | `quote(3)` の戻り値が `100` であることを照合 | `tests/test_app.py:5–6` |\n| 重量の境界をまたぐ2入力を比較する | `quote(5)` は `100`、`quote(6)` は `200` と照合。この2つの照合を同じ境界シナリオとして保持 | `tests/test_app.py:7–9` |\n| 重量6で速達を指定する | `quote(6, True)` の戻り値を `250` と照合。重量6の通常料金との比較材料は境界シナリオにもあるが、速達指定のテスト自体は差額を直接照合していない | `tests/test_app.py:8–11` |\n| 重量0を渡す | `quote(0)` が `ValueError` を送出することを照合 | `tests/test_app.py:12–14` |\n\nこれらはテストに書かれた条件と照合内容です。正しい業務上の期待結果として採用したものではありません。実装には、重量が0以下なら例外、5以下なら基本額100、それ以外なら200、速達指定なら50を加算する処理があります（`app.py:2–5`）。この記述も実装の現状であり、要求の正しさを保証する根拠にはしていません。\n\n`README.md:2–3` は仕様の参照先と検証コマンドを示しますが、料金の規則は定義していません。`requirements.md` はファイルとして存在するものの、内容は「要求未提供」という見出しだけです。`plan.md:1–4` は承認前のREADME追記案であり、料金規則の確定資料ではありません。`material.txt:1` には処理順と0以下の例外が記されていますが、仕様としての権威や独立した出典は確認できません。ユーザーからも独立資料がないと示されているため、これらを使って期待値を正当化していません。\n\nしたがって、各シナリオとコード上の照合箇所は追跡できますが、要求される振る舞い・期待される観測結果との対応は未解決です。独立した根拠から期待される観測結果の集合を確定できないので、「対応するテストがない」という判定も行いません。資料不足をユーザーの選択や推測で補わず、ここまでを限定した報告とします。\n\nテスト、実装、CIは実行していません。静的には `unittest.TestCase` の4つの `test_` メソッドで、対象ファイル内にskip指定はありません。READMEのコマンドは `python3 -m unittest discover -v` ですが、実行環境での収集・実行可否や成否は未確認です。品質、十分性、カバレッジの評価や改善提案は行っていません。fixtureのファイル変更もありません。\n\n実際に読んだfixtureは `app.py`、`tests/test_app.py`、`tests/__init__.py`、`README.md`、`requirements.md`、`plan.md`、`material.txt`、`.gitignore` です。静的確認に使ったコマンドは `rg --files -g '!node_modules' -g '!.git' .`、`rg --files --hidden -g '!.git' -g '!node_modules'`、各ファイルへの `nl -ba` です。\n\n使用した固定Skillは `/workspace/quality-stage/distribution/plugins/codex/skills/test-report/SKILL.md`。実際に読んだ固定参照は同distributionの `plugins/codex/references/` 配下の `model-construction.md`、`agentic-model-construction.md`、`behavior-model-observation.md`、`verification-topology.md`、`human-facing-projection.md` です。Skillと参照は `cat` で読みました。\n",
+      "response_sha256": "d637b1fd94dd036687b83e855dbffee5ecc56725f94d1b0d02b64558ee147a56",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "qualified-or-clarification",
+        "reason": "Unresolved authority, target, intention or independent requirements retained; quality judged against appropriate bounded report/stop."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Preserves literal four-method/five-check test evidence with source locations, but does not self-justify expected tariff values using those tests or matching implementation. Correctly recognizes requirements placeholder and unresolved authoritative grounding.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "topology-only": {
+            "result": "pass",
+            "reason": "Reports static Case/Evidence details, implementation correspondence and missing independent expected-observation grounding without quality/coverage/improvement verdicts.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Accurate bounded partial static report: preserves observed test content while keeping correctness, requirements coverage and authoritative expectations unresolved. Independent specification absence is not filled by circular test/implementation reasoning; no unauthorized changes.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 14 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Accurate bounded partial static report: preserves observed test content while keeping correctness, requirements coverage and authoritative expectations unresolved. Independent specification absence is not filled by circular test/implementation reasoning; no unauthorized changes.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/tests/test_app.py",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py",
+            "cloud/result/artifacts/README.md"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "テストから仕様を自己正当化せず、取得済み evidence と grounding の不足を残す。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "- test quality / sufficiency / coverage の評価、改善提案、remediation",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              }
+            },
+            "expectation": "静的 topology と限界を返し品質診断・改善提案をしない。",
+            "id": "topology-only",
+            "versions": [
+              "v7.3.7"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "8e5478f19a9ae472f4c64f5c413b042efe7a44c213e3739194a4d8b0dcc71c8a",
+        "seal_sha256": "fa925207a5276a0bc21b2420022cbfcc1b749a2b33ceaed90cfc4f98ab97c812",
+        "sealed_members": 14,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "1488a787fcd9e76d6c0224fa42c2e95850946e37f56d258c035094c32893ff5f",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "test-report-ambiguous",
+      "category": "ambiguous",
+      "version": "v7.4.0",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-ambiguous--v7.4.0--1/input.json",
+      "input_sha256": "9f4f22935ab8db72641eb5fa3285efa3ec4fa16468d428c5fc76b09595013991",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "7578104046e97bc93d8cddffb882983827db3b0f",
+      "skill_source_sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "テストを報告してください。requirements.md は削除済みで、README は操作方法しか記しません。テストの期待値の正しさを保証する独立資料はありません。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 要求未提供\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "テストの静的な報告です。4つのテストメソッドに、5つの入力場面を確認しました。実行はしていないため、合否は未確認です。独立した要求資料がないため、各テストの期待値が正しいか、必要な振る舞いを網羅しているかは判定できません。\n\n対象は `/workspace/quality-stage/workspace`、観測時の HEAD は `4d316ede58a563dfd713c26c5aa231b567285329` です。`git status --porcelain=v1 --untracked-files=all` の出力は空でした。対象範囲は、README が示す `tests/test_app.py` 全体と、その対象実装 `app.py` です。テスト4メソッド、実装の `quote`、`tests/__init__.py`、README、要求資料の参照先、`.gitignore` をすべて読みました。この解決済み範囲に未読のメンバーはありません。\n\nREADME の2行目には仕様の参照先が残っていますが、実際の `requirements.md:1` は `# 要求未提供` の1行のみでした。要求本文はありません。README の3行目にある実行方法は `python3 -m unittest discover -v`、追加依存なしです。観測したファイル一覧には専用のランナー設定・CI設定はありません。テストには skip 指定や条件付き選択は見られませんが、ランタイムでの発見・実行可能性は検証していません。\n\n観測したテストの詳細は次のとおりです。ここでいう期待値は「テストに書かれた値」であり、独立した仕様から導いた期待結果ではありません。\n\n| 場面・参照ID | 条件と実際の assertion | 実装の静的な観測 | 根拠 |\n| --- | --- | --- | --- |\n| C1 通常扱いの入力 | `quote(3)` が `100` と等しいことを確認 | 既定の `express=False` で、`weight <= 5` の基本料金100に加算0 | `tests/test_app.py:5-6`、`app.py:1-5` |\n| C2 閾値上の入力 | `quote(5)` が `100` と等しいことを確認 | 実装の `weight <= 5` の側に入る | `tests/test_app.py:7-8`、`app.py:4-5` |\n| C3 閾値を越えた入力 | `quote(6)` が `200` と等しいことを確認 | 実装の基本料金200の側に入る | `tests/test_app.py:7,9`、`app.py:4-5` |\n| C4 速達指定 | `quote(6, True)` が `250` と等しいことを確認 | 基本料金200に50を加算する | `tests/test_app.py:10-11`、`app.py:4-5` |\n| C5 ゼロ入力 | `quote(0)` で `ValueError` が発生することを確認 | `weight <= 0` で `ValueError(\"positive weight required\")` を送出する | `tests/test_app.py:12-14`、`app.py:2-3` |\n\nC2とC3は1つの `test_boundary` にある別々の意味的な場面です。C1〜C4は戻り値の等値比較、C5は例外型の確認です。C5は例外メッセージを照合しません。各入力では、assertion に書かれた値・例外型と実装の分岐に静的な整合が見られます。ただし、これは実行による成功の実証でも、料金規則の正当性の保証でもありません。\n\n要求とテストの対応については、C1〜C5をすべて参照可能な証拠として保持します。一方、料金100・200、閾値5、速達加算50、非正数での例外という候補はいずれもテスト・実装から観測したもので、独立した要求に根拠付けできません。このため、確定した要求上の振る舞いと期待結果を作らず、それらと各ケースの対応は未確定とします。「必要なテストがない」という要求上の欠落判定も行いません。テスト件数を網羅率に換算することもできません。\n\n判断に使える指摘は次の3点です。\n\n- D1【判断材料不足】期待値を正当化する要求がありません。根拠はユーザーの説明、`requirements.md:1`、操作方法と参照先のみの `README.md:2-3` です。料金、閾値、加算、入力制約が実際の要求と違っていても、テストと実装が同じ値を採用しているだけでは見分けられません。次に確かめる対象は、それぞれの規則について権限のある要求根拠です。今回は取得できないため、正否の判定を保留します。\n- D2【静的に確認した観測範囲の限界】C5が直接確認するのはゼロ入力での例外型だけです。負数の入力、例外メッセージは、この観測済みテスト群では直接 assert されていません。実装は負数も同じ分岐に含めますが、その振る舞いを要求として採用する根拠はありません。負数やメッセージについて何を保証する必要があるかを要求側で確認するまでは、テスト不備・実装不具合とは断定できません。\n- D3【静的に確認した観測範囲の限界】速達指定の assertion は重量6の1場面です。重量5以下と速達指定の組合せを直接確認する assertion は、このテスト群にはありません。実装の基本料金100の側でも加算が正しい必要があるかは独立資料から確定できず、要求上のカバレッジ不足とは判定できません。次に確かめる点は、重量と速達の組合せに対する要求です。\n\n今回、実行時の失敗や製品不具合を確認した指摘はありません。未実行、要求根拠不足、要求との対応未確定は別の制約として残ります。スキップされたテストや実行失敗を観測したわけではありません。追加の回答を仮定せず、得られた証拠に基づく部分報告として終了します。実行・修正は行っていません。\n\n実際に読んだ固定 Skill と参照資料（すべて `/workspace/quality-stage/distribution/plugins/codex/` 配下）:\n\n- `skills/test-report/SKILL.md`\n- `references/model-construction.md`\n- `references/agentic-model-construction.md`\n- `references/verification-topology.md`\n- `skills/test-report/references/observation-and-diagnosis.md`\n- `references/human-facing-projection.md`\n\n読んだ作業資料は `README.md`、`requirements.md`、`app.py`、`tests/test_app.py`、空の `tests/__init__.py`、`.gitignore` です。範囲外の `material.txt`、`plan.md`、`unrelated.txt` は読んでいません。\n\n使用した観測コマンドは、固定 Skill・参照資料の `cat`、作業資料の `nl -ba`、ファイル一覧の `rg --files`（隠しファイル一覧を含み、`.git`・`.codex`・`.agents` 配下を除外）、`git rev-parse --show-toplevel`、`git rev-parse HEAD`、`git status --porcelain=v1 --untracked-files=all` です。テスト、対象コード、CIは実行していません。\n",
+      "response_sha256": "3f4e55310b23d9365ca1badc6ba03448b890bad9115e3891e46c19a781c743fc",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "qualified-or-clarification",
+        "reason": "Unresolved authority, target, intention or independent requirements retained; quality judged against appropriate bounded report/stop."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Preserves literal four-method/five-check test evidence with source locations, but does not self-justify expected tariff values using those tests or matching implementation. Correctly recognizes requirements placeholder and unresolved authoritative grounding.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "static-diagnosis": {
+            "result": "pass",
+            "reason": "Provides complete scoped test details, distinguishes static implementation/test agreement from correctness, diagnoses missing authoritative grounding and unobserved execution without fabricating requirement gaps or production defects.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Accurate bounded partial static report: preserves observed test content while keeping correctness, requirements coverage and authoritative expectations unresolved. Independent specification absence is not filled by circular test/implementation reasoning; no unauthorized changes.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 14 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Accurate bounded partial static report: preserves observed test content while keeping correctness, requirements coverage and authoritative expectations unresolved. Independent specification absence is not filled by circular test/implementation reasoning; no unauthorized changes.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/tests/test_app.py",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py",
+            "cloud/result/artifacts/README.md"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "テストから仕様を自己正当化せず、取得済み evidence と grounding の不足を残す。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "Topology と観測した要求・test・source・config の根拠を照合し、静的に確認できた問題、実行確認が必要な疑い、判断材料の不足を区別します。各指摘に選択用の識別子、確認状態、根拠と location、見逃しうる問題、次に確認する点を残します。診断は `references/observation-and-diagnosis.md` に従い、静的診断を runtime 実証として扱いません。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "Topology と観測した要求・test・source・config の根拠を照合し、静的に確認できた問題、実行確認が必要な疑い、判断材料の不足を区別します。各指摘に選択用の識別子、確認状態、根拠と location、見逃しうる問題、次に確認する点を残します。診断は `references/observation-and-diagnosis.md` に従い、静的診断を runtime 実証として扱いません。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "全観測範囲の詳細と根拠付き静的診断、実行が必要な疑い、材料不足を分ける。",
+            "id": "static-diagnosis",
+            "versions": [
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "cfe329f40bf773e59c31f1b1982e6e1b0ce060ddc04d9035b37be4c6e53b23b5",
+        "seal_sha256": "59e8103a2cecb7811945fdd7a834b0a8c5049f4066cbf1851ddff6c289d96345",
+        "sealed_members": 14,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "9f4f22935ab8db72641eb5fa3285efa3ec4fa16468d428c5fc76b09595013991",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "test-report-ambiguous",
+      "category": "ambiguous",
+      "version": "v7.5.0",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/test-report-ambiguous--v7.5.0--1/input.json",
+      "input_sha256": "6c2da053bae6881a3a54298803d183a044c1ce3c63067ecc0407d086c63a6ee6",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "skill_source_sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "テストを報告してください。requirements.md は削除済みで、README は操作方法しか記しません。テストの期待値の正しさを保証する独立資料はありません。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 要求未提供\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {},
+      "response": "静的に確認した範囲では、テストは4メソッド・5チェックです。各チェックは現在の実装の分岐と整合しています。ただし、期待値を正当化する独立した仕様がないため、配送料の正しさ、要求への適合、テストの網羅性は判定できません。テストは実行していません。\n\n対象と観測範囲\n\n対象は作業用リポジトリ /workspace/quality-stage/workspace、観測した HEAD は 61c30bddb40a11c3e8ac298674568802f351f467 です。git status --porcelain=v1 --untracked-files=all の出力は空でした。\n\nREADME.md:2 が指定する tests/test_app.py 全体と app.py 全体、テストのパッケージ初期化ファイル tests/__init__.py、要求の参照先 requirements.md、実行案内 README.md を読みました。解決した対象と実際に読んだ対象は一致し、対象内の未読ファイルはありません。tests/__init__.py は空です。README.md:3 の案内は python3 -m unittest discover -v、追加依存なしです。実行案内以外の runner / CI 設定は確認しておらず、テストの実行結果や実環境での実行可能性は未確認です。\n\nユーザーの説明では要求は削除済みです。実際の requirements.md:1 は「# 要求未提供」のみでした。README.md:2 の仕様参照先には実質的な仕様がありません。実装やテスト自身を、期待値の正しさを保証する仕様として扱いません。\n\n観測したシナリオとチェックの詳細\n\n以下の「期待」は、テストに書かれた比較値・例外条件を指します。独立した要求から導いた Expected Observation ではありません。\n\n| ID | シナリオ候補・条件 | 実際のチェックと根拠 | 対応する実装の静的観測 |\n| --- | --- | --- | --- |\n| C1 | 通常配送候補、weight=3、express を省略 | tests/test_app.py:5–6 の test_normal。quote(3) が 100 と等しいことを assertEqual で確認する | app.py:1 の既定値は False。app.py:2–5 では 3 は正数かつ5以下なので base=100、加算は0となる |\n| C2 | 重量区分の境界候補、weight=5 と6、express を省略 | tests/test_app.py:7–9 の test_boundary。同一シナリオを支える2つの Evidence として quote(5)==100、quote(6)==200 を確認する | app.py:4 の weight <= 5 の両側に対応し、app.py:5 の加算はいずれも0となる |\n| C3 | express 指定候補、weight=6、express=True | tests/test_app.py:10–11 の test_express。quote(6, True)==250 を確認する | app.py:4 の base=200 と app.py:5 の加算50を合算した最終値に対応する。基本料金と加算額を別々に assert しているわけではない |\n| C4 | 無効入力候補、weight=0 | tests/test_app.py:12–14 の test_invalid。quote(0) が ValueError を送出することを assertRaises で確認する | app.py:2–3 の weight <= 0 の分岐に対応する。例外メッセージの内容はチェックしていない |\n\n全4メソッドには unittest の test_ 接頭辞があり、読んだコード内に skip 指定はありません。ただし、これは静的な選択条件の観測です。今回の実行状態は全件「未実行」であり、PASS、FAIL、実行時 skip のいずれも記録していません。\n\n独立した根拠との対応\n\n上表のシナリオ候補は、対象テストと実装から発見したものです。料金区分、境界値5、express の加算50、無効重量の定義を確定する独立した要求・Context は取得できませんでした。このため、要求に根拠を置く Behavior と Expected Observation を確定できず、それらと C1–C4 の意味的な対応も未確定です。5つのチェックは観測した Case / Evidence としてすべて保持しました。\n\n要求に対して「対応テストなし」「要求を網羅」「期待値が正しい」とは結論しません。対象テスト内には、負の重量、5以下での express、例外メッセージのチェックは記述されていませんが、これらを必須の未充足要求とする根拠もありません。未読、未実行、skip、対応不明、要求に対する証拠不足は別の状態です。本件は読了した範囲で、実行は未実施、要求との対応は根拠不足により未確定です。\n\n診断と次の確認点\n\nD1：期待値の正当性を判定する材料の不足。requirements.md:1、README.md:2 とユーザーの説明から、独立した仕様がないことを確認しました。C1–C4 の全期待に影響します。実装とテストが同じ誤った料金規則を共有していても、両者の一致だけでは見分けられません。これは製品の不具合を確認したという判定ではありません。次に必要なのは、基本料金、重量境界、express、無効入力に関する承認済みの要求根拠です。現状ではそれを推測して補いません。\n\nD2：実行結果の未確認。今回の作業は静的な報告の範囲で、テスト、対象コード、CI を実行していません。コード上の整合性から実際の成功を断定することはできません。実行時の import、テスト発見、環境に依存する失敗を確認していないため、必要であれば別途、明示的に許可された検証で確認する対象です。これは実行や修復の開始を意味しません。\n\n独立した仕様との具体的な不一致は判定できず、静的に製品不具合が確認できたという指摘はありません。ソース・テスト・設定は変更していません。\n\n実際に読んだファイルと使用コマンド\n\n固定 Skill：/workspace/quality-stage/distribution/plugins/codex/skills/test-report/SKILL.md。\n固定参照：/workspace/quality-stage/distribution/plugins/codex/references/ 配下の model-construction.md、agentic-model-construction.md、verification-topology.md、human-facing-projection.md、および /workspace/quality-stage/distribution/plugins/codex/skills/test-report/references/observation-and-diagnosis.md。\n入力指示：/workspace/quality-stage/prompt.txt。\nfixture：/workspace/quality-stage/workspace/ 配下の README.md、requirements.md、tests/__init__.py、tests/test_app.py、app.py。\n\nfixture の観測には rg --files -g '!node_modules' -g '!.git' -g '!vendor' -g '!dist' .、上記5ファイルへの nl -ba、git rev-parse --show-toplevel、git rev-parse HEAD、git status --porcelain=v1 --untracked-files=all を使用しました。Skill と参照・入力指示は cat で読みました。material.txt、unrelated.txt、plan.md はファイル名のみ列挙され、内容は読んでいません。外部資料の取得、サブエージェント、テスト実行、依存追加、修復は行っていません。\n",
+      "response_sha256": "950f84d52891fd17ca5d21c27ca3c51422691cd3cdc97e28b1ccf9f49cf1ce60",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "qualified-or-clarification",
+        "reason": "Unresolved authority, target, intention or independent requirements retained; quality judged against appropriate bounded report/stop."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "parent-observed terminal completed"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Preserves literal four-method/five-check test evidence with source locations, but does not self-justify expected tariff values using those tests or matching implementation. Correctly recognizes requirements placeholder and unresolved authoritative grounding.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "static-diagnosis": {
+            "result": "pass",
+            "reason": "Provides complete scoped test details, distinguishes static implementation/test agreement from correctness, diagnoses missing authoritative grounding and unobserved execution without fabricating requirement gaps or production defects.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Accurate bounded partial static report: preserves observed test content while keeping correctness, requirements coverage and authoritative expectations unresolved. Independent specification absence is not filled by circular test/implementation reasoning; no unauthorized changes.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/README.md",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 14 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Accurate bounded partial static report: preserves observed test content while keeping correctness, requirements coverage and authoritative expectations unresolved. Independent specification absence is not filled by circular test/implementation reasoning; no unauthorized changes.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/tests/test_app.py",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/app.py",
+            "cloud/result/artifacts/README.md"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.3.7": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  静的観測から Verification Topology を再構成し、実行・品質評価・remediation を行わず適応的に報告する。",
+                "sha256": "abdfb853ab8a5191473c3e0d22b3d91989c29b7c2be9deedef56a7300798c1cb"
+              },
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "  指定範囲の全体像と振る舞い別詳細、根拠付きの静的診断、未確定事項を報告し、検証・修復する対象の判断を支える。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "テストから仕様を自己正当化せず、取得済み evidence と grounding の不足を残す。",
+            "id": "responsibility",
+            "versions": [
+              "v7.3.7",
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          },
+          {
+            "basis": {
+              "v7.4.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "Topology と観測した要求・test・source・config の根拠を照合し、静的に確認できた問題、実行確認が必要な疑い、判断材料の不足を区別します。各指摘に選択用の識別子、確認状態、根拠と location、見逃しうる問題、次に確認する点を残します。診断は `references/observation-and-diagnosis.md` に従い、静的診断を runtime 実証として扱いません。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              },
+              "v7.5.0": {
+                "path": "skills/test-report/SKILL.md",
+                "quote": "Topology と観測した要求・test・source・config の根拠を照合し、静的に確認できた問題、実行確認が必要な疑い、判断材料の不足を区別します。各指摘に選択用の識別子、確認状態、根拠と location、見逃しうる問題、次に確認する点を残します。診断は `references/observation-and-diagnosis.md` に従い、静的診断を runtime 実証として扱いません。",
+                "sha256": "3cf44ca5bdfcf1be6832051cb4c3095bb944fa0b2ddb71a9337eca56f22ed8a0"
+              }
+            },
+            "expectation": "全観測範囲の詳細と根拠付き静的診断、実行が必要な疑い、材料不足を分ける。",
+            "id": "static-diagnosis",
+            "versions": [
+              "v7.4.0",
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "12e1080dedd12634a603ccb8308df5e49f2585c8044a39409dc0379dcd3e2cb0",
+        "seal_sha256": "0209a8537a0e36c6134d1ed317ee58aed6f127da4fda3368d3657951d56c2bcf",
+        "sealed_members": 14,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "6c2da053bae6881a3a54298803d183a044c1ce3c63067ecc0407d086c63a6ee6",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    }
+  ],
+  "unsupported_cells": [],
+  "comparison": {
+    "result": "single-trial-no-regression-established",
+    "summary": "All versions preserve scoped static evidence and unresolved grounding. v7.3.7 topology-only and later static diagnosis are intended version differences, not a comparative failure.",
+    "scope": "Boundary/failure/ambiguous fixed cases; independent observable response/artifact quality, not causal model or skill-version superiority."
+  },
+  "limitations": [
+    "Full substantive responses are preserved exactly as collected in sealed bundles. Internal task IDs, Library IDs, parent local paths and private URLs are omitted from this export. Public skill-role names and disposable fixture paths within the substantive response are retained.",
+    "Hidden operations, effective model/effort, original reviewer/gate execution, isolation and cost remain unverified. Unknown internals do not prevent observable quality assessment.",
+    "Output-quality PASS is not PASS on every criterion. Expected missing capability or authority may properly leave the underlying task blocked or qualified; proven scope violations remain separate failures.",
+    "One initial trial per cell detects potential issues only; no statistical significance or causal superiority claim. No additional trials were run by the judge."
+  ]
+}
