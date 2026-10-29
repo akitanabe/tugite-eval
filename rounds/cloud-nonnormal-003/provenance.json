@@ -1,0 +1,13 @@
+{
+  "change_reason": "Mechanical selection of already-public synthetic definitions; no fixture, prompt, expectation or version change.",
+  "scope": "Preparation only; no real trials, private logs, conversation, or evaluation outputs are included.",
+  "selection": [
+    "boundary",
+    "failure",
+    "ambiguous"
+  ],
+  "source_path": "evals/corpus.json",
+  "source_revision": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+  "source_sha256": "07a4edfabdae5cfbd2f2352623d19e9940c7d23e944b7f1e4e4f9ab188845def",
+  "source_url": "https://github.com/akitanabe/tugite-eval/blob/19f0126119a59c93ea5acf2eac31bbf603f99cab/evals/corpus.json"
+}

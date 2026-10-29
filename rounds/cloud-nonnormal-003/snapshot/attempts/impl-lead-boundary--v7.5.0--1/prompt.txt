@@ -1,0 +1,3 @@
+Use $impl-lead by reading /workspace/tugite-eval/.local/eval-rounds/cloud-nonnormal-003/distributions/v7.5.0/plugins/codex/skills/impl-lead/SKILL.md. Resolve its references against that distribution. Available custom agents are installed in .codex/agents. This is a fresh invocation. Work only inside the supplied disposable repository. No remote/network/push authority. Do not install dependencies.
+
+plan.md の説明例追加を実行してください。実装対象は README.md のみ。担当方式は利用可能な担当から選択してください。現在の使い捨て checkout を使用しローカル commit を許可します。依存追加は対象外。

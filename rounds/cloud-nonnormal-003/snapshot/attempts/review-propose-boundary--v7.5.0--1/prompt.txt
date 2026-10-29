@@ -1,0 +1,3 @@
+Use $review-propose by reading /workspace/tugite-eval/.local/eval-rounds/cloud-nonnormal-003/distributions/v7.5.0/plugins/codex/skills/review-propose/SKILL.md. Resolve its references against that distribution. Available custom agents are installed in .codex/agents. This is a fresh invocation. Work only inside the supplied disposable repository. No remote/network/push authority. Do not install dependencies.
+
+plan.md の1ファイルだけの小さな案をレビューしてください。意味のある変更がなければ維持推奨で構いません。

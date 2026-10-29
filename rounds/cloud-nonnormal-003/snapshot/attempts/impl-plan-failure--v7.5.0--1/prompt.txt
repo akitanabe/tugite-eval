@@ -1,0 +1,3 @@
+Use $impl-plan by reading /workspace/tugite-eval/.local/eval-rounds/cloud-nonnormal-003/distributions/v7.5.0/plugins/codex/skills/impl-plan/SKILL.md. Resolve its references against that distribution. Available custom agents are installed in .codex/agents. This is a fresh invocation. Work only inside the supplied disposable repository. No remote/network/push authority. Do not install dependencies.
+
+plan.md を委譲計画へ具体化してください。実行環境と担当の現在の可用性は未確認です。

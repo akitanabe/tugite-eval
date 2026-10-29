@@ -1,0 +1,37 @@
+{
+  "additional_trials": "only for disagreement, with preregistered reason; maximum5",
+  "assessment_scope": "independent output/artifact quality; internal compliance remains indeterminate without observation",
+  "completion_requirements": [
+    "fixed input/skill SHA/requested model/trial identity",
+    "parent-observed task completion",
+    "recovered response/artifact hash correspondence"
+  ],
+  "execution_permission_failure": "blocked",
+  "input_index": "index.json",
+  "input_index_sha256": "733dd881d10b9c23d0b1ddfc42a85f0de8e10f2fefc72c378e64fc42ba27a2b5",
+  "not_required_for_quality_completion": [
+    "complete tool transcript",
+    "parent pre-run baseline receipt",
+    "effective model telemetry"
+  ],
+  "pilot1": "reference-only; excluded",
+  "prospective": true,
+  "protocol_id": "output-quality-v1",
+  "requested": {
+    "effort": "medium",
+    "model": "gpt-6.1-sol"
+  },
+  "round_id": "70b5ac7c-b596-4452-ad8a-8fedb5d262f3",
+  "rubric_policy": "existing expectations, fixtures, applicable version rubrics and common metric meanings unchanged",
+  "selection": {
+    "blocked_cells": 5,
+    "categories": [
+      "boundary",
+      "failure",
+      "ambiguous"
+    ],
+    "prepared_cells": 43,
+    "trial": 1
+  },
+  "sequence": "normal16cells once first; continuing4skills x3versions ordinarily3trials before comparison; new4skills v7.5.0 attainment; then boundary/failure/ambiguous"
+}
