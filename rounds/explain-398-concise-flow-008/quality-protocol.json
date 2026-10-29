@@ -1,0 +1,12 @@
+{
+  "input_index": "index.json",
+  "input_index_sha256": "dc86829d000e203b1ca727295c537d168721d9536c423cfc630e514997359d31",
+  "protocol_id": "output-quality-v1",
+  "requested": {
+    "effort": "medium",
+    "model": "gpt-6.1-sol"
+  },
+  "round_id": "ccba60f2-624e-4e77-a2bc-028d87a556df",
+  "scope": "Output quality; internal evidence/effective model unknown is a limitation, not a stop.",
+  "semantics_sha256": "6feedc95dc6521490198c2cd8285e2ef672e217140acd0a5631a7d970019cd14"
+}

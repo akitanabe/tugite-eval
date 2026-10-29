@@ -1,0 +1,21 @@
+{
+  "state": "two-candidate-packets-prepared-not-executed",
+  "prospective": true,
+  "candidate_sha": "886b43e8cf7b39ea1d876cdd314213710066e3a2",
+  "selected_cases": [
+    "explain-398-session-flow",
+    "explain-398-infrastructure"
+  ],
+  "sample_count": 2,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "fixed_case_semantics_from_round": "rounds/explain-398-concise-flow-007",
+  "fixed_harness_commit": "d59af57f65ae015bbe829f7cc7528604db90078b",
+  "corpus": "rounds/explain-398-concise-flow-008/corpus.json",
+  "corpus_sha256": "6feedc95dc6521490198c2cd8285e2ef672e217140acd0a5631a7d970019cd14",
+  "allowed_difference": "Source basis quotes and revision/packet identities only.",
+  "iteration_policy": "Parent may continue authorized skill iterations until quality adequate; exactly2 fixed fresh cases for each new candidate, retain all attempts. No automatic full suite, sample selection, causal/model superiority, version update or PR."
+}

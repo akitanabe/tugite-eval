@@ -1,0 +1,16 @@
+{
+  "candidate_sha": "886b43e8cf7b39ea1d876cdd314213710066e3a2",
+  "candidate_tree": "837e818713d203ad9a3b60e81ff6585ab93f6a3f",
+  "fixed_harness_commit": "d59af57f65ae015bbe829f7cc7528604db90078b",
+  "round007_corpus": "cases/explain-398-concise-flow/corpus.json",
+  "round007_corpus_sha256": "ff942b689ca36a4fdca78edcd2875d6440279397516eda21b1218e0c941ab206",
+  "round008_corpus_sha256": "6feedc95dc6521490198c2cd8285e2ef672e217140acd0a5631a7d970019cd14",
+  "corpus_delta": "Only candidate basis.quote for short-implementation-first changed to match the revised source. Prompts, fixture, expectations, metrics and response reporting are identical to round007.",
+  "skill_path": "plugins/codex/skills/explain-this/SKILL.md",
+  "skill_sha256": "790df578ed3af06a70e8d33b7900c93d5a7752fe1c55e7be2ae80eca1f304995",
+  "source_basis_quote": "流れを担う主要な関数・クラス・構造体などを選び、実際の処理順に、識別子を先に置いた短い行で示す。",
+  "preparation_note": "The first unmodified-corpus preparation stopped for the missing historical source quote, before packets or inference. Quote-only correction is recorded; no LLM attempt occurred.",
+  "assessment_scope": "Exactly2 representative fresh tasks per candidate iteration; parent judges quality and may continue authorized skill iterations. Preserve all pairs, no favorable-sample selection.",
+  "attribution_limit": "Relative to round007 the harness prompts/fixtures/criteria are fixed and the skill revision differs. Small unpaired samples, model/runtime unknowns and output variability do not establish causal/model superiority. Relative to round006 the earlier harness changes still apply.",
+  "not_executed": "No actual LLM evaluation, output inspection, scoring or release action."
+}
