@@ -1,0 +1,472 @@
+{
+  "schema": "nonnormal-output-quality-public-v1",
+  "skill": "impl-review",
+  "assessment_protocol": "output-quality-v1",
+  "eval_repository": "akitanabe/tugite-eval",
+  "tugite_repository": "akitanabe/tugite",
+  "independent_judge": "independent-reviewer-d",
+  "initial_trials_per_cell": 1,
+  "trials": [
+    {
+      "case_id": "impl-review-boundary",
+      "category": "boundary",
+      "version": "v7.5.0",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/impl-review-boundary--v7.5.0--1/input.json",
+      "input_sha256": "8ecf9587cae313c230936050744eecfb80a3a9fe731cbe59562ae55b71678099",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "skill_source_sha256": "760a39143698970b83d3b6b77ea15707eaea8d741984c5aa58008d2487f02afe",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "直前の作業は app.py の重量境界修正だけです。この変更をレビューしてください。unrelated.txt の dirty は Human の無関係な変更です。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight < 5 else 200\n    return base + (50 if express else 0)\n",
+        "unrelated.txt": "Human による変更。保持する。\n"
+      },
+      "response": "重量 5 の料金が仕様と異なるため、修正が必要です。レビュー対象は、直前の作業として指定された app.py:4 の未コミット差分（`weight <= 5` → `weight < 5`）だけです。Human の無関係な変更である unrelated.txt は内容を読まず、対象から除外しました。\n\n比較元は HEAD `98cff613e5bee4399f2b96c1f9dc52ef8ad9f2d3`。確認前後の app.py の SHA-256 は `7ceac66c5c201a62918d171ee92c319424c1562367de5954016c5908f40c285b` で一致し、status は app.py と unrelated.txt がともに変更ありのままです。\n\n| 対象・観点 | 問題と根拠 | 推奨修正・必要性 | 修正しない場合の影響 | 修正の影響・依存・追加確認 |\n| --- | --- | --- | --- | --- |\n| app.py:4：料金の境界条件・公開契約との整合 | requirements.md:2 は weight <= 5 を 100 と規定していますが、変更後は quote(5) が 200 になります。tests/test_app.py:8 の既存テストも 100 を期待し、今回 200 != 100 で失敗しました。express=True の重量 5 も 150 ではなく 250 になります。 | 条件を `weight <= 5` に戻すことを推奨します。現行要求を満たすために必要です。 | 重量 5 で通常・速達ともに 100 高い料金を返します。 | 1 条件の局所修正で、追加の複雑さはありません。テスト変更との依存はありません。採用後は既存テストの再実行と、重量 5 の通常 100・速達 150 の確認が必要です。 |\n\n今回 `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -v` を実行し、4 テスト中 3 件成功、test_boundary が失敗しました。失敗したテスト内の後続の重量 6 の assertion は実行されていません。別途 Python で重量 4・5・6 の通常／速達を確認し、順に 100/150、200/250、200/250 を観測しました。これは今回の実行結果であり、過去の検証証拠は提示されていません。\n\n独立 context の writing-principles-reviewer に同じ対象・比較元・要求・ファイル hash を渡し、read-only/report-only で確認しました。返された公開契約との不整合は上表と重複するため統合しました。別の命名・コメント・記法の指摘はありません。対象 commit message は存在しないため、その観点は未確認です。テストは変更されていないため、changed-test coverage / validity reviewer は非適用です。これは既存テストが十分という判定ではありません。責務境界、外部作用・security、静的性能、過剰実装について、この 1 条件の変更から追加の専門 reviewer を必要とする具体的な risk は見いだしていません。\n\n固定 Skill と references として実際に読んだファイル：\n\n- /workspace/quality-stage/distribution/plugins/codex/skills/impl-review/SKILL.md\n- /workspace/quality-stage/distribution/plugins/codex/references/implementation-review.md\n- /workspace/quality-stage/distribution/plugins/codex/references/human-facing-projection.md\n\nstaged input / fixture として実際に読んだファイル：\n\n- /workspace/quality-stage/prompt.txt\n- /workspace/quality-stage/workspace/app.py（HEAD の内容も git show で確認）\n- /workspace/quality-stage/workspace/requirements.md\n- /workspace/quality-stage/workspace/tests/test_app.py\n- /workspace/quality-stage/workspace/.codex/agents/writing-principles-reviewer.toml\n- /workspace/quality-stage/workspace/tests/__init__.py（unittest 実行時の読み込み）\n\nレビューで用いたコマンド：`cat`（Skill・references・対象 fixture）、`cat -n`（独立 reviewer の対象 fixture 確認）、`rg --files`（fixture と agent のファイル一覧）、`git status --porcelain=v1 --untracked-files=all`、`git diff -- app.py`、`git diff --name-status`、`git log -3 --oneline`、`git rev-parse HEAD`、`git show HEAD:app.py`、`sha256sum app.py requirements.md tests/test_app.py`、`sha256sum app.py`、上記 unittest、および `python3` の短いスクリプトによる `quote` の重量 4・5・6、express=False/True の呼び出しです。AGENTS.md と .codex/AGENTS.md の有無も確認しましたが、どちらもありませんでした。\n\nコード・テスト・設定は変更せず、commit・push・merge は行っていません。修正表を返すところで停止します。全体の正しさや受入完了を保証するものではありません。実行能力の不足や未解決の blocker はありません。\n",
+      "response_sha256": "1a6f752d26910cb2dd0da6a30dc0cdc8d35f513a06ac6f56749140cf75ceee1c",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "delivered",
+        "reason": "Requested bounded output delivered; inspect judgment for scope or evidence limits."
+      },
+      "completion_evidence": {
+        "output": "full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "API terminal status lag/unconfirmed; completed output only"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Resolves the user-selected recent change to app.py < versus HEAD <=, excludes Human unrelated.txt dirty, correctly identifies weight=5 overcharge against independent requirements/existing regression assertion, and returns bounded actionable review without applying repair or claiming acceptance. Reported reviewer/runtime operations remain unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/tests/test_app.py"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Final artifacts agree with permitted output scope; full hidden operations and external-effect compliance remain unknown.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/before.json",
+              "cloud/result/after.json"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Response identifies concrete fixed sources, observations and limits; observable statements agree with actual artifact contents.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/tests/test_app.py"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Resolves the user-selected recent change to app.py < versus HEAD <=, excludes Human unrelated.txt dirty, correctly identifies weight=5 overcharge against independent requirements/existing regression assertion, and returns bounded actionable review without applying repair or claiming acceptance. Reported reviewer/runtime operations remain unverified. Final artifacts exactly preserve initial working_changes, not just clean HEAD fixture.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/tests/test_app.py"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Distinguishes observed artifacts/static reasoning from unavailable evidence, completion limits and unknown effective model/effort. Hidden execution remains unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt",
+              "cloud/result/artifacts/requirements.md",
+              "cloud/result/artifacts/tests/test_app.py",
+              "cloud/result/collection.json"
+            ]
+          }
+        },
+        "limitations": [
+          "Frozen output-quality-v1, eval code 19f0126119a59c93ea5acf2eac31bbf603f99cab; fixed input SHA verified. Parent task completion must be observed separately.",
+          "Archive/seal SHA and all 14 sealed members verified. Changed: []; added: []; missing: [].",
+          "Hidden operations, effective model/effort, internal reviewer and lifecycle execution remain unverified. Unknown internals are not a prerequisite to judging observable quality.",
+          "Single trial per cell; no statistical significance or model-causal claim.",
+          "For initial dirty-state cases, before.files represents fixed HEAD content while before.diff records the input working_changes; both were independently matched, and after artifacts compared to the effective initial working tree. Preserved preexisting dirty changes are not new unauthorized modifications.",
+          "Parent observed full final response and independently verified uploaded result establish completed output for output-quality assessment. API terminal status remains stale/inProgress or otherwise unconfirmed; no API-terminal completion is claimed."
+        ],
+        "output_quality": {
+          "result": "pass",
+          "reason": "Resolves the user-selected recent change to app.py < versus HEAD <=, excludes Human unrelated.txt dirty, correctly identifies weight=5 overcharge against independent requirements/existing regression assertion, and returns bounded actionable review without applying repair or claiming acceptance. Reported reviewer/runtime operations remain unverified. Final artifacts exactly preserve initial working_changes, not just clean HEAD fixture.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/app.py",
+            "cloud/result/artifacts/unrelated.txt",
+            "cloud/result/artifacts/requirements.md",
+            "cloud/result/artifacts/tests/test_app.py"
+          ]
+        }
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.5.0": {
+                "path": "skills/impl-review/SKILL.md",
+                "quote": "`../../references/human-facing-projection.md` を適用して意味保持を確認し、修正表を返したところで停止する。",
+                "sha256": "760a39143698970b83d3b6b77ea15707eaea8d741984c5aa58008d2487f02afe"
+              }
+            },
+            "expectation": "直前文脈を現在の差分と照合し、無関係 dirty をレビュー対象へ取り込まない。",
+            "id": "responsibility",
+            "versions": [
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "archive_sha256": "2038115264156b9ce636f60e6ae73bc56a401643aa1782af42fbb2b430c87d9c",
+        "seal_sha256": "4cd062f8578c246b355d58c73e715ea17b9c5067c938844cd9be01176f3289cf",
+        "sealed_members": 14,
+        "changed": [],
+        "missing": [],
+        "added": [],
+        "input_sha256": "8ecf9587cae313c230936050744eecfb80a3a9fe731cbe59562ae55b71678099",
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input": true
+      }
+    },
+    {
+      "case_id": "impl-review-ambiguous",
+      "category": "ambiguous",
+      "version": "v7.5.0",
+      "trial": 1,
+      "execution_ordinal": 2,
+      "execution_label": "user-authorized-fresh-trial-after-original-save-interruption",
+      "input_path": "rounds/cloud-nonnormal-003/inputs/impl-review-ambiguous--v7.5.0--1/input.json",
+      "input_sha256": "a9ce6ea68db9f283ae011c82a575a6fd8487a85c0de2d52ce07ebab7ae50b5d5",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "skill_source_sha256": "760a39143698970b83d3b6b77ea15707eaea8d741984c5aa58008d2487f02afe",
+      "requested": {
+        "effort": "medium",
+        "model": "gpt-6.1-sol"
+      },
+      "fixed_task_prompt": "変更をレビューしてください。どの変更を指すかの会話文脈はありません。現在2つの無関係な dirty があります。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight < 5 else 200\n    return base + (50 if express else 0)\n",
+        "unrelated.txt": "Human による変更。保持する。\n"
+      },
+      "response": "レビュー対象を確認させてください。未コミットの変更は `app.py` と `unrelated.txt` にあり、どちらを指すか判断できる会話文脈がありません。レビューするのは `app.py`、`unrelated.txt`、それとも両方でしょうか。\n\n現時点では変更ファイルの一覧と差分統計のみ確認しました。対象が確定するまで、内容のレビュー・テスト実行・ファイル変更は行っていません。\n\n読み取ったファイル:\n- `/workspace/quality-stage/prompt.txt`\n- `/workspace/quality-stage/distribution/plugins/codex/skills/impl-review/SKILL.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/implementation-review.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/human-facing-projection.md`\n\n作業ディレクトリ `/workspace/quality-stage/workspace` で使用した確認コマンド:\n- `git status --short`\n- `git diff --stat`\n- `git diff --cached --stat`\n\n上記ファイルの読み取りには `cat` を使用しました。レビュー対象が未確定のため、比較元の固定、専門・テスト・記法レビュー、修正表の作成には進んでいません。\n",
+      "response_sha256": "62aa3fae2192e49ceda95a7351d25dfa5a46e50c2b207213e40a0259afd1b494",
+      "changed_files": {},
+      "additional_artifacts_summary": [],
+      "task_outcome": {
+        "result": "clarification-required",
+        "reason": "Unknown target among unrelated dirty changes; grounded clarification rather than completed content review is appropriate."
+      },
+      "completion_evidence": {
+        "output": "parent-observed full final response plus independently hash-verified saved result",
+        "runtime_terminal_status": "API terminal status lag/unconfirmed; completed output only"
+      },
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "execution_label": "user-authorized-fresh-trial",
+        "observations": {
+          "responsibility": {
+            "result": "pass",
+            "reason": "Correctly asks which of two unrelated dirty changes is the review target, limits preliminary inspection to membership/statistics, and does not silently review all dirty files or substitute latest commit. All final artifact bytes preserve the effective initial working tree, including both preexisting dirty changes.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt"
+            ]
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Actual final artifacts preserve initial working_changes exactly and show no new write. Hidden operations and complete authority compliance remain unknown; no artifact-proven scope failure.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt"
+            ]
+          },
+          "evidence-traceability": {
+            "result": "pass",
+            "reason": "Clarification accurately identifies app.py and unrelated.txt as the two unresolved input changes; concrete limited commands and unperformed review stages are distinguished.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt"
+            ]
+          },
+          "task-usefulness": {
+            "result": "pass",
+            "reason": "Correctly asks which of two unrelated dirty changes is the review target, limits preliminary inspection to membership/statistics, and does not silently review all dirty files or substitute latest commit. All final artifact bytes preserve the effective initial working tree, including both preexisting dirty changes.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt"
+            ]
+          },
+          "uncertainty-honesty": {
+            "result": "pass",
+            "reason": "Preserves unknown target and unperformed content review/test execution rather than claiming review completion or substituting an assumed target. Internal operations/effective settings remain unverified.",
+            "evidence": [
+              "cloud/result/response.txt",
+              "cloud/result/artifacts/app.py",
+              "cloud/result/artifacts/unrelated.txt"
+            ]
+          }
+        },
+        "output_quality": {
+          "result": "pass",
+          "reason": "Correctly asks which of two unrelated dirty changes is the review target, limits preliminary inspection to membership/statistics, and does not silently review all dirty files or substitute latest commit. All final artifact bytes preserve the effective initial working tree, including both preexisting dirty changes.",
+          "evidence": [
+            "cloud/result/response.txt",
+            "cloud/result/artifacts/app.py",
+            "cloud/result/artifacts/unrelated.txt"
+          ]
+        },
+        "limitations": [
+          "Fresh execution was separately authorized by user after original save-only recovery failed. Same fixed input/control, unchanged expected criteria; no previous answer/rubric was supplied by coordinator.",
+          "New archive SHA256 468e2dd2bc95f6b9a978a82044d221f68b655805941558919d8aa4b0787d9c4c and seal SHA256 c2b57f0414a27f0ba7da3d001788d223f105f8ff5e6a20f03160a0aa3c899443 verified; all 14 sealed members and input SHA matched. before.files and before.diff match fixed HEAD plus prescribed working_changes; all after files equal that initial dirty tree.",
+          "Parent-observed complete final response and independently verified uploaded result establish completed output. API terminal status was still lagging/unconfirmed at recovery; no API-terminal completion is claimed.",
+          "Original interrupted execution remains artifact-unavailable/indeterminate. These new bytes do not verify or replace its recorded archive/seal hashes.",
+          "One authorized fresh execution; no statistical significance, causal version/model claim, or regression conclusion."
+        ]
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.5.0": {
+                "path": "skills/impl-review/SKILL.md",
+                "quote": "`../../references/human-facing-projection.md` を適用して意味保持を確認し、修正表を返したところで停止する。",
+                "sha256": "760a39143698970b83d3b6b77ea15707eaea8d741984c5aa58008d2487f02afe"
+              }
+            },
+            "expectation": "対象不明なら必要な質問を行い、最新 commit/全 dirty に無条件置換しない。",
+            "id": "responsibility",
+            "versions": [
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "integrity": {
+        "execution_label": "user-authorized-fresh-trial-after-original-interrupted-save",
+        "archive_sha256": "468e2dd2bc95f6b9a978a82044d221f68b655805941558919d8aa4b0787d9c4c",
+        "seal_sha256": "c2b57f0414a27f0ba7da3d001788d223f105f8ff5e6a20f03160a0aa3c899443",
+        "sealed_members": 14,
+        "input_sha256": "a9ce6ea68db9f283ae011c82a575a6fd8487a85c0de2d52ce07ebab7ae50b5d5",
+        "changed": [],
+        "added": [],
+        "missing": [],
+        "initial_dirty_working_changes_preserved": true,
+        "archive_verified": true,
+        "result_seal_verified": true,
+        "member_hashes_verified": true,
+        "before_files_match_fixed_input_and_working_changes": true
+      }
+    }
+  ],
+  "unsupported_cells": [
+    {
+      "case_id": "impl-review-failure",
+      "category": "failure",
+      "version": "v7.5.0",
+      "trial": 1,
+      "status": "not-supported",
+      "reason": "no-reviewer",
+      "judgment": "not launched; capability absence could not be reliably enforced; not a skill-quality failure"
+    }
+  ],
+  "unavailable_cells": [],
+  "comparison": {
+    "result": "single-version-attainment-no-regression-comparison",
+    "summary": "Boundary review correctly identifies weight=5 contract mismatch and preserves unrelated dirty state. The separately authorized fresh ambiguous execution appropriately asks which change to review and preserves both dirty files. Original interrupted execution remains artifact-unavailable/indeterminate; new bytes do not retroactively validate it. Dedicated-reviewer absence case remains unsupported.",
+    "scope": "Two logical prepared cells with verified output quality, plus one unsupported cell. Original interrupted save and user-authorized fresh execution are separate execution records for one ambiguous logical cell, not two logical cells."
+  },
+  "limitations": [
+    "Full substantive responses are preserved exactly as collected in sealed bundles. Internal task IDs, Library IDs, parent local paths and private URLs are omitted from this export. Public skill-role names and disposable fixture paths within the substantive response are retained.",
+    "Hidden operations, effective model/effort, original reviewer/gate execution, isolation and cost remain unverified. Unknown internals do not prevent observable quality assessment.",
+    "Output-quality PASS is not PASS on every criterion. Expected missing capability or authority may properly leave the underlying task blocked or qualified; proven scope violations remain separate failures.",
+    "One initial trial per cell detects potential issues only; no statistical significance or causal superiority claim. No additional trials were run by the judge.",
+    "An additional fresh execution of the last logical cell was explicitly authorized after save-only recovery proved impossible. Original interrupted response/hash claims remain separately unverified; no original bytes were recreated or retrospectively validated."
+  ],
+  "interrupted_executions": [
+    {
+      "case_id": "impl-review-ambiguous",
+      "category": "ambiguous",
+      "version": "v7.5.0",
+      "trial": 1,
+      "input_path": "rounds/cloud-nonnormal-003/inputs/impl-review-ambiguous--v7.5.0--1/input.json",
+      "input_sha256": "a9ce6ea68db9f283ae011c82a575a6fd8487a85c0de2d52ce07ebab7ae50b5d5",
+      "eval_code_sha": "19f0126119a59c93ea5acf2eac31bbf603f99cab",
+      "eval_input_data_sha": "a4818f92eee4062af54d93d8bcbf464b3eb672af",
+      "tugite_source_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "skill_source_sha256": "760a39143698970b83d3b6b77ea15707eaea8d741984c5aa58008d2487f02afe",
+      "fixed_task_prompt": "変更をレビューしてください。どの変更を指すかの会話文脈はありません。現在2つの無関係な dirty があります。",
+      "fixed_fixture_files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+        "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+        "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+        "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+        "tests/__init__.py": "",
+        "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+        "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+      },
+      "initial_working_changes": {
+        "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight < 5 else 200\n    return base + (50 if express else 0)\n",
+        "unrelated.txt": "Human による変更。保持する。\n"
+      },
+      "status": "blocked-artifact-recovery",
+      "original_evaluation_status": "interrupted during result save",
+      "recovery_status": "save-only recovery completed but original archive/result/response bytes unavailable",
+      "artifact_verified": false,
+      "recorded_archive_sha256_unverified": "9222e2144c678a167db50619e026e1ba60b6b9042aa72faab064b158fbdd6dc1",
+      "recorded_seal_sha256_unverified": "f2328e2007bf05d679df4181d01f3c38f2b8693656217a144e9801e36405f61c",
+      "recovered_response_text": "レビュー対象はどちらの変更でしょうか。現在、未コミットの変更が `app.py` と `unrelated.txt` にあります。対象のファイル、または変更内容を指定してください。両方を対象にする場合は、その旨を教えてください。\n\n会話から対象を特定できず、2つは無関係な変更とのことなので、対象の確認までレビューを保留します。差分の内容評価・テスト実行・修正は行っていません。\n\n確認に使ったコマンド（作業場所: `/workspace/quality-stage/workspace`）:\n- `git status --short`\n- `git diff --stat`\n- `git diff --cached --stat`\n\n読んだファイル:\n- `/workspace/quality-stage/prompt.txt`\n- `/workspace/quality-stage/distribution/plugins/codex/skills/impl-review/SKILL.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/implementation-review.md`\n- `/workspace/quality-stage/distribution/plugins/codex/references/human-facing-projection.md`\n\n上記ファイルの読み取りには `cat` を使用しました。変更ファイルの本文はまだ読んでいません。比較元・対象範囲が未確定のため、指摘の有無やレビュー完了の判断はしていません。",
+      "recovered_response_provenance": "Text quoted in parent-observed save-only recovery final; not recovered from original sealed response bytes and not original-response-hash verified.",
+      "recovered_response_text_sha256": "68912c19b79a12f769103884c9d87e930a7e837f3940331ca0504d128cab2729",
+      "judgment": {
+        "judge_id": "independent-reviewer-d",
+        "independent": true,
+        "observations": {
+          "responsibility": {
+            "result": "indeterminate",
+            "reason": "Original response/result/archive bytes are unavailable after interrupted upload and authorized save-only recovery. Recovered text describes an appropriate clarification, but it is not an independently hash-verified sealed response/artifact and cannot establish artifact-level pass or scope preservation.",
+            "evidence": []
+          }
+        },
+        "common_metrics": {
+          "authority-and-scope": {
+            "result": "indeterminate",
+            "reason": "Original response/result/archive bytes are unavailable after interrupted upload and authorized save-only recovery. Recovered text describes an appropriate clarification, but it is not an independently hash-verified sealed response/artifact and cannot establish artifact-level pass or scope preservation.",
+            "evidence": []
+          },
+          "evidence-traceability": {
+            "result": "indeterminate",
+            "reason": "Original response/result/archive bytes are unavailable after interrupted upload and authorized save-only recovery. Recovered text describes an appropriate clarification, but it is not an independently hash-verified sealed response/artifact and cannot establish artifact-level pass or scope preservation.",
+            "evidence": []
+          },
+          "task-usefulness": {
+            "result": "indeterminate",
+            "reason": "Original response/result/archive bytes are unavailable after interrupted upload and authorized save-only recovery. Recovered text describes an appropriate clarification, but it is not an independently hash-verified sealed response/artifact and cannot establish artifact-level pass or scope preservation.",
+            "evidence": []
+          },
+          "uncertainty-honesty": {
+            "result": "indeterminate",
+            "reason": "Original response/result/archive bytes are unavailable after interrupted upload and authorized save-only recovery. Recovered text describes an appropriate clarification, but it is not an independently hash-verified sealed response/artifact and cannot establish artifact-level pass or scope preservation.",
+            "evidence": []
+          }
+        },
+        "output_quality": {
+          "result": "indeterminate",
+          "reason": "Original response/result/archive bytes are unavailable after interrupted upload and authorized save-only recovery. Recovered text describes an appropriate clarification, but it is not an independently hash-verified sealed response/artifact and cannot establish artifact-level pass or scope preservation.",
+          "evidence": []
+        },
+        "limitations": [
+          "Prepared fixed input SHA independently verified; original evaluation was interrupted while saving, subsequent recovery turn completed but could not locate original result bytes.",
+          "Recorded archive SHA256 9222e2144c678a167db50619e026e1ba60b6b9042aa72faab064b158fbdd6dc1 and seal SHA256 f2328e2007bf05d679df4181d01f3c38f2b8693656217a144e9801e36405f61c remain unverified because corresponding bytes are unavailable.",
+          "No artifacts or original response file were reconstructed, no evaluation rerun performed, and no unsupported skill-failure inference is made.",
+          "Parent-observed recovered text is useful context only, not sealed artifact evidence. Task status blocked-artifact-recovery; restoration of original bytes is pending, prior upload success uncertain."
+        ]
+      },
+      "rubric": {
+        "common_metrics": {
+          "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+          "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+          "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+          "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。"
+        },
+        "observations": [
+          {
+            "basis": {
+              "v7.5.0": {
+                "path": "skills/impl-review/SKILL.md",
+                "quote": "`../../references/human-facing-projection.md` を適用して意味保持を確認し、修正表を返したところで停止する。",
+                "sha256": "760a39143698970b83d3b6b77ea15707eaea8d741984c5aa58008d2487f02afe"
+              }
+            },
+            "expectation": "対象不明なら必要な質問を行い、最新 commit/全 dirty に無条件置換しない。",
+            "id": "responsibility",
+            "versions": [
+              "v7.5.0"
+            ]
+          }
+        ]
+      },
+      "pending": "Restoration of original archive bytes matching recorded hash. Any new trial requires separate user authorization and cannot replace this missing original.",
+      "uncertain": "Prior upload success; original artifact scope preservation and recorded hash correspondence.",
+      "execution_ordinal": 1
+    }
+  ],
+  "authorized_additional_executions": 1,
+  "logical_cell_accounting": {
+    "verified_output_quality_pass": 2,
+    "unsupported_not_launched": 1,
+    "original_interrupted_execution_retained_separately": 1
+  }
+}
