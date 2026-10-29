@@ -1,0 +1,17 @@
+{
+  "state": "semantics-fixed-awaiting-candidate",
+  "prospective": true,
+  "old_round": "rounds/explain-398-004",
+  "baseline_proposed": "2e7ae9237103cc9a6c6d9afbb748c11ad2ea51e7",
+  "candidate_sha": null,
+  "corpus": "cases/explain-398-code-centered/corpus.json",
+  "corpus_sha256": "2a14e0a0e0b0f25317e61d6a959a1b7b90e8cf29a4b2e9796b3abdc61bfb2f9a",
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "initial_scope": "3 focus cases x both versions x1 +4 candidate regression cases x1 =10 trials",
+  "repeat_scope": "Decision-relevant focus cases: each version trials2/3; maximum22 trials",
+  "old_result_status": "Parent reports old candidate14 results PASS under old criteria; user presentation expectation differed. No retroactive rescoring.",
+  "evaluation_execution": "Parent only; no tasks launched or outputs scored in preparation."
+}

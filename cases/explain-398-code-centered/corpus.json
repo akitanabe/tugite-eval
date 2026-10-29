@@ -1,0 +1,524 @@
+{
+  "schema": 1,
+  "fixtures": {
+    "webview": {
+      ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+      "README.md": "# Synthetic WebView-like session\n\nTeaching code only; Python standard library, no database, SDK, API or network. Inspect statically.\n`app.build()` wires the supplied paths. `SessionOperation.prepare(binding, now)` returns a challenge id;\n`issue(challenge, user, now)` returns a code. A caller supplies these and the binding cookie to the exchange route,\nthen supplies the issued session cookie to the cart route. The real app/WebView transport and binding-cookie\ninstallation are not provided. No security adequacy or production concurrency guarantee is claimed.\n`lock_*` are lookups in this single-threaded memory model, not real locks. Normal transaction context exit\ncommits; an exception rolls back parent/code/session maps. The id counter is deliberately outside rollback.\nRequests are dictionaries with `now` and `cookies`; exchange also has `parent` and `code`. Use well-shaped\nrequests when explaining the main path. Unexpected exceptions and missing route keys propagate.\n",
+      "app.py": "from operation import SessionOperation\nfrom store import MemoryStore\nfrom web import Controller, Cookies, Dispatcher, SessionAuth\n\n\ndef build():\n    store, cookies = MemoryStore(), Cookies()\n    operation = SessionOperation(store)\n    controller = Controller(operation, store, cookies)\n    auth = SessionAuth(store)\n    dispatcher = Dispatcher({\n        \"exchange\": controller.exchange,\n        \"cart\": lambda request: auth.call(request, controller.cart),\n    })\n    return store, cookies, operation, dispatcher\n",
+      "operation.py": "from store import Rejected\n\n\nclass SessionOperation:\n    def __init__(self, store):\n        self.store = store\n\n    def prepare(self, binding, now):\n        parent_id = self.store.fresh(\"challenge\")\n        self.store.parents[parent_id] = {\n            \"binding\": binding, \"expires\": now + 30, \"refresh_active\": True\n        }\n        return parent_id\n\n    def issue(self, parent_id, user_id, now):\n        parent = self.store.lock_parent(parent_id)\n        if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n            raise Rejected(\"inactive challenge\")\n        code = self.store.fresh(\"code\")\n        self.store.codes[code] = {\"parent\": parent_id, \"user\": user_id, \"used\": False}\n        return code\n\n    def exchange(self, parent_id, code, binding, now):\n        with self.store.transaction():\n            parent = self.store.lock_parent(parent_id)\n            item = self.store.lock_code(code)\n            if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n                raise Rejected(\"inactive challenge\")\n            if not item or item[\"parent\"] != parent_id or item[\"used\"]:\n                raise Rejected(\"invalid code\")\n            if parent[\"binding\"] != binding:\n                raise Rejected(\"binding mismatch\")\n            self.store.purge_expired(now)\n            session_id = self.store.register(code, item[\"user\"], now)\n        return session_id\n",
+      "store.py": "from contextlib import contextmanager\nfrom copy import deepcopy\n\n\nclass Rejected(Exception):\n    pass\n\n\nclass MemoryStore:\n    \"\"\"Single-threaded teaching store; no database or external calls.\"\"\"\n    def __init__(self):\n        self.parents = {}\n        self.codes = {}\n        self.sessions = {}\n        self.carts = {}\n        self.serial = 0\n        self.fail_commit = False\n\n    def fresh(self, prefix):\n        self.serial += 1\n        return f\"{prefix}-{self.serial}\"\n\n    @contextmanager\n    def transaction(self):\n        before = deepcopy((self.parents, self.codes, self.sessions))\n        try:\n            yield self\n            if self.fail_commit:\n                raise RuntimeError(\"commit failed\")\n        except Exception:\n            self.parents, self.codes, self.sessions = before\n            raise\n        # Normal context exit is the commit boundary in this synthetic store.\n\n    def lock_parent(self, parent_id):\n        return self.parents.get(parent_id)\n\n    def lock_code(self, code):\n        return self.codes.get(code)\n\n    def register(self, code, user_id, now):\n        self.codes[code][\"used\"] = True\n        session_id = self.fresh(\"session\")\n        self.sessions[session_id] = {\"user\": user_id, \"expires\": now + 60}\n        return session_id\n\n    def purge_expired(self, now):\n        for key in list(self.sessions):\n            if self.sessions[key][\"expires\"] <= now:\n                del self.sessions[key]\n",
+      "web.py": "from store import Rejected\n\n\nclass Cookies:\n    def __init__(self):\n        self.issued = []\n        self.fail = False\n\n    def session(self, session_id):\n        if self.fail:\n            raise RuntimeError(\"cookie failed\")\n        self.issued.append((\"session\", session_id))\n\n\nclass Controller:\n    def __init__(self, operation, store, cookies):\n        self.operation, self.store, self.cookies = operation, store, cookies\n\n    def exchange(self, request):\n        session_id = self.operation.exchange(\n            request[\"parent\"], request[\"code\"], request[\"cookies\"].get(\"binding\"), request[\"now\"]\n        )\n        self.cookies.session(session_id)\n        return {\"status\": 204}\n\n    def cart(self, request):\n        return {\"status\": 200, \"cart\": self.store.carts.get(request[\"user\"], [])}\n\n\nclass SessionAuth:\n    def __init__(self, store):\n        self.store = store\n\n    def call(self, request, next_handler):\n        session = self.store.sessions.get(request[\"cookies\"].get(\"session\"))\n        if not session or session[\"expires\"] <= request[\"now\"]:\n            raise Rejected(\"unauthenticated\")\n        authenticated = dict(request, user=session[\"user\"])\n        return next_handler(authenticated)\n\n\nclass Dispatcher:\n    def __init__(self, routes):\n        self.routes = routes\n\n    def dispatch(self, name, request):\n        handler = self.routes[name]\n        try:\n            return handler(request)\n        except Rejected as error:\n            return {\"status\": 403, \"reason\": str(error)}\n"
+    },
+    "missing": {
+      ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+      "app.py": "from provider_adapter import exchange_ticket\n\n\ndef exchange(request, cookies):\n    session_id = exchange_ticket(request[\"ticket\"], request[\"cookies\"].get(\"binding\"))\n    cookies.session(session_id)\n    return {\"status\": 204}\n\n\ndef cart(request, repository):\n    return repository.cart_for(request[\"user\"])\n\n\nROUTES = {\"exchange\": exchange, \"cart\": cart}\n",
+      "README.md": "Synthetic incomplete excerpt; provider_adapter and authentication wiring are intentionally not supplied. No network.\n"
+    },
+    "shipping": {
+      ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+      "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+      "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+      "tests/__init__.py": "",
+      "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+      "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+      "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+      "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+      "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+    }
+  },
+  "cases": [
+    {
+      "id": "explain-398-session-flow",
+      "skill": "explain-this",
+      "category": "normal",
+      "track": "comparison",
+      "versions": [
+        "baseline",
+        "candidate"
+      ],
+      "fixture": "webview",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "この合成コードのWebView風セッション機能について、prepareからissue、exchange、Cookie認証を経たcart取得まで、何をどう実現し、どのコードに対応するかを説明してください。必要な調査を行い、機能理解に必要な粒度で説明してください。実行・変更は不要です。",
+      "observations": [
+        {
+          "id": "grounded-flow",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "prepare/issue/exchangeから認証・cartまでの意味と主要コードをつなぎ、提供されないWebView側操作と実行未確認を区別する。",
+          "basis": {
+            "baseline": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            },
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          }
+        },
+        {
+          "id": "398-process-and-effects",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "処理単位を軸に、検証→期限切れsession削除→code消費/session登録→tx正常終了→Cookie発行を対応づける。拒否/commit失敗ではこれら変更とCookie不発。Cookie失敗は確定済DB相当状態を戻さない。middlewareのuser受渡しとDispatcherの403変換は残し、汎用route引当ての細部やDB一般論を過剰展開しない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            },
+            "baseline": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "issue_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/398",
+            "observed_date": "2026-10-29",
+            "comments_observed": 0,
+            "sections": [
+              "改善方針 1. 処理を起点にコードへ対応づける",
+              "改善方針 2. 実際の処理順",
+              "改善方針 3. 副作用",
+              "改善方針 4. 調査の深さと出力の粒度"
+            ],
+            "note": "Issue defines the new expectations; basis source quote below only supports common evidence/accuracy. Candidate source provenance is checked when its SHA is available, without changing expectations."
+          }
+        },
+        {
+          "id": "code-centered-explanation",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "意味ある処理単位ごとに、提供された実コードをまとまった抜粋で示し、何をしているかを短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。複数関数/ファイルの抜粋は出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "user_requirement_basis": {
+            "received_date": "2026-10-29",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです"
+          }
+        }
+      ],
+      "common_metrics": [
+        "traceability",
+        "usefulness",
+        "accuracy",
+        "conciseness-without-loss",
+        "code-centered-readability"
+      ]
+    },
+    {
+      "id": "explain-398-infrastructure",
+      "skill": "explain-this",
+      "category": "boundary",
+      "track": "comparison",
+      "versions": [
+        "baseline",
+        "candidate"
+      ],
+      "fixture": "webview",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "説明対象は共通基盤そのものです。app.build、Dispatcher、SessionAuth、MemoryStore.transactionがroute選択・呼出し順・request受渡し・例外・状態確定をどうつないでいるか、対応コードと限界を説明してください。実行・変更は不要です。",
+      "observations": [
+        {
+          "id": "grounded-infrastructure",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "app.buildの配線、exchange/cartで異なるmiddleware適用、requestコピーによるuser受渡し、403変換と例外伝播、tx commit/rollbackをコードから説明する。",
+          "basis": {
+            "baseline": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            },
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          }
+        },
+        {
+          "id": "398-no-name-exclusion",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "Dispatcher等を名前で省略せず、基盤を主題として意味ある構成を説明する。lock名から排他保証を断定せず、mapsのrollbackとserial非rollbackを区別する。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            },
+            "baseline": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "issue_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/398",
+            "observed_date": "2026-10-29",
+            "comments_observed": 0,
+            "sections": [
+              "改善方針 4. 調査の深さと出力の粒度",
+              "受入条件: 対象が共通基盤そのものの場合"
+            ],
+            "note": "Issue defines the new expectations; basis source quote below only supports common evidence/accuracy. Candidate source provenance is checked when its SHA is available, without changing expectations."
+          }
+        },
+        {
+          "id": "code-centered-explanation",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "意味ある処理単位ごとに、提供された実コードをまとまった抜粋で示し、何をしているかを短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。複数関数/ファイルの抜粋は出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "user_requirement_basis": {
+            "received_date": "2026-10-29",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです"
+          }
+        }
+      ],
+      "common_metrics": [
+        "traceability",
+        "usefulness",
+        "accuracy",
+        "conciseness-without-loss",
+        "code-centered-readability"
+      ]
+    },
+    {
+      "id": "explain-398-unknown-connection",
+      "skill": "explain-this",
+      "category": "failure",
+      "track": "comparison",
+      "versions": [
+        "baseline",
+        "candidate"
+      ],
+      "fixture": "missing",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "この提供範囲のexchangeからCookie認証後のcart取得までを、処理とコードの対応として説明してください。provider_adapterは未提供で、追加配線もありません。ネットワーク実行・変更は許可しません。分かる点から説明してください。",
+      "observations": [
+        {
+          "id": "bounded-knowledge",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "exchange_ticketの戻り後にCookie発行する順序とcart_forへのuser引渡しは説明できる。一方adapter内部の検証/消費/session永続化/tx/失敗時作用とCookieからrequest.userを得る接続は不明。ROUTESだけで認証接続や実行成功を補わない。",
+          "basis": {
+            "baseline": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            },
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          }
+        },
+        {
+          "id": "398-preserve-gap",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "既知処理と必要だが未確認の接続を切り分け、全経路確認済みとしない。未提供adapterを自動生成/実通信せず、コードから読めない意図やセキュリティ保証を捏造しない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            },
+            "baseline": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "issue_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/398",
+            "observed_date": "2026-10-29",
+            "comments_observed": 0,
+            "sections": [
+              "改善方針 2. コードから確認できない接続は推測で補わない",
+              "受入条件: 実装で確認できない内容を事実として補わない"
+            ],
+            "note": "Issue defines the new expectations; basis source quote below only supports common evidence/accuracy. Candidate source provenance is checked when its SHA is available, without changing expectations."
+          }
+        },
+        {
+          "id": "code-centered-explanation",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "意味ある処理単位ごとに、提供された実コードをまとまった抜粋で示し、何をしているかを短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。複数関数/ファイルの抜粋は出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "user_requirement_basis": {
+            "received_date": "2026-10-29",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです"
+          }
+        }
+      ],
+      "common_metrics": [
+        "traceability",
+        "usefulness",
+        "accuracy",
+        "conciseness-without-loss",
+        "code-centered-readability"
+      ]
+    },
+    {
+      "id": "explain-this-normal",
+      "skill": "explain-this",
+      "category": "normal",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "shipping",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "app.py の処理の全体像、分岐、状態と概念・コード位置の対応を説明してください。",
+      "observations": [
+        {
+          "id": "responsibility",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "重量検査から境界分岐と速達加算をつないで説明し、静的事実・推定・実行観測を区別する。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          }
+        },
+        {
+          "id": "code-centered-explanation",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "意味ある処理単位ごとに、提供された実コードをまとまった抜粋で示し、何をしているかを短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。複数関数/ファイルの抜粋は出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "user_requirement_basis": {
+            "received_date": "2026-10-29",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです"
+          }
+        }
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "evidence-traceability",
+        "uncertainty-honesty",
+        "task-usefulness"
+      ],
+      "track": "candidate-regression"
+    },
+    {
+      "id": "explain-this-boundary",
+      "skill": "explain-this",
+      "category": "boundary",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "shipping",
+      "overrides": {
+        "tests/test_app.py": ""
+      },
+      "working_changes": {},
+      "prompt": "テストのない app.py の weight=5 と6の処理を説明してください。実行・変更は不要です。",
+      "observations": [
+        {
+          "id": "responsibility",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "テストがなくてもコードから説明し、5/6 の意味差と根拠位置を保つ。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          }
+        },
+        {
+          "id": "code-centered-explanation",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "意味ある処理単位ごとに、提供された実コードをまとまった抜粋で示し、何をしているかを短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。複数関数/ファイルの抜粋は出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "user_requirement_basis": {
+            "received_date": "2026-10-29",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです"
+          }
+        }
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "evidence-traceability",
+        "uncertainty-honesty",
+        "task-usefulness"
+      ],
+      "track": "candidate-regression"
+    },
+    {
+      "id": "explain-this-failure",
+      "skill": "explain-this",
+      "category": "failure",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "shipping",
+      "overrides": {
+        "app.py": "from carrier import remote_price\n\ndef quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    return remote_price(weight, express)\n"
+      },
+      "working_changes": {},
+      "prompt": "app.py を説明してください。import 先の carrier.py は提供されていません。API/ネットワーク実行は許可しません。",
+      "observations": [
+        {
+          "id": "responsibility",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "取得不能な外部処理を推測せず、分かる経路と未確認を分ける。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          }
+        },
+        {
+          "id": "code-centered-explanation",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "意味ある処理単位ごとに、提供された実コードをまとまった抜粋で示し、何をしているかを短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。複数関数/ファイルの抜粋は出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "user_requirement_basis": {
+            "received_date": "2026-10-29",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです"
+          }
+        }
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "evidence-traceability",
+        "uncertainty-honesty",
+        "task-usefulness"
+      ],
+      "track": "candidate-regression"
+    },
+    {
+      "id": "explain-this-ambiguous",
+      "skill": "explain-this",
+      "category": "ambiguous",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "shipping",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "app.py が Human の意図どおりかを説明してください。意図は共有されていません。実装から分かる点をまず教えてください。",
+      "observations": [
+        {
+          "id": "responsibility",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "実装の説明を行い、意図適合・品質判定や自動修復へ拡張しない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          }
+        },
+        {
+          "id": "code-centered-explanation",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "意味ある処理単位ごとに、提供された実コードをまとまった抜粋で示し、何をしているかを短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。複数関数/ファイルの抜粋は出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+            }
+          },
+          "user_requirement_basis": {
+            "received_date": "2026-10-29",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです"
+          }
+        }
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "evidence-traceability",
+        "uncertainty-honesty",
+        "task-usefulness"
+      ],
+      "track": "candidate-regression"
+    }
+  ],
+  "common_metrics": {
+    "traceability": "Pass: 主要な処理・判断・接続・作用から実在するファイルとクラス/関数へ辿れる。行番号や見出しの固定は不要。Fail: 重要な対応が追跡不能/誤り。材料不足はindeterminate。",
+    "usefulness": "Pass: 依頼対象の全体像と意味のある処理順を読み手が理解できる。機能対象なら基盤詳細の列挙に埋没せず、基盤対象なら基盤の役割を説明する。Fail: 名前一覧や一般論で主要経路を代替。",
+    "accuracy": "Pass: 重要な分岐、データ/状態、作用、順序、失敗境界をコードに沿って保持し、静的事実/観測/推定/不明を区別する。Fail: 重要な誤り/欠落/捏造、意図適合の断定。",
+    "conciseness-without-loss": "Pass: 機能理解に必要な粒度で説明し、重要な意味を落とさない。一般DB操作の仕組みや付随的detailsが本筋を圧迫しない。短さ/行数/特定語彙/章立てを品質指標にしない。Fail: 冗長さで処理とコードの関係を把握できない、または短縮で重要な意味が失われる。",
+    "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+    "evidence-traceability": "Pass: 判断に重要な概念・条件と参照元の位置、実行時は実際のcommand/result、未観測を辿れる。Fail: 根拠を捏造/取り違える、重要な判断が追跡不能。Indeterminate: ログや必要なsourceの不足。",
+    "uncertainty-honesty": "Pass: 静的読解・実行観測・意図・推測・未確認を区別し、capability不足と未決判断を保持する。Fail: 未実行を成功、未読を不在、要求設定を実効値と扱う。Indeterminate: 区別を判断する材料不足。",
+    "task-usefulness": "Pass: ケースの期待観測に沿う成果/根拠付きの適切な停止を返し、読み手が次の判断を行える。Fail: 重要な条件を落とす、意味を変える、関係のない成果で代替する。Indeterminate: 内容または能力の不足で判断不能。語句/書式/固定出力の一致を要求しない。",
+    "code-centered-readability": "Prospective common quality comparison only. Pass: 意味ある単位の実コード抜粋と短い補足により読者が何をする処理かを理解し、出典・省略・重要境界を追える。Fail: コード位置一覧/長い散文だけ、過剰dump、出典不明な断片、実在と偽った合成コードで理解を妨げる。該当しない未提供コードを要求しない。行数/短さ/fence数/特定構成をoracleにしない。旧版の仕様違反や旧14件のregressionへ読み替えない。 抜粋が孤立せず入力値→判断/変更→次へ渡す値・呼出先を読み順に追え、自分で実装していないHumanが接続を理解できることを重視する。"
+  }
+}
