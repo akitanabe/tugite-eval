@@ -5,7 +5,7 @@
   "baseline_proposed": "2e7ae9237103cc9a6c6d9afbb748c11ad2ea51e7",
   "candidate_sha": null,
   "corpus": "cases/explain-398-code-centered/corpus.json",
-  "corpus_sha256": "d504c2a5652167f47174d3e563b7b2ddc66a5da5cab36b9926b9376d32c0104c",
+  "corpus_sha256": "52c45cba589780225cf41add220893285c6c54619a8d9670fe79d679dc06aed1",
   "requested": {
     "model": "gpt-6.1-sol",
     "effort": "medium"
