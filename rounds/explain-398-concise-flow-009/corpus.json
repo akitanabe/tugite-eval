@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "fixtures": {
+    "webview": {
+      ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+      "README.md": "# Synthetic WebView-like session\n\nTeaching code only; Python standard library, no database, SDK, API or network. Inspect statically.\n`app.build()` wires the supplied paths. `SessionOperation.prepare(binding, now)` returns a challenge id;\n`issue(challenge, user, now)` returns a code. A caller supplies these and the binding cookie to the exchange route,\nthen supplies the issued session cookie to the cart route. The real app/WebView transport and binding-cookie\ninstallation are not provided. No security adequacy or production concurrency guarantee is claimed.\n`lock_*` are lookups in this single-threaded memory model, not real locks. Normal transaction context exit\ncommits; an exception rolls back parent/code/session maps. The id counter is deliberately outside rollback.\nRequests are dictionaries with `now` and `cookies`; exchange also has `parent` and `code`. Use well-shaped\nrequests when explaining the main path. Unexpected exceptions and missing route keys propagate.\n",
+      "app.py": "from operation import SessionOperation\nfrom store import MemoryStore\nfrom web import Controller, Cookies, Dispatcher, SessionAuth\n\n\ndef build():\n    store, cookies = MemoryStore(), Cookies()\n    operation = SessionOperation(store)\n    controller = Controller(operation, store, cookies)\n    auth = SessionAuth(store)\n    dispatcher = Dispatcher({\n        \"exchange\": controller.exchange,\n        \"cart\": lambda request: auth.call(request, controller.cart),\n    })\n    return store, cookies, operation, dispatcher\n",
+      "operation.py": "from store import Rejected\n\n\nclass SessionOperation:\n    def __init__(self, store):\n        self.store = store\n\n    def prepare(self, binding, now):\n        parent_id = self.store.fresh(\"challenge\")\n        self.store.parents[parent_id] = {\n            \"binding\": binding, \"expires\": now + 30, \"refresh_active\": True\n        }\n        return parent_id\n\n    def issue(self, parent_id, user_id, now):\n        parent = self.store.lock_parent(parent_id)\n        if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n            raise Rejected(\"inactive challenge\")\n        code = self.store.fresh(\"code\")\n        self.store.codes[code] = {\"parent\": parent_id, \"user\": user_id, \"used\": False}\n        return code\n\n    def exchange(self, parent_id, code, binding, now):\n        with self.store.transaction():\n            parent = self.store.lock_parent(parent_id)\n            item = self.store.lock_code(code)\n            if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n                raise Rejected(\"inactive challenge\")\n            if not item or item[\"parent\"] != parent_id or item[\"used\"]:\n                raise Rejected(\"invalid code\")\n            if parent[\"binding\"] != binding:\n                raise Rejected(\"binding mismatch\")\n            self.store.purge_expired(now)\n            session_id = self.store.register(code, item[\"user\"], now)\n        return session_id\n",
+      "store.py": "from contextlib import contextmanager\nfrom copy import deepcopy\n\n\nclass Rejected(Exception):\n    pass\n\n\nclass MemoryStore:\n    \"\"\"Single-threaded teaching store; no database or external calls.\"\"\"\n    def __init__(self):\n        self.parents = {}\n        self.codes = {}\n        self.sessions = {}\n        self.carts = {}\n        self.serial = 0\n        self.fail_commit = False\n\n    def fresh(self, prefix):\n        self.serial += 1\n        return f\"{prefix}-{self.serial}\"\n\n    @contextmanager\n    def transaction(self):\n        before = deepcopy((self.parents, self.codes, self.sessions))\n        try:\n            yield self\n            if self.fail_commit:\n                raise RuntimeError(\"commit failed\")\n        except Exception:\n            self.parents, self.codes, self.sessions = before\n            raise\n        # Normal context exit is the commit boundary in this synthetic store.\n\n    def lock_parent(self, parent_id):\n        return self.parents.get(parent_id)\n\n    def lock_code(self, code):\n        return self.codes.get(code)\n\n    def register(self, code, user_id, now):\n        self.codes[code][\"used\"] = True\n        session_id = self.fresh(\"session\")\n        self.sessions[session_id] = {\"user\": user_id, \"expires\": now + 60}\n        return session_id\n\n    def purge_expired(self, now):\n        for key in list(self.sessions):\n            if self.sessions[key][\"expires\"] <= now:\n                del self.sessions[key]\n",
+      "web.py": "from store import Rejected\n\n\nclass Cookies:\n    def __init__(self):\n        self.issued = []\n        self.fail = False\n\n    def session(self, session_id):\n        if self.fail:\n            raise RuntimeError(\"cookie failed\")\n        self.issued.append((\"session\", session_id))\n\n\nclass Controller:\n    def __init__(self, operation, store, cookies):\n        self.operation, self.store, self.cookies = operation, store, cookies\n\n    def exchange(self, request):\n        session_id = self.operation.exchange(\n            request[\"parent\"], request[\"code\"], request[\"cookies\"].get(\"binding\"), request[\"now\"]\n        )\n        self.cookies.session(session_id)\n        return {\"status\": 204}\n\n    def cart(self, request):\n        return {\"status\": 200, \"cart\": self.store.carts.get(request[\"user\"], [])}\n\n\nclass SessionAuth:\n    def __init__(self, store):\n        self.store = store\n\n    def call(self, request, next_handler):\n        session = self.store.sessions.get(request[\"cookies\"].get(\"session\"))\n        if not session or session[\"expires\"] <= request[\"now\"]:\n            raise Rejected(\"unauthenticated\")\n        authenticated = dict(request, user=session[\"user\"])\n        return next_handler(authenticated)\n\n\nclass Dispatcher:\n    def __init__(self, routes):\n        self.routes = routes\n\n    def dispatch(self, name, request):\n        handler = self.routes[name]\n        try:\n            return handler(request)\n        except Rejected as error:\n            return {\"status\": 403, \"reason\": str(error)}\n"
+    }
+  },
+  "cases": [
+    {
+      "id": "explain-398-session-flow",
+      "skill": "explain-this",
+      "category": "normal",
+      "track": "candidate-sample",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "webview",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "この合成WebView風セッションのprepareからcart取得までの流れと、各関数・classがその中で何をしているかを説明してください。実行・変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "essential-flow",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "実装に沿ってprepare/issueからexchange、認証、cart取得までを短くつなぐ。交換時の検証、code消費/session登録の同じtx内での確定、その後のCookie発行、認証sessionのuserがcart取得へ渡る接続を保つ。拒否を成功と説明せず、未提供WebView側の接続を捏造しない。個別guard・各失敗mode・保守処理を一つずつ列挙する必要はない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "実装の事実、実行観測、解釈、意図、テスト期待値を混同しない。"
+            }
+          },
+          "requirement_basis": {
+            "kind": "prospective-concise-flow-revision",
+            "summary": "Understand the processing flow and what each function/class does in that flow. Identifiers first; essential connections and correctness, not code-internal exposition or a role catalog."
+          }
+        },
+        {
+          "id": "short-implementation-first",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "処理の流れと、その中で各関数/classが何をするかを主眼に、実在する実装識別子を先に短い役割説明と接続をつなぐ。コード内部の解説を主目的にせず、逐語説明を短縮しただけの回答や網羅的な関数役割catalogにしない。導入章・長い抜粋・全guard/例外/制約一覧を達成条件にしない。重要な接続と正確さを保つ補足だけ残す。固定行数/語数/templateや受理済み例文の再現を求めない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "選んだ主要節点ごとに、実在する関数・クラス・構造体などの識別子を先に置いた短い寄与文を一つ書き、実際の処理順につなぐ。"
+            }
+          },
+          "requirement_basis": {
+            "kind": "prospective-concise-flow-revision",
+            "summary": "Understand the processing flow and what each function/class does in that flow. Identifiers first; essential connections and correctness, not code-internal exposition or a role catalog."
+          }
+        }
+      ],
+      "common_metrics": [
+        "short-implementation-flow",
+        "code-grounded-accuracy",
+        "essential-connections"
+      ]
+    },
+    {
+      "id": "explain-398-infrastructure",
+      "skill": "explain-this",
+      "category": "boundary",
+      "track": "candidate-sample",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "webview",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "app.build、Dispatcher、SessionAuth、MemoryStore.transactionを含む共通基盤の処理フローと、各関数・classがその中で何をしているかを説明してください。実行・変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "essential-flow",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "app.buildの配線、Dispatcherの振分け、cartに入るSessionAuthからhandlerへのuser受渡しと、transactionの確定/例外時復元を、実在する実装要素の短い流れとしてつなぐ。基盤名で一律に省略しない。全route/全例外/辞書操作/内部状態項目の列挙は不要だが、認証の適用先や復元対象を誤説明しない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "実装の事実、実行観測、解釈、意図、テスト期待値を混同しない。"
+            }
+          },
+          "requirement_basis": {
+            "kind": "prospective-concise-flow-revision",
+            "summary": "Understand the processing flow and what each function/class does in that flow. Identifiers first; essential connections and correctness, not code-internal exposition or a role catalog."
+          }
+        },
+        {
+          "id": "short-implementation-first",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "処理の流れと、その中で各関数/classが何をするかを主眼に、実在する実装識別子を先に短い役割説明と接続をつなぐ。コード内部の解説を主目的にせず、逐語説明を短縮しただけの回答や網羅的な関数役割catalogにしない。導入章・長い抜粋・全guard/例外/制約一覧を達成条件にしない。重要な接続と正確さを保つ補足だけ残す。固定行数/語数/templateや受理済み例文の再現を求めない。",
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "選んだ主要節点ごとに、実在する関数・クラス・構造体などの識別子を先に置いた短い寄与文を一つ書き、実際の処理順につなぐ。"
+            }
+          },
+          "requirement_basis": {
+            "kind": "prospective-concise-flow-revision",
+            "summary": "Understand the processing flow and what each function/class does in that flow. Identifiers first; essential connections and correctness, not code-internal exposition or a role catalog."
+          }
+        }
+      ],
+      "common_metrics": [
+        "short-implementation-flow",
+        "code-grounded-accuracy",
+        "essential-connections"
+      ]
+    }
+  ],
+  "common_metrics": {
+    "short-implementation-flow": "Pass: 処理フローの中で各関数/classが何をするかを、実装識別子を先にした短い説明と接続で追える。コード内部の解説や網羅的な役割catalog、不要な導入・講義・重複要約・操作報告で埋没しない。固定行数・語数・template・例文一致は要求しない。コード抜粋の有無/量で加点しない。Fail: 長い講義・逐語説明の短縮版・識別子の孤立一覧/長大chainが流れを読みにくくする。",
+    "code-grounded-accuracy": "Pass: 示した処理/条件/状態/作用/順序/失敗の意味がコードと一致し、必要な重要接続が追える。Fail: 重要な誤り・捏造・意味を変える欠落。全guard/全例外/全内部操作の列挙は不要だが、簡潔さを理由にCookieが確定前に発行される等の誤説明を許さない。静的読解を実行成功としない。",
+    "essential-connections": "Pass: 対象caseの主要経路が実在する実装要素と結びつき、受渡しと機能上重要な順序/境界が理解できる。出典は必要な範囲で辿れればよく、読んだ全ファイル/command一覧や独立した限界章は要求しない。Fail: 名称だけ/一般論だけ、重要経路の欠落、未確認接続の断定。"
+  }
+}

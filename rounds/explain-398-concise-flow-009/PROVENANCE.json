@@ -1,0 +1,19 @@
+{
+  "candidate_sha": "00840080f44bd98502974375a5a9802b3099302f",
+  "candidate_tree": "d3efef6bf1aa013651568d0ab20fb68638db5b21",
+  "fixed_harness_commit": "d59af57f65ae015bbe829f7cc7528604db90078b",
+  "round007_corpus": "cases/explain-398-concise-flow/corpus.json",
+  "round007_corpus_sha256": "ff942b689ca36a4fdca78edcd2875d6440279397516eda21b1218e0c941ab206",
+  "corpus_delta": "Only candidate source-basis quote changed. Prompts, fixtures, expected observations, common metrics, reporting and harness code remain fixed from round007/008.",
+  "skill_path": "plugins/codex/skills/explain-this/SKILL.md",
+  "skill_sha256": "a22d30a7605ce95a3d8b2b109961314015370021ea6e4fa4fd6187983ae15296",
+  "source_basis_quote": "選んだ主要節点ごとに、実在する関数・クラス・構造体などの識別子を先に置いた短い寄与文を一つ書き、実際の処理順につなぐ。",
+  "preparation_note": "Source citations checked and quote-only revision prepared before packet generation; no LLM trial occurred.",
+  "assessment_scope": "Exactly2 representative fresh tasks per candidate iteration; parent judges quality and may continue authorized skill iterations. Preserve all pairs, no favorable-sample selection.",
+  "attribution_limit": "Relative to round007 the harness prompts/fixtures/criteria are fixed and the skill revision differs. Small unpaired samples, model/runtime unknowns and output variability do not establish causal/model superiority. Relative to round006 the earlier harness changes still apply.",
+  "not_executed": "No actual LLM evaluation, output inspection, scoring or release action.",
+  "previous_round": "rounds/explain-398-concise-flow-008",
+  "previous_corpus_sha256": "6feedc95dc6521490198c2cd8285e2ef672e217140acd0a5631a7d970019cd14",
+  "round009_corpus_sha256": "2806a5b315ab484d62d31825ff552a7b5e84b8c4498b487b893bea24b2b66e56",
+  "held_preparation": "b843dd provisional packets/snapshot had been locally generated before the hold arrived. They were never committed/pushed/run and remain in .local/held-round009-b843dd; final packets were newly generated, not overwritten."
+}
