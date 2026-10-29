@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preregistered two-case scope and fixture continuity; no new candidate packets."""
+"""Preregistered two-case scope, fixture continuity and connected packet identity."""
 import hashlib
 import json
 from pathlib import Path
@@ -34,14 +34,30 @@ class ConciseFlowCorpusTest(unittest.TestCase):
             self.assertTrue(all(set(o['basis']) == {'candidate'} for o in case['observations']))
         self.assertTrue((ROOT / 'cases/explain-398-concise-flow/REFERENCE.md').is_file())
 
-    def test_registration_is_pending_two_samples_without_candidate_packets(self):
+    def test_registration_and_exactly_two_connected_packets_match(self):
         registration = json.loads((ROUND / 'preregistration.json').read_text())
         self.assertEqual(registration['corpus_sha256'], hashlib.sha256(NEW.read_bytes()).hexdigest())
-        self.assertIsNone(registration['candidate_sha'])
+        self.assertEqual(registration['candidate_sha'], 'f69dcced4b64ee932b84b05ec8d31ddac2637762')
         self.assertEqual(registration['sample_count'], 2)
         self.assertEqual(registration['trials_per_case'], 1)
-        self.assertFalse((ROUND / 'inputs').exists())
-        self.assertFalse((ROUND / 'snapshot').exists())
+        corpus = json.loads(NEW.read_text())
+        cells = json.loads((ROUND / 'index.json').read_text())['cells']
+        self.assertEqual([c['case_id'] for c in cells], registration['selected_cases'])
+        self.assertEqual(len(cells), 2)
+        for cell in cells:
+            path = ROUND / cell['input']
+            packet = json.loads(path.read_text())
+            self.assertEqual(cell['input_sha256'], hashlib.sha256(path.read_bytes()).hexdigest())
+            self.assertEqual(packet['repo_sha'], registration['candidate_sha'])
+            self.assertEqual((packet['version'], packet['trial']), ('candidate', 1))
+            self.assertEqual(packet['response_reporting'], 'task-response-only')
+            case = next(c for c in corpus['cases'] if c['id'] == packet['case_id'])
+            self.assertEqual(packet['prompt'], case['prompt'])
+            self.assertEqual(packet['files'], corpus['fixtures'][case['fixture']])
+            self.assertFalse({'observations', 'common_metrics', 'rubric'} & packet.keys())
+        seal = json.loads((ROUND / 'snapshot/snapshot-seal.json').read_text())
+        for name, digest in seal.items():
+            self.assertEqual(hashlib.sha256((ROUND / 'snapshot' / name).read_bytes()).hexdigest(), digest)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,45 @@
+{
+  "common_metrics": {
+    "code-grounded-accuracy": "Pass: 示した処理/条件/状態/作用/順序/失敗の意味がコードと一致し、必要な重要接続が追える。Fail: 重要な誤り・捏造・意味を変える欠落。全guard/全例外/全内部操作の列挙は不要だが、簡潔さを理由にCookieが確定前に発行される等の誤説明を許さない。静的読解を実行成功としない。",
+    "essential-connections": "Pass: 対象caseの主要経路が実在する実装要素と結びつき、受渡しと機能上重要な順序/境界が理解できる。出典は必要な範囲で辿れればよく、読んだ全ファイル/command一覧や独立した限界章は要求しない。Fail: 名称だけ/一般論だけ、重要経路の欠落、未確認接続の断定。",
+    "short-implementation-flow": "Pass: 処理フローの中で各関数/classが何をするかを、実装識別子を先にした短い説明と接続で追える。コード内部の解説や網羅的な役割catalog、不要な導入・講義・重複要約・操作報告で埋没しない。固定行数・語数・template・例文一致は要求しない。コード抜粋の有無/量で加点しない。Fail: 長い講義・逐語説明の短縮版・識別子の孤立一覧/長大chainが流れを読みにくくする。"
+  },
+  "observations": [
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "実装の事実、実行観測、解釈、意図、テスト期待値を混同しない。",
+          "sha256": "c7b96a94fe1d44e81284f7f78f463314c47ca62cccabfa82ea10bb1e8d03b685"
+        }
+      },
+      "expectation": "app.buildの配線、Dispatcherの振分け、cartに入るSessionAuthからhandlerへのuser受渡しと、transactionの確定/例外時復元を、実在する実装要素の短い流れとしてつなぐ。基盤名で一律に省略しない。全route/全例外/辞書操作/内部状態項目の列挙は不要だが、認証の適用先や復元対象を誤説明しない。",
+      "id": "essential-flow",
+      "requirement_basis": {
+        "kind": "prospective-concise-flow-revision",
+        "summary": "Understand the processing flow and what each function/class does in that flow. Identifiers first; essential connections and correctness, not code-internal exposition or a role catalog."
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "実在する関数・クラス・構造体などの識別子を先に置き、流れの中で担う働きと次へのつながりを短く添える。",
+          "sha256": "c7b96a94fe1d44e81284f7f78f463314c47ca62cccabfa82ea10bb1e8d03b685"
+        }
+      },
+      "expectation": "処理の流れと、その中で各関数/classが何をするかを主眼に、実在する実装識別子を先に短い役割説明と接続をつなぐ。コード内部の解説を主目的にせず、逐語説明を短縮しただけの回答や網羅的な関数役割catalogにしない。導入章・長い抜粋・全guard/例外/制約一覧を達成条件にしない。重要な接続と正確さを保つ補足だけ残す。固定行数/語数/templateや受理済み例文の再現を求めない。",
+      "id": "short-implementation-first",
+      "requirement_basis": {
+        "kind": "prospective-concise-flow-revision",
+        "summary": "Understand the processing flow and what each function/class does in that flow. Identifiers first; essential connections and correctness, not code-internal exposition or a role catalog."
+      },
+      "versions": [
+        "candidate"
+      ]
+    }
+  ]
+}

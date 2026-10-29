@@ -18,7 +18,7 @@ fixture bytes・対象case・working changesは旧006と同じ。promptはフロ
 `response_reporting=task-response-only`はharnessの操作一覧要求だけを外し、code調査や証拠回収を制限しない。
 新基準で旧結果を遡及採点しない。公開するのは合成fixtureと要件/監査要約だけで、非公開会話全文やログを追加しない。
 
-最終candidate SHAは未提供。親から新SHAを受領するまで候補packet・snapshotを固定しない。
+事前固定時点では最終candidate SHAは未提供だった。親から新SHAを受領するまで候補packet・snapshotを固定しなかった。
 実行は親によるcandidate2件各1回だけ。実際の応答をHumanへ提示し、判断を待って停止する。
 全件展開・追加case・反復・version更新・PRは行わない。Tugite本体を変更しない。
 
@@ -27,3 +27,6 @@ prompt・response reporting・rubricも旧006と異なるため、このsample�
 
 独立開発reviewを優先する親の指示により、暫定6b3f4ac…のcandidate packet固定は停止中。
 実施済みはsource identity/引用確認だけ。新candidate packet・snapshot・LLM評価は未作成。レビュー後final SHAを待つ。
+
+待機履歴の後、親がf69dcced…の固定と2packet作成を明示したため、新007へ接続した。
+corpusのprompt/期待/fixture/metricは変更していない。実際の固定identityは007のPROVENANCE.jsonに記録する。

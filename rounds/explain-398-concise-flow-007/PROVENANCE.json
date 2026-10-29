@@ -1,0 +1,18 @@
+{
+  "meaning_freeze_commit": "9ad9047fb0be73a57042bbbfd4956bec335c8fc8",
+  "neutral_prompt_revision_commit": "cd597e79f69999021832b5ecfd2f2bf0723308ab",
+  "source_basis_only_revision_commit": "5e95ded26a82dc5491f79dc36fc1bda693d54756",
+  "adapter_commit": "4f47cd4c6315bdfc6311c51fd49974c8b2255655",
+  "corpus_sha256": "ff942b689ca36a4fdca78edcd2875d6440279397516eda21b1218e0c941ab206",
+  "candidate_sha": "f69dcced4b64ee932b84b05ec8d31ddac2637762",
+  "candidate_tree": "d5d0b3e7966841752f3a67570dac4e11e25e785a",
+  "skill_path": "plugins/codex/skills/explain-this/SKILL.md",
+  "skill_sha256": "c7b96a94fe1d44e81284f7f78f463314c47ca62cccabfa82ea10bb1e8d03b685",
+  "source_quotes_present": [
+    "実在する関数・クラス・構造体などの識別子を先に置き、流れの中で担う働きと次へのつながりを短く添える。",
+    "実装の事実、実行観測、解釈、意図、テスト期待値を混同しない。"
+  ],
+  "scope": "Exactly2 candidate cases, trial1 only. Parent launches and presents actual task response bodies to Human, then stops.",
+  "attribution_limit": "Skill, prompts, response reporting and rubric all changed relative to round006; these samples do not isolate a skill-only improvement.",
+  "note": "Fixed corpus unchanged after final SHA notice. Source identity/quotes only; no candidate diff/output read, no LLM trial launched/scored. Prior provisional6b source was never made into candidate packets."
+}

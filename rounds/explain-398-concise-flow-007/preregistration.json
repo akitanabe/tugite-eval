@@ -1,7 +1,7 @@
 {
-  "state": "semantics-fixed-awaiting-reviewed-final-candidate",
+  "state": "candidate-connected-two-packets-not-executed",
   "prospective": true,
-  "candidate_sha": null,
+  "candidate_sha": "f69dcced4b64ee932b84b05ec8d31ddac2637762",
   "corpus": "cases/explain-398-concise-flow/corpus.json",
   "corpus_sha256": "ff942b689ca36a4fdca78edcd2875d6440279397516eda21b1218e0c941ab206",
   "selected_cases": [
@@ -14,7 +14,7 @@
     "model": "gpt-6.1-sol",
     "effort": "medium"
   },
-  "packet_preparation": "No candidate input packets or round snapshot until parent supplies the new fixed SHA.",
+  "packet_preparation": "Parent supplied reviewed fixed SHA; exactly2 candidate/trial1 packets prepared, no LLM evaluation.",
   "scope": "Parent starts exactly2 cases and shows actual task responses to Human, then stops.",
   "stop": "No extra cases, repetitions, full evaluation, version update or PR.",
   "history": "Old fixtures/results/inputs/rubrics remain unchanged; old outcomes do not establish new conformance.",
@@ -23,5 +23,7 @@
   "prompt_revision": "Neutral requests for flow and each function/class role, amended on parent instruction after SHA notice but before source/output inspection; no answer template or accepted fixture answer.",
   "attribution_limit": "Skill, case prompts, response reporting, and rubric differ from round006; these samples cannot isolate a skill-only effect.",
   "basis_revision": "Provisional source full rewrite removed the historical quote; basis quotes only updated, expectations/prompt/fixture/metrics unchanged from cd597e79. Reconfirm source provenance after reviewed final SHA arrives.",
-  "provisional_source_read": "6b3f4ac86bb49e7e1e1259cbd17cd568fbb44f5b source identity/quotes only; packet freeze paused before any candidate packet/snapshot generation."
+  "provisional_source_read": "6b3f4ac86bb49e7e1e1259cbd17cd568fbb44f5b source identity/quotes only; packet freeze paused before any candidate packet/snapshot generation.",
+  "meaning_freeze_commit": "9ad9047fb0be73a57042bbbfd4956bec335c8fc8",
+  "neutral_prompt_revision_commit": "cd597e79f69999021832b5ecfd2f2bf0723308ab"
 }
