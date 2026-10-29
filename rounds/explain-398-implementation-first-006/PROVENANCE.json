@@ -1,0 +1,15 @@
+{
+  "semantics_freeze_commit": "c3a1cc287bd478a5b725f09b81e6cea49b7c2d11",
+  "adapter_commit": "1006c176c4427eeddefb2a26bf986e001f23b1a4",
+  "corpus_sha256": "d6abc2ef60985f61c5f37e4c3c7c10842334f766ac6fec6120b7cf4d8d965d15",
+  "candidate_sha": "ed8857da509f84235cdba3d2032440dd041d27a1",
+  "candidate_tree": "4c4ab23f0a18171ea5098c96180bb000109d3996",
+  "skill_path": "plugins/codex/skills/explain-this/SKILL.md",
+  "skill_sha256": "024bdc88c6bf11a0d16e543d3d41c89b8859e61bc34fb2698b6fa301d11242e8",
+  "source_quotes_present": [
+    "各実装要素は識別子を先に置き、そのコードが何をしているかを短く説明する。",
+    "コード抜粋は必要な場合や指定された場合に、理解を助ける範囲で使う。長い抜粋を既定とせず、"
+  ],
+  "scope": "Exactly2 candidate cases, trial1 only. Parent launches samples and presents actual responses to Human, then stops.",
+  "note": "Fixed requirements precede candidate connection. Source identity/provenance only; no candidate output/diff inspected, no evaluated task launched or scored. No private conversation transcript/log published."
+}

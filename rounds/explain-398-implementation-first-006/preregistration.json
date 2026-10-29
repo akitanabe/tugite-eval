@@ -1,9 +1,9 @@
 {
-  "state": "semantics-fixed-awaiting-final-candidate",
+  "state": "candidate-connected-two-samples-prepared-not-executed",
   "prospective": true,
   "corpus": "cases/explain-398-implementation-first/corpus.json",
   "corpus_sha256": "d6abc2ef60985f61c5f37e4c3c7c10842334f766ac6fec6120b7cf4d8d965d15",
-  "candidate_sha": null,
+  "candidate_sha": "ed8857da509f84235cdba3d2032440dd041d27a1",
   "selected_cases": [
     "explain-398-session-flow",
     "explain-398-infrastructure"
@@ -21,5 +21,6 @@
     "rounds/explain-398-code-centered-005"
   ],
   "historical_result_use": "Old outputs/results are retained and are not evidence of conformance to this new presentation requirement.",
-  "publication_scope": "Synthetic fixture and requirement summaries only; no private conversation transcript or execution logs."
+  "publication_scope": "Synthetic fixture and requirement summaries only; no private conversation transcript or execution logs.",
+  "semantics_freeze_commit": "c3a1cc287bd478a5b725f09b81e6cea49b7c2d11"
 }

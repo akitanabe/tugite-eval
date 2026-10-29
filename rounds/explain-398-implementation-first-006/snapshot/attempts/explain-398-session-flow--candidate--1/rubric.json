@@ -1,0 +1,70 @@
+{
+  "common_metrics": {
+    "accuracy": "Pass: 重要な分岐、データ/状態、作用、順序、失敗境界をコードに沿って保持し、静的事実/観測/推定/不明を区別する。Fail: 重要な誤り/欠落/捏造、意図適合の断定。",
+    "conciseness-without-loss": "Pass: 機能理解に必要な粒度で説明し、重要な意味を落とさない。一般DB操作の仕組みや付随的detailsが本筋を圧迫しない。短さ/行数/特定語彙/章立てを品質指標にしない。Fail: 冗長さで処理とコードの関係を把握できない、または短縮で重要な意味が失われる。",
+    "implementation-first-readability": "Pass: 実在する実装識別子を先にした短い説明で、何をして次の実装へどうつながるかを読める。重要な条件/状態/作用/順序は保持し、長いclass chainや逐語的内部講義で埋没しない。コード抜粋は補助で、量や有無を機械的な合格条件にしない。Fail: 意味工程だけを先に示し実装が追いにくい、実装名の孤立一覧、過剰な連結/説明で処理が読めない、重要接続の欠落/捏造。固定行数/文量/fence数/templateをoracleにしない。材料不足はindeterminate。",
+    "traceability": "Pass: 主要な処理・判断・接続・作用から実在するファイルとクラス/関数へ辿れる。行番号や見出しの固定は不要。Fail: 重要な対応が追跡不能/誤り。材料不足はindeterminate。",
+    "usefulness": "Pass: 依頼対象の全体像と意味のある処理順を読み手が理解できる。機能対象なら基盤詳細の列挙に埋没せず、基盤対象なら基盤の役割を説明する。Fail: 名前一覧や一般論で主要経路を代替。"
+  },
+  "observations": [
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "024bdc88c6bf11a0d16e543d3d41c89b8859e61bc34fb2698b6fa301d11242e8"
+        }
+      },
+      "expectation": "prepare/issue/exchangeから認証・cartまでの意味と主要コードをつなぎ、提供されないWebView側操作と実行未確認を区別する。",
+      "id": "grounded-flow",
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "024bdc88c6bf11a0d16e543d3d41c89b8859e61bc34fb2698b6fa301d11242e8"
+        }
+      },
+      "expectation": "実在するController.exchange→SessionOperation.exchange→MemoryStoreの関数/class構造を軸に、呼出し・処理順・データ受渡しをつなぎ、検証→期限切れsession削除→code消費/session登録→tx正常終了→Cookie発行を対応づける。拒否/commit失敗ではこれら変更とCookie不発。Cookie失敗は確定済DB相当状態を戻さない。middlewareのuser受渡しとDispatcherの403変換は残し、汎用route引当ての細部やDB一般論を過剰展開しない。",
+      "id": "398-code-structure-and-effects",
+      "issue_basis": {
+        "comments_observed": 0,
+        "note": "Issue defines the new expectations; basis source quote below only supports common evidence/accuracy. Candidate source provenance is checked when its SHA is available, without changing expectations.",
+        "observed_date": "2026-10-29",
+        "sections": [
+          "改善方針 1. 処理を起点にコードへ対応づける",
+          "改善方針 2. 実際の処理順",
+          "改善方針 3. 副作用",
+          "改善方針 4. 調査の深さと出力の粒度"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/398"
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "024bdc88c6bf11a0d16e543d3d41c89b8859e61bc34fb2698b6fa301d11242e8"
+        }
+      },
+      "expectation": "実在する関数・class・構造体等の実装識別子を先に示し、それが何をするかを短く説明しながら、実際の呼出し・処理順・データ/状態の受渡しを追えるようにつなぐ。複数classを一行の長いchainへ詰めず、必要に応じて短い別行/段落に分ける。重要な条件・分岐・状態変化・副作用・確定/失敗境界の補足に絞る。引数・型・単純代入の網羅説明や逐語的内部講義をしない。コード抜粋は必要時の補助として許すが長い抜粋を達成必須にしない。意味工程だけを先に示す構成、全関数/import一覧、全コードdumpで代替しない。固定行数・template・語句・コードfence数を唯一解にせず、実装と接続の理解可能性で判定する。",
+      "id": "implementation-first-explanation",
+      "requirement_basis": {
+        "kind": "new-prospective-requirement",
+        "precedence": "Supersedes the mandatory substantial-excerpt expectation in round005. Does not restore conceptual-stage-first explanations. Source quote supports common accuracy only; presentation expectation comes from this preregistered requirement.",
+        "summary": "Implementation identifiers first, concise behavior and actual connections; excerpts optional, not mandatory."
+      },
+      "versions": [
+        "candidate"
+      ]
+    }
+  ]
+}
