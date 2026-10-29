@@ -69,8 +69,8 @@
             ]
           },
           "snapshot-lifecycle": {
-            "result": "pass",
-            "reason": "Reports candidate commit identity, Completion Gate and subsequent same-commit final verification with scope/retention status. Artifacts independently support repaired behavior; hidden commit/reviewer/timing execution is not independently established.",
+            "result": "indeterminate",
+            "reason": "Reports candidate commit identity, Completion Gate and subsequent same-commit final verification with scope/retention status. Artifacts independently support repaired behavior; hidden commit/reviewer/timing execution is not independently established. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/tests/test_app.py",
@@ -674,8 +674,8 @@
             ]
           },
           "snapshot-lifecycle": {
-            "result": "pass",
-            "reason": "Correctly reports no Green/candidate commit/Completion Gate/final verification because permitted runner cannot start; does not fabricate lifecycle completion.",
+            "result": "indeterminate",
+            "reason": "Correctly reports no Green/candidate commit/Completion Gate/final verification because permitted runner cannot start; does not fabricate lifecycle completion. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/tests/test_app.py",
@@ -1271,8 +1271,8 @@
             ]
           },
           "snapshot-lifecycle": {
-            "result": "pass",
-            "reason": "Accurately reports no repair/candidate commit/Completion Gate/commit-final verification rather than inventing completion despite unresolved authoritative requirements.",
+            "result": "indeterminate",
+            "reason": "Accurately reports no repair/candidate commit/Completion Gate/commit-final verification rather than inventing completion despite unresolved authoritative requirements. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/tests/test_app.py",
