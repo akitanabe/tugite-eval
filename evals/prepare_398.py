@@ -16,13 +16,15 @@ BASELINE = 'c44261f1f70da40c75123a91153a8aa6c6d4be1e'
 CORPUS = r.ROOT / 'cases/explain-398/corpus.json'
 
 
-def prepare(destination: Path, side: str, revision: str, source: str, trials: int) -> None:
+def prepare(destination: Path, side: str, revision: str, source: str, trials: int, corpus_path: Path = CORPUS, baseline_revision: str = BASELINE) -> None:
     if not re.fullmatch(r'[0-9a-f]{40}', revision):
         raise ValueError('full fixed SHA required; placeholders/branches are not executable')
-    if side == 'baseline' and revision != BASELINE:
+    if not re.fullmatch(r'[0-9a-f]{40}', baseline_revision):
+        raise ValueError('full fixed baseline SHA required')
+    if side == 'baseline' and revision != baseline_revision:
         raise ValueError('baseline identity is preregistered')
-    corpus = copy.deepcopy(r.read_json(CORPUS))
-    selected_versions = {'baseline': BASELINE, 'candidate': revision} if side == 'both' else {side: revision}
+    corpus = copy.deepcopy(r.read_json(corpus_path))
+    selected_versions = {'baseline': baseline_revision, 'candidate': revision} if side == 'both' else {side: revision}
     corpus['cases'] = [case for case in corpus['cases'] if set(selected_versions) & set(case['versions'])]
     for case in corpus['cases']:
         case['versions'] = [version for version in case['versions'] if version in selected_versions]
@@ -53,12 +55,12 @@ def prepare(destination: Path, side: str, revision: str, source: str, trials: in
         'protocol_id': 'output-quality-v1', 'round_id': r.read_json(round_path / 'spec.json')['round_id'],
         'requested': {'model': 'gpt-6.1-sol', 'effort': 'medium'},
         'input_index': 'index.json', 'input_index_sha256': r.digest((destination / 'index.json').read_bytes()),
-        'semantics_sha256': r.digest(CORPUS.read_bytes()),
+        'semantics_sha256': r.digest(corpus_path.read_bytes()),
         'scope': 'Output quality; internal evidence/effective model unknown is a limitation, not a stop.',
     })
     cloud_receipt.snapshot(round_path, destination / 'snapshot')
     print(r.canonical({'destination': str(destination), 'side': side, 'repo_sha': revision,
-                       'semantics_sha256': r.digest(CORPUS.read_bytes()), 'cells': cells}).decode(), end='')
+                       'semantics_sha256': r.digest(corpus_path.read_bytes()), 'cells': cells}).decode(), end='')
 
 
 def main() -> None:
@@ -66,11 +68,13 @@ def main() -> None:
     parser.add_argument('side', choices=['baseline', 'candidate', 'both'])
     parser.add_argument('revision')
     parser.add_argument('destination', type=Path)
+    parser.add_argument('--corpus', type=Path, default=CORPUS)
+    parser.add_argument('--baseline-sha', default=BASELINE)
     parser.add_argument('--source-repo', default=r.SOURCE_REPOSITORY)
     parser.add_argument('--focus-trials', type=int, choices=[1, 2, 3], default=1)
     args = parser.parse_args()
     try:
-        prepare(args.destination.resolve(), args.side, args.revision, args.source_repo, args.focus_trials)
+        prepare(args.destination.resolve(), args.side, args.revision, args.source_repo, args.focus_trials, args.corpus, args.baseline_sha)
     except (ValueError, KeyError, OSError) as error:
         parser.exit(2, f'error: {error}\n')
 

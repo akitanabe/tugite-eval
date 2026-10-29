@@ -10,8 +10,10 @@
     "model": "gpt-6.1-sol",
     "effort": "medium"
   },
-  "initial_scope": "3 focus cases x both versions x1 +4 candidate regression cases x1 =10 trials",
-  "repeat_scope": "Decision-relevant focus cases: each version trials2/3; maximum22 trials",
+  "initial_scope": "New final candidate session-flow x1 first; parent inspects the actual code-centered response before selecting regression/comparison scope",
+  "repeat_scope": "After the first response, expand only as needed: candidate4 regressions, other focus cases, decision-relevant paired3 trials; pre-generated ceiling22 packets is not an execution obligation",
   "old_result_status": "Parent reports old candidate14 results PASS under old criteria; user presentation expectation differed. No retroactive rescoring.",
-  "evaluation_execution": "Parent only; no tasks launched or outputs scored in preparation."
+  "evaluation_execution": "Parent only; no tasks launched or outputs scored in preparation.",
+  "nonfinal_candidate_received": "34afef723211ae48a8447917bc18bf835b40e69f is explicitly nonfinal and must not be frozen or used for trials",
+  "old_result_use": "Historical note only; never evidence of conformance to the new user requirement"
 }
