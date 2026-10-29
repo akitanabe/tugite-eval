@@ -23,7 +23,8 @@ class ProspectiveCorpusTest(unittest.TestCase):
         for before, after in zip(old['cases'], new['cases']):
             for key in ('id', 'prompt', 'overrides', 'working_changes', 'versions', 'fixture'):
                 self.assertEqual(before[key], after[key])
-            previous = copy.deepcopy(after['observations'][:-1])
+            previous = copy.deepcopy([o for o in after['observations'][:-1]
+                                      if o['id'] != '398-code-structure-and-effects'])
             self.assertEqual([(o['id'], o['expectation']) for o in before['observations']],
                              [(o['id'], o['expectation']) for o in previous])
             for expected, actual in zip(before['observations'], previous):
@@ -33,6 +34,15 @@ class ProspectiveCorpusTest(unittest.TestCase):
             self.assertEqual(added['versions'], ['candidate'])
             self.assertEqual(added['id'], 'code-centered-explanation')
             self.assertTrue(added['user_requirement_basis']['purpose_quote'])
+            self.assertTrue(added['user_requirement_basis']['structure_quote'])
+            if before['id'] == 'explain-398-session-flow':
+                old_structure = next(o for o in after['observations'] if o['id'] == '398-process-and-effects')
+                new_structure = next(o for o in after['observations'] if o['id'] == '398-code-structure-and-effects')
+                self.assertEqual(old_structure['versions'], ['baseline'])
+                self.assertEqual(new_structure['versions'], ['candidate'])
+                self.assertEqual(len(after['observations']), len(before['observations']) + 2)
+            else:
+                self.assertEqual(len(after['observations']), len(before['observations']) + 1)
             self.assertEqual(after['common_metrics'][:len(before['common_metrics'])], before['common_metrics'])
 
     def test_registration_matches_corpus_and_has_no_executable_candidate(self):

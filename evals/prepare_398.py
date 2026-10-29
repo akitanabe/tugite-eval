@@ -16,7 +16,7 @@ BASELINE = 'c44261f1f70da40c75123a91153a8aa6c6d4be1e'
 CORPUS = r.ROOT / 'cases/explain-398/corpus.json'
 
 
-def prepare(destination: Path, side: str, revision: str, source: str, trials: int, corpus_path: Path = CORPUS, baseline_revision: str = BASELINE) -> None:
+def prepare(destination: Path, side: str, revision: str, source: str, trials: int, corpus_path: Path = CORPUS, baseline_revision: str = BASELINE, case_ids: list[str] | None = None) -> None:
     if not re.fullmatch(r'[0-9a-f]{40}', revision):
         raise ValueError('full fixed SHA required; placeholders/branches are not executable')
     if not re.fullmatch(r'[0-9a-f]{40}', baseline_revision):
@@ -32,6 +32,10 @@ def prepare(destination: Path, side: str, revision: str, source: str, trials: in
         for observation in case['observations']:
             observation['versions'] = [version for version in observation['versions'] if version in selected_versions]
             observation['basis'] = {version: observation['basis'][version] for version in observation['versions']}
+    if case_ids is not None:
+        if not case_ids or set(case_ids) - {case['id'] for case in corpus['cases']}:
+            raise ValueError('selected cases must exist for the selected versions')
+        corpus['cases'] = [case for case in corpus['cases'] if case['id'] in case_ids]
     destination.mkdir(parents=True, exist_ok=False)
     with tempfile.TemporaryDirectory(prefix='tugite-398-corpus-') as temporary:
         selected = Path(temporary) / 'corpus.json'
@@ -68,13 +72,14 @@ def main() -> None:
     parser.add_argument('side', choices=['baseline', 'candidate', 'both'])
     parser.add_argument('revision')
     parser.add_argument('destination', type=Path)
+    parser.add_argument('--case', dest='case_ids', action='append', help='Prepare only the named case; repeat to select a small sample')
     parser.add_argument('--corpus', type=Path, default=CORPUS)
     parser.add_argument('--baseline-sha', default=BASELINE)
     parser.add_argument('--source-repo', default=r.SOURCE_REPOSITORY)
     parser.add_argument('--focus-trials', type=int, choices=[1, 2, 3], default=1)
     args = parser.parse_args()
     try:
-        prepare(args.destination.resolve(), args.side, args.revision, args.source_repo, args.focus_trials, args.corpus, args.baseline_sha)
+        prepare(args.destination.resolve(), args.side, args.revision, args.source_repo, args.focus_trials, args.corpus, args.baseline_sha, args.case_ids)
     except (ValueError, KeyError, OSError) as error:
         parser.exit(2, f'error: {error}\n')
 

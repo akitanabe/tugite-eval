@@ -78,6 +78,24 @@ class TransportTest(unittest.TestCase):
                 self.assertEqual(case[key], new[key])
             self.assertEqual(case['observations'][0]['expectation'], new['observations'][0]['expectation'])
 
+    def test_explicit_sample_selection_prepares_only_requested_cases(self):
+        corpus = ROOT / 'cases/explain-398-code-centered/corpus.json'
+        selected = ['explain-398-session-flow', 'explain-398-infrastructure']
+        destination = self.directory / 'sample-selection'
+        # Pinned old source here tests transport only, never a real new candidate.
+        prepare_398.prepare(destination, 'candidate', prepare_398.BASELINE, str(self.source), 1,
+                            corpus, prepare_398.BASELINE, selected)
+        cells = r.read_json(destination / 'index.json')['cells']
+        self.assertEqual([c['case_id'] for c in cells], selected)
+        self.assertEqual({c['trial'] for c in cells}, {1})
+        self.assertEqual({c['version'] for c in cells}, {'candidate'})
+        self.assertEqual(len(list((destination / 'snapshot/attempts').iterdir())), 2)
+        invalid = self.directory / 'invalid-selection'
+        with self.assertRaises(ValueError):
+            prepare_398.prepare(invalid, 'candidate', prepare_398.BASELINE, str(self.source), 1,
+                                corpus, prepare_398.BASELINE, ['missing-case'])
+        self.assertFalse(invalid.exists())
+
     def test_mismatched_map_and_placeholder_cannot_stage(self):
         cell = r.read_json(self.package / 'index.json')['cells'][0]
         packet = r.read_json(self.package / cell['input'])
