@@ -14,10 +14,13 @@
 細部を全て語る必要はないが、語った内容に重要な誤りがあったり、断定の範囲が実装を越えたりした場合はaccuracyの問題として残す。
 [事実参照](REFERENCE.md)はjudgeが誤説明を点検する資料であり、回答へ全項目を転記させるchecklistではない。
 
-fixture bytes・対象case・working changesは旧006と同じ。promptは短い処理フローを明示するため変更した。
+fixture bytes・対象case・working changesは旧006と同じ。promptはフローと各関数/classの役割を尋ねる中立な依頼へ変更し、回答形式のtemplateや受理例文は含めない。
 `response_reporting=task-response-only`はharnessの操作一覧要求だけを外し、code調査や証拠回収を制限しない。
 新基準で旧結果を遡及採点しない。公開するのは合成fixtureと要件/監査要約だけで、非公開会話全文やログを追加しない。
 
 最終candidate SHAは未提供。親から新SHAを受領するまで候補packet・snapshotを固定しない。
 実行は親によるcandidate2件各1回だけ。実際の応答をHumanへ提示し、判断を待って停止する。
 全件展開・追加case・反復・version更新・PRは行わない。Tugite本体を変更しない。
+
+prompt・response reporting・rubricも旧006と異なるため、このsampleからSkill変更単独の効果を切り分けて主張しない。
+中立promptへの改訂は親の明示指示に基づき、candidate SHA通知後・source/outputを読む前に行った。意味の中心基準は先行commitで固定済み。

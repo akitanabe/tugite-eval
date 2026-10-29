@@ -22,7 +22,7 @@
       "fixture": "webview",
       "overrides": {},
       "working_changes": {},
-      "prompt": "この合成WebView風セッションについて、prepareからcart取得まで、流れの中で各関数・classが何をするかを短く説明してください。実装識別子を先に示し、重要な接続・状態変更・順序が追える範囲に絞ってください。実行・変更は不要です。",
+      "prompt": "この合成WebView風セッションのprepareからcart取得までの流れと、各関数・classがその中で何をしているかを説明してください。実行・変更は不要です。",
       "response_reporting": "task-response-only",
       "observations": [
         {
@@ -77,7 +77,7 @@
       "fixture": "webview",
       "overrides": {},
       "working_changes": {},
-      "prompt": "共通基盤のapp.build、Dispatcher、SessionAuth、MemoryStore.transactionについて、流れの中でそれぞれが何をし、どうつながって働くかを短く説明してください。実装識別子を先に示し、重要な接続と状態確定の境界に絞ってください。実行・変更は不要です。",
+      "prompt": "app.build、Dispatcher、SessionAuth、MemoryStore.transactionを含む共通基盤の処理フローと、各関数・classがその中で何をしているかを説明してください。実行・変更は不要です。",
       "response_reporting": "task-response-only",
       "observations": [
         {

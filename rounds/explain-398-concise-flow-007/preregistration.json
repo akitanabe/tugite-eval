@@ -3,7 +3,7 @@
   "prospective": true,
   "candidate_sha": null,
   "corpus": "cases/explain-398-concise-flow/corpus.json",
-  "corpus_sha256": "35b9bbc056ebeea51c1b79495a85fc15ebfc30cd3ea0e2614297451c9e388875",
+  "corpus_sha256": "28faa15b45219a02a0221c03acd794a36bcc5eb1b02a43e16b50c7c491080391",
   "selected_cases": [
     "explain-398-session-flow",
     "explain-398-infrastructure"
@@ -19,5 +19,7 @@
   "stop": "No extra cases, repetitions, full evaluation, version update or PR.",
   "history": "Old fixtures/results/inputs/rubrics remain unchanged; old outcomes do not establish new conformance.",
   "publication": "Synthetic fixture and requirement/audit summaries only, no private transcript or execution logs.",
-  "primary_goal": "Understand processing flow and the role of each function/class within it, rather than code internals or an exhaustive role catalog."
+  "primary_goal": "Understand processing flow and the role of each function/class within it, rather than code internals or an exhaustive role catalog.",
+  "prompt_revision": "Neutral requests for flow and each function/class role, amended on parent instruction after SHA notice but before source/output inspection; no answer template or accepted fixture answer.",
+  "attribution_limit": "Skill, case prompts, response reporting, and rubric differ from round006; these samples cannot isolate a skill-only effect."
 }
