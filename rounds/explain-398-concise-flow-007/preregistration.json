@@ -1,0 +1,23 @@
+{
+  "state": "semantics-fixed-awaiting-new-candidate",
+  "prospective": true,
+  "candidate_sha": null,
+  "corpus": "cases/explain-398-concise-flow/corpus.json",
+  "corpus_sha256": "35b9bbc056ebeea51c1b79495a85fc15ebfc30cd3ea0e2614297451c9e388875",
+  "selected_cases": [
+    "explain-398-session-flow",
+    "explain-398-infrastructure"
+  ],
+  "trials_per_case": 1,
+  "sample_count": 2,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "packet_preparation": "No candidate input packets or round snapshot until parent supplies the new fixed SHA.",
+  "scope": "Parent starts exactly2 cases and shows actual task responses to Human, then stops.",
+  "stop": "No extra cases, repetitions, full evaluation, version update or PR.",
+  "history": "Old fixtures/results/inputs/rubrics remain unchanged; old outcomes do not establish new conformance.",
+  "publication": "Synthetic fixture and requirement/audit summaries only, no private transcript or execution logs.",
+  "primary_goal": "Understand processing flow and the role of each function/class within it, rather than code internals or an exhaustive role catalog."
+}

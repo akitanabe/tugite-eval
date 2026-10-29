@@ -1,0 +1,13 @@
+# Judge用の事実参照（出力checklistではない）
+
+正本はcorpusに固定した合成code。以下は静的な事実を確認するための参照で、回答に全項目を要求しない。
+主要経路の接続を説明するのに不要な詳細の省略だけで失敗としない。反対に、言及した事実が誤りなら詳細の省略とは区別する。
+
+- prepareはbinding/期限/refresh状態を持つchallengeを作り、issueは有効な親から未使用codeを登録する。
+- exchangeは親/code/使用状態/bindingを検証し、期限切れsession削除・code消費・session登録を同じtx内で行う。正常exit後にControllerがCookie発行を呼ぶ。
+- Rejectedは変更前に生じ、Dispatcherが403へ変換する。commit失敗ではparent/code/session mapsが復元され、Cookieへ進まない。
+- Cookie失敗は確定済mapsを戻さない。serialはtx復元対象外。これらを必ず別項目で説明する義務はないが、「全状態がrollback」「Cookie失敗でもcode未使用」等の誤った一般化は許さない。
+- app.buildはexchangeをControllerへ、cartをSessionAuth経由でhandlerへ配線する。認証sessionのuserをコピーrequestへ渡しcartを取得する。元request.userを認証の根拠にしない。
+- lock_*は辞書lookupで実DBロックではない。実WebView搬送とbinding Cookie設定は未提供。未提供の接続や並行安全性を捏造しない。理解に関係しない独立した制約章は不要。
+
+重要な異常系を説明するときは対応する実コードを確認する。短くするために誤説明を見逃す基準ではない。
