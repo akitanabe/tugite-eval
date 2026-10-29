@@ -63,8 +63,8 @@
             ]
           },
           "unit-normalization": {
-            "result": "pass",
-            "reason": "Response defines a single independently acceptable documentation outcome, clear scope/exclusions, AC, freedom, constraints, dependencies and verification; grounds partition in README, plan and independent specification, reports pre-execution one-time method use. Actual internal timing and method execution remain unverified.",
+            "result": "indeterminate",
+            "reason": "Response defines a single independently acceptable documentation outcome, clear scope/exclusions, AC, freedom, constraints, dependencies and verification; grounds partition in README, plan and independent specification, reports pre-execution one-time method use. Actual internal timing and method execution remain unverified. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/README.md",
@@ -258,8 +258,8 @@
             ]
           },
           "unit-normalization": {
-            "result": "pass",
-            "reason": "Response defines a single independently acceptable documentation outcome, clear scope/exclusions, AC, freedom, constraints, dependencies and verification; grounds partition in README, plan and independent specification, reports pre-execution one-time method use. Actual internal timing and method execution remain unverified.",
+            "result": "indeterminate",
+            "reason": "Response defines a single independently acceptable documentation outcome, clear scope/exclusions, AC, freedom, constraints, dependencies and verification; grounds partition in README, plan and independent specification, reports pre-execution one-time method use. Actual internal timing and method execution remain unverified. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/README.md",
@@ -642,8 +642,8 @@
             ]
           },
           "unit-normalization": {
-            "result": "pass",
-            "reason": "Reports one bounded documentation outcome and its AC, scope, constraints, dependencies, verification, reasoned partition and pre-execution design application; hidden method execution/timing remains unknown.",
+            "result": "indeterminate",
+            "reason": "Reports one bounded documentation outcome and its AC, scope, constraints, dependencies, verification, reasoned partition and pre-execution design application; hidden method execution/timing remains unknown. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/README.md",
@@ -831,8 +831,8 @@
             ]
           },
           "unit-normalization": {
-            "result": "pass",
-            "reason": "Reports one bounded documentation outcome and its AC, scope, constraints, dependencies, verification, reasoned partition and pre-execution design application; hidden method execution/timing remains unknown.",
+            "result": "indeterminate",
+            "reason": "Reports one bounded documentation outcome and its AC, scope, constraints, dependencies, verification, reasoned partition and pre-execution design application; hidden method execution/timing remains unknown. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/README.md",
@@ -1199,8 +1199,8 @@
             ]
           },
           "unit-normalization": {
-            "result": "pass",
-            "reason": "Identifies one prospective outcome, applies reported design analysis to unresolved policy/AC, and does not fabricate execution-ready boundaries. Internal one-time method/timing remains unverified.",
+            "result": "indeterminate",
+            "reason": "Identifies one prospective outcome, applies reported design analysis to unresolved policy/AC, and does not fabricate execution-ready boundaries. Internal one-time method/timing remains unverified. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/README.md",
@@ -1385,8 +1385,8 @@
             ]
           },
           "unit-normalization": {
-            "result": "pass",
-            "reason": "Identifies one prospective outcome, applies reported design analysis to unresolved policy/AC, and does not fabricate execution-ready boundaries. Internal one-time method/timing remains unverified.",
+            "result": "indeterminate",
+            "reason": "Identifies one prospective outcome, applies reported design analysis to unresolved policy/AC, and does not fabricate execution-ready boundaries. Internal one-time method/timing remains unverified. Output-level description is coherent, but the frozen observation includes internal timing/execution that the sealed response/artifact bundle cannot independently authenticate; this does not block output-quality acceptance.",
             "evidence": [
               "cloud/result/response.txt",
               "cloud/result/artifacts/README.md",
