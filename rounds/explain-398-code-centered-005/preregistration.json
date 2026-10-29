@@ -1,9 +1,9 @@
 {
-  "state": "semantics-fixed-awaiting-candidate",
+  "state": "candidate-connected-samples-prepared-not-executed",
   "prospective": true,
   "old_round": "rounds/explain-398-004",
   "baseline_proposed": "2e7ae9237103cc9a6c6d9afbb748c11ad2ea51e7",
-  "candidate_sha": null,
+  "candidate_sha": "56ac61bb4cc83236ecf3a233131aa8def75ab0f6",
   "corpus": "cases/explain-398-code-centered/corpus.json",
   "corpus_sha256": "afd9416583a6a1c0fe771917dc95ba8e6cf7c0b27e011dc3aa59a5a0f5ea250d",
   "requested": {
@@ -17,5 +17,6 @@
   "nonfinal_candidate_received": "34afef723211ae48a8447917bc18bf835b40e69f is explicitly nonfinal and must not be frozen or used for trials",
   "old_result_use": "Historical note only; never evidence of conformance to the new user requirement",
   "latest_structure_policy": "Real functions/classes/structs form the explanation skeleton; latest user instruction supersedes original process-first unit policy for new candidate only",
-  "latest_stop_quote": "ok。修正後はevalは全て行わず数ケースためすのみにしてこちらの判断を仰いでください"
+  "latest_stop_quote": "ok。修正後はevalは全て行わず数ケースためすのみにしてこちらの判断を仰いでください",
+  "semantics_freeze_commit": "2b5337842248e8fbc20662007fb14034d8b542f4"
 }

@@ -45,11 +45,12 @@ class ProspectiveCorpusTest(unittest.TestCase):
                 self.assertEqual(len(after['observations']), len(before['observations']) + 1)
             self.assertEqual(after['common_metrics'][:len(before['common_metrics'])], before['common_metrics'])
 
-    def test_registration_matches_corpus_and_has_no_executable_candidate(self):
+    def test_registration_matches_corpus_and_tracks_fixed_candidate(self):
         import hashlib
         registration = json.loads((ROOT / 'rounds/explain-398-code-centered-005/preregistration.json').read_text())
         self.assertEqual(registration['corpus_sha256'], hashlib.sha256(NEW.read_bytes()).hexdigest())
-        self.assertIsNone(registration['candidate_sha'])
+        self.assertEqual(registration['candidate_sha'], '56ac61bb4cc83236ecf3a233131aa8def75ab0f6')
+        self.assertEqual(registration['semantics_freeze_commit'], '2b5337842248e8fbc20662007fb14034d8b542f4')
         self.assertTrue(registration['prospective'])
 
     def test_unresolved_or_mismatched_sha_is_rejected_before_writing(self):

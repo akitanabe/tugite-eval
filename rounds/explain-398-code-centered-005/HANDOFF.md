@@ -1,6 +1,8 @@
 # コード要素中心の説明: 少数sampleの準備
 
-新final candidate SHA待ち。trial起動・採点は親が行う。
+final candidate `56ac61bb4cc83236ecf3a233131aa8def75ab0f6`を事前freeze後に接続済み。trial起動・採点は親が行う。
+通知されたtree `d90a8ea982dc94c0ccb1bd7515363f876a030cd3`との一致も確認した。
+[実行用3packetのpath/hash](INPUTS.md)と[index](index.json)、[source identity](PROVENANCE.json)を使用する。
 [要求変更と適用基準](../../cases/explain-398-code-centered/README.md)、[固定corpus](../../cases/explain-398-code-centered/corpus.json)、
 [登録](preregistration.json)を参照する。
 
@@ -53,4 +55,26 @@ fixture/prompt/working changes/旧metricと旧結果を保持。矛盾する骨�
 新corpus検査は旧観測列を丸ごと比較し、意図した置換以外の欠落を検出する。
 新case選択で少数だけ生成でき、未知/適用外caseや未確定SHAでは書込み前に停止する。
 独立読み取り専用reviewを行い、LLM trial/output採点はしない。
-未確認は新final candidateの配布identity/source引用、実packet、実出力品質。
+配布identity/source引用と3packetは照合済み。未確認は実出力品質。
+
+## 生成済みpacketでの実task bootstrap
+
+`<DELIVERY_SHA>`はこのinputsを含む最終remote main完全SHA、`<INPUT_PATH>`/`<INPUT_SHA256>`はINPUTS.mdから選ぶ。
+1taskに1packet、requested gpt-6.1-sol / medium、fresh eval環境。control/rubric/旧出力を評価対象へ渡さない。
+
+```text
+Repo=https://github.com/akitanabe/tugite-eval.git、cwd=/workspace/tugite-eval、固定code/data SHA=<DELIVERY_SHA>。
+なければ通常clone。既存ならtop-level/originを確認。逐次成功確認してfetch --no-tags <URL> <DELIVERY_SHA>、cat-file -e <DELIVERY_SHA>^{commit}、status --porcelain（空）、checkout --detach <DELIVERY_SHA>、rev-parse HEAD（一致）。失敗/dirty/別repoなら保持し停止。force/reset/clean禁止。
+python3 evals/cloud_task.py stage <INPUT_PATH> <INPUT_SHA256> /workspace/quality-stage
+固定SHAの通常fetchを許可。/workspace/quality-stage/prompt.txtを読み、指定固定Skillを最初に読み、指定fixtureで説明する。現行Skill/corpus/control/snapshot/rubric/他版/旧出力は読まない。採点/nested CLI/push/依存導入/fixtureからの外部通信は禁止。
+完全応答を/workspace/quality-response.txtへ保存し、repo cwdで:
+python3 evals/cloud_task.py collect /workspace/quality-stage <INPUT_SHA256> /workspace/quality-response.txt /workspace/quality-result --quality
+応答本文、成果物所在、result-seal hash、読んだ固定参照、制約を返す。内部証跡/実効model未観測は不明のまま。失敗時は操作/対象/理由/完了部分/denied-pending-uncertainを返す。
+```
+
+親は3caseの実際の応答をHumanへ提示し、判断を待つ。これ以降の展開/反復/version/PRは禁止。
+
+検証結果: 新corpus検査3件・準備/fixture検査7件成功、独立レビューでも同検査成功。
+実final candidateでsnapshot restoreと3packet stage smokeが成功。全packetはcandidate/trial1で評価基準非混入、
+session-flow rubricには旧骨格条件がなく新構造観測が適用されることを確認。公開scan/diff check成功。
+これらは準備機構の確認であり、被評価Skillの実応答や内部遵守を評価した証拠ではない。

@@ -1,0 +1,74 @@
+{
+  "common_metrics": {
+    "accuracy": "Pass: 重要な分岐、データ/状態、作用、順序、失敗境界をコードに沿って保持し、静的事実/観測/推定/不明を区別する。Fail: 重要な誤り/欠落/捏造、意図適合の断定。",
+    "code-centered-readability": "Prospective common quality comparison only. Pass: 実在する関数/class/構造体等を骨格にする実コード抜粋と短い内部処理の補足により読者が何をする処理かを理解し、出典・省略・重要境界を追える。Fail: コード位置一覧/長い散文だけ、過剰dump、出典不明な断片、実在と偽った合成コードで理解を妨げる。該当しない未提供コードを要求しない。行数/短さ/fence数/特定構成をoracleにしない。旧版の仕様違反や旧14件のregressionへ読み替えない。 抜粋が孤立せず入力値→判断/変更→次へ渡す値・呼出先を読み順に追え、自分で実装していないHumanが接続を理解できることを重視する。 内部処理の接続に必要な値のみを補足し、引数/型/デフォルト値/全入力の網羅説明やその量を加点基準にしない。 明白な引数/単純代入の逐語説明よりコードをまたぐ接続と重要な分岐/状態/順序へ説明量を配分し、一行ずつの翻訳にしない。 呼出し/実行順/受渡しを実装境界に沿ってつなぎ、架空の概念工程へ過剰再編しない。単なる全関数/import一覧にしない。",
+    "conciseness-without-loss": "Pass: 機能理解に必要な粒度で説明し、重要な意味を落とさない。一般DB操作の仕組みや付随的detailsが本筋を圧迫しない。短さ/行数/特定語彙/章立てを品質指標にしない。Fail: 冗長さで処理とコードの関係を把握できない、または短縮で重要な意味が失われる。",
+    "traceability": "Pass: 主要な処理・判断・接続・作用から実在するファイルとクラス/関数へ辿れる。行番号や見出しの固定は不要。Fail: 重要な対応が追跡不能/誤り。材料不足はindeterminate。",
+    "usefulness": "Pass: 依頼対象の全体像と意味のある処理順を読み手が理解できる。機能対象なら基盤詳細の列挙に埋没せず、基盤対象なら基盤の役割を説明する。Fail: 名前一覧や一般論で主要経路を代替。"
+  },
+  "observations": [
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+        }
+      },
+      "expectation": "app.buildの配線、exchange/cartで異なるmiddleware適用、requestコピーによるuser受渡し、403変換と例外伝播、tx commit/rollbackをコードから説明する。",
+      "id": "grounded-infrastructure",
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+        }
+      },
+      "expectation": "Dispatcher等を名前で省略せず、基盤を主題として意味ある構成を説明する。lock名から排他保証を断定せず、mapsのrollbackとserial非rollbackを区別する。",
+      "id": "398-no-name-exclusion",
+      "issue_basis": {
+        "comments_observed": 0,
+        "note": "Issue defines the new expectations; basis source quote below only supports common evidence/accuracy. Candidate source provenance is checked when its SHA is available, without changing expectations.",
+        "observed_date": "2026-10-29",
+        "sections": [
+          "改善方針 4. 調査の深さと出力の粒度",
+          "受入条件: 対象が共通基盤そのものの場合"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/398"
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+        }
+      },
+      "expectation": "実在する関数・class・構造体等を流れの骨格にし、呼び出し・処理順・データ受渡しをつないで示す。構造が追える実コード抜粋を並べ、その内部処理を短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。架空の概念的工程を先に作って実装を過剰に再編しない。対象機能に関係する実装要素のつながりを選び、全関数一覧/import一覧にしない。複数関数/ファイルの抜粋は実際の境界・呼出し関係を保って出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。 内部で実際に行っている処理とつながりに絞る。引数一覧・型・デフォルト値・全入力の網羅説明を追加しない。値/引数は重要な分岐・状態変更・受渡しを理解するために必要な箇所だけコードに沿って短く補足し、APIリファレンス化や引数解説の量で加点しない。 説明量は見て分かる引数や単純代入の逐語説明へ割かず、コードをまたぐ接続、重要な分岐/状態変化/実行順序へ集中する。コードを読む理解を補助し、一行ずつ日本語へ翻訳しない。これは出力粒度の優先順位であり、説明量や短さの機械判定にはしない。",
+      "id": "code-centered-explanation",
+      "user_requirement_basis": {
+        "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+        "granularity_quote": "そうですね、引数とかの見てわかるものに情報をあまり割かないでください。コ",
+        "granularity_quote_note": "末尾の「コ」は未完の文字として保持し、意味を補完しない。接続/分岐/状態/順序への集中は親からの明示した補足に基づく。",
+        "precedence": "Latest explicit user clarification supersedes original issue process-first main-unit wording. Real implementation elements form the skeleton; meaningful internal behavior is concise supporting explanation.",
+        "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです",
+        "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+        "received_date": "2026-10-29",
+        "scope_quote": "あとは引数とかもゼロイチで全て解説する必要はありません。あくまで内部で行っている処理に絞ってください。",
+        "structure_quote": "あとは説明の際は関数やclass、構造体などを基準に流れを組み立ててください。コードを基準にとはそういう意味で言っています"
+      },
+      "versions": [
+        "candidate"
+      ]
+    }
+  ]
+}

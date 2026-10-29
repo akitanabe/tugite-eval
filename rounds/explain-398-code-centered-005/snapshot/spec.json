@@ -1,0 +1,299 @@
+{
+  "cases": [
+    {
+      "category": "normal",
+      "common_metrics": {
+        "accuracy": "Pass: 重要な分岐、データ/状態、作用、順序、失敗境界をコードに沿って保持し、静的事実/観測/推定/不明を区別する。Fail: 重要な誤り/欠落/捏造、意図適合の断定。",
+        "code-centered-readability": "Prospective common quality comparison only. Pass: 実在する関数/class/構造体等を骨格にする実コード抜粋と短い内部処理の補足により読者が何をする処理かを理解し、出典・省略・重要境界を追える。Fail: コード位置一覧/長い散文だけ、過剰dump、出典不明な断片、実在と偽った合成コードで理解を妨げる。該当しない未提供コードを要求しない。行数/短さ/fence数/特定構成をoracleにしない。旧版の仕様違反や旧14件のregressionへ読み替えない。 抜粋が孤立せず入力値→判断/変更→次へ渡す値・呼出先を読み順に追え、自分で実装していないHumanが接続を理解できることを重視する。 内部処理の接続に必要な値のみを補足し、引数/型/デフォルト値/全入力の網羅説明やその量を加点基準にしない。 明白な引数/単純代入の逐語説明よりコードをまたぐ接続と重要な分岐/状態/順序へ説明量を配分し、一行ずつの翻訳にしない。 呼出し/実行順/受渡しを実装境界に沿ってつなぎ、架空の概念工程へ過剰再編しない。単なる全関数/import一覧にしない。",
+        "conciseness-without-loss": "Pass: 機能理解に必要な粒度で説明し、重要な意味を落とさない。一般DB操作の仕組みや付随的detailsが本筋を圧迫しない。短さ/行数/特定語彙/章立てを品質指標にしない。Fail: 冗長さで処理とコードの関係を把握できない、または短縮で重要な意味が失われる。",
+        "traceability": "Pass: 主要な処理・判断・接続・作用から実在するファイルとクラス/関数へ辿れる。行番号や見出しの固定は不要。Fail: 重要な対応が追跡不能/誤り。材料不足はindeterminate。",
+        "usefulness": "Pass: 依頼対象の全体像と意味のある処理順を読み手が理解できる。機能対象なら基盤詳細の列挙に埋没せず、基盤対象なら基盤の役割を説明する。Fail: 名前一覧や一般論で主要経路を代替。"
+      },
+      "files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# Synthetic WebView-like session\n\nTeaching code only; Python standard library, no database, SDK, API or network. Inspect statically.\n`app.build()` wires the supplied paths. `SessionOperation.prepare(binding, now)` returns a challenge id;\n`issue(challenge, user, now)` returns a code. A caller supplies these and the binding cookie to the exchange route,\nthen supplies the issued session cookie to the cart route. The real app/WebView transport and binding-cookie\ninstallation are not provided. No security adequacy or production concurrency guarantee is claimed.\n`lock_*` are lookups in this single-threaded memory model, not real locks. Normal transaction context exit\ncommits; an exception rolls back parent/code/session maps. The id counter is deliberately outside rollback.\nRequests are dictionaries with `now` and `cookies`; exchange also has `parent` and `code`. Use well-shaped\nrequests when explaining the main path. Unexpected exceptions and missing route keys propagate.\n",
+        "app.py": "from operation import SessionOperation\nfrom store import MemoryStore\nfrom web import Controller, Cookies, Dispatcher, SessionAuth\n\n\ndef build():\n    store, cookies = MemoryStore(), Cookies()\n    operation = SessionOperation(store)\n    controller = Controller(operation, store, cookies)\n    auth = SessionAuth(store)\n    dispatcher = Dispatcher({\n        \"exchange\": controller.exchange,\n        \"cart\": lambda request: auth.call(request, controller.cart),\n    })\n    return store, cookies, operation, dispatcher\n",
+        "operation.py": "from store import Rejected\n\n\nclass SessionOperation:\n    def __init__(self, store):\n        self.store = store\n\n    def prepare(self, binding, now):\n        parent_id = self.store.fresh(\"challenge\")\n        self.store.parents[parent_id] = {\n            \"binding\": binding, \"expires\": now + 30, \"refresh_active\": True\n        }\n        return parent_id\n\n    def issue(self, parent_id, user_id, now):\n        parent = self.store.lock_parent(parent_id)\n        if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n            raise Rejected(\"inactive challenge\")\n        code = self.store.fresh(\"code\")\n        self.store.codes[code] = {\"parent\": parent_id, \"user\": user_id, \"used\": False}\n        return code\n\n    def exchange(self, parent_id, code, binding, now):\n        with self.store.transaction():\n            parent = self.store.lock_parent(parent_id)\n            item = self.store.lock_code(code)\n            if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n                raise Rejected(\"inactive challenge\")\n            if not item or item[\"parent\"] != parent_id or item[\"used\"]:\n                raise Rejected(\"invalid code\")\n            if parent[\"binding\"] != binding:\n                raise Rejected(\"binding mismatch\")\n            self.store.purge_expired(now)\n            session_id = self.store.register(code, item[\"user\"], now)\n        return session_id\n",
+        "store.py": "from contextlib import contextmanager\nfrom copy import deepcopy\n\n\nclass Rejected(Exception):\n    pass\n\n\nclass MemoryStore:\n    \"\"\"Single-threaded teaching store; no database or external calls.\"\"\"\n    def __init__(self):\n        self.parents = {}\n        self.codes = {}\n        self.sessions = {}\n        self.carts = {}\n        self.serial = 0\n        self.fail_commit = False\n\n    def fresh(self, prefix):\n        self.serial += 1\n        return f\"{prefix}-{self.serial}\"\n\n    @contextmanager\n    def transaction(self):\n        before = deepcopy((self.parents, self.codes, self.sessions))\n        try:\n            yield self\n            if self.fail_commit:\n                raise RuntimeError(\"commit failed\")\n        except Exception:\n            self.parents, self.codes, self.sessions = before\n            raise\n        # Normal context exit is the commit boundary in this synthetic store.\n\n    def lock_parent(self, parent_id):\n        return self.parents.get(parent_id)\n\n    def lock_code(self, code):\n        return self.codes.get(code)\n\n    def register(self, code, user_id, now):\n        self.codes[code][\"used\"] = True\n        session_id = self.fresh(\"session\")\n        self.sessions[session_id] = {\"user\": user_id, \"expires\": now + 60}\n        return session_id\n\n    def purge_expired(self, now):\n        for key in list(self.sessions):\n            if self.sessions[key][\"expires\"] <= now:\n                del self.sessions[key]\n",
+        "web.py": "from store import Rejected\n\n\nclass Cookies:\n    def __init__(self):\n        self.issued = []\n        self.fail = False\n\n    def session(self, session_id):\n        if self.fail:\n            raise RuntimeError(\"cookie failed\")\n        self.issued.append((\"session\", session_id))\n\n\nclass Controller:\n    def __init__(self, operation, store, cookies):\n        self.operation, self.store, self.cookies = operation, store, cookies\n\n    def exchange(self, request):\n        session_id = self.operation.exchange(\n            request[\"parent\"], request[\"code\"], request[\"cookies\"].get(\"binding\"), request[\"now\"]\n        )\n        self.cookies.session(session_id)\n        return {\"status\": 204}\n\n    def cart(self, request):\n        return {\"status\": 200, \"cart\": self.store.carts.get(request[\"user\"], [])}\n\n\nclass SessionAuth:\n    def __init__(self, store):\n        self.store = store\n\n    def call(self, request, next_handler):\n        session = self.store.sessions.get(request[\"cookies\"].get(\"session\"))\n        if not session or session[\"expires\"] <= request[\"now\"]:\n            raise Rejected(\"unauthenticated\")\n        authenticated = dict(request, user=session[\"user\"])\n        return next_handler(authenticated)\n\n\nclass Dispatcher:\n    def __init__(self, routes):\n        self.routes = routes\n\n    def dispatch(self, name, request):\n        handler = self.routes[name]\n        try:\n            return handler(request)\n        except Rejected as error:\n            return {\"status\": 403, \"reason\": str(error)}\n"
+      },
+      "id": "explain-398-session-flow",
+      "observations": [
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "prepare/issue/exchangeから認証・cartまでの意味と主要コードをつなぎ、提供されないWebView側操作と実行未確認を区別する。",
+          "id": "grounded-flow",
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "実在するController.exchange→SessionOperation.exchange→MemoryStoreの関数/class構造を軸に、呼出し・処理順・データ受渡しをつなぎ、検証→期限切れsession削除→code消費/session登録→tx正常終了→Cookie発行を対応づける。拒否/commit失敗ではこれら変更とCookie不発。Cookie失敗は確定済DB相当状態を戻さない。middlewareのuser受渡しとDispatcherの403変換は残し、汎用route引当ての細部やDB一般論を過剰展開しない。",
+          "id": "398-code-structure-and-effects",
+          "issue_basis": {
+            "comments_observed": 0,
+            "note": "Issue defines the new expectations; basis source quote below only supports common evidence/accuracy. Candidate source provenance is checked when its SHA is available, without changing expectations.",
+            "observed_date": "2026-10-29",
+            "sections": [
+              "改善方針 1. 処理を起点にコードへ対応づける",
+              "改善方針 2. 実際の処理順",
+              "改善方針 3. 副作用",
+              "改善方針 4. 調査の深さと出力の粒度"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/398"
+          },
+          "user_requirement_override": {
+            "precedence": "Latest user clarification supersedes issue #398 process-first unit wording for the new candidate. Baseline keeps its historical applicable expectation.",
+            "quote": "あとは説明の際は関数やclass、構造体などを基準に流れを組み立ててください。コードを基準にとはそういう意味で言っています"
+          },
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "実在する関数・class・構造体等を流れの骨格にし、呼び出し・処理順・データ受渡しをつないで示す。構造が追える実コード抜粋を並べ、その内部処理を短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。架空の概念的工程を先に作って実装を過剰に再編しない。対象機能に関係する実装要素のつながりを選び、全関数一覧/import一覧にしない。複数関数/ファイルの抜粋は実際の境界・呼出し関係を保って出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。 内部で実際に行っている処理とつながりに絞る。引数一覧・型・デフォルト値・全入力の網羅説明を追加しない。値/引数は重要な分岐・状態変更・受渡しを理解するために必要な箇所だけコードに沿って短く補足し、APIリファレンス化や引数解説の量で加点しない。 説明量は見て分かる引数や単純代入の逐語説明へ割かず、コードをまたぐ接続、重要な分岐/状態変化/実行順序へ集中する。コードを読む理解を補助し、一行ずつ日本語へ翻訳しない。これは出力粒度の優先順位であり、説明量や短さの機械判定にはしない。",
+          "id": "code-centered-explanation",
+          "user_requirement_basis": {
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "granularity_quote": "そうですね、引数とかの見てわかるものに情報をあまり割かないでください。コ",
+            "granularity_quote_note": "末尾の「コ」は未完の文字として保持し、意味を補完しない。接続/分岐/状態/順序への集中は親からの明示した補足に基づく。",
+            "precedence": "Latest explicit user clarification supersedes original issue process-first main-unit wording. Real implementation elements form the skeleton; meaningful internal behavior is concise supporting explanation.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "received_date": "2026-10-29",
+            "scope_quote": "あとは引数とかもゼロイチで全て解説する必要はありません。あくまで内部で行っている処理に絞ってください。",
+            "structure_quote": "あとは説明の際は関数やclass、構造体などを基準に流れを組み立ててください。コードを基準にとはそういう意味で言っています"
+          },
+          "versions": [
+            "candidate"
+          ]
+        }
+      ],
+      "prompt": "この合成コードのWebView風セッション機能について、prepareからissue、exchange、Cookie認証を経たcart取得まで、何をどう実現し、どのコードに対応するかを説明してください。必要な調査を行い、機能理解に必要な粒度で説明してください。実行・変更は不要です。",
+      "skill": "explain-this",
+      "track": "comparison",
+      "versions": [
+        "candidate"
+      ],
+      "working_changes": {}
+    },
+    {
+      "category": "boundary",
+      "common_metrics": {
+        "accuracy": "Pass: 重要な分岐、データ/状態、作用、順序、失敗境界をコードに沿って保持し、静的事実/観測/推定/不明を区別する。Fail: 重要な誤り/欠落/捏造、意図適合の断定。",
+        "code-centered-readability": "Prospective common quality comparison only. Pass: 実在する関数/class/構造体等を骨格にする実コード抜粋と短い内部処理の補足により読者が何をする処理かを理解し、出典・省略・重要境界を追える。Fail: コード位置一覧/長い散文だけ、過剰dump、出典不明な断片、実在と偽った合成コードで理解を妨げる。該当しない未提供コードを要求しない。行数/短さ/fence数/特定構成をoracleにしない。旧版の仕様違反や旧14件のregressionへ読み替えない。 抜粋が孤立せず入力値→判断/変更→次へ渡す値・呼出先を読み順に追え、自分で実装していないHumanが接続を理解できることを重視する。 内部処理の接続に必要な値のみを補足し、引数/型/デフォルト値/全入力の網羅説明やその量を加点基準にしない。 明白な引数/単純代入の逐語説明よりコードをまたぐ接続と重要な分岐/状態/順序へ説明量を配分し、一行ずつの翻訳にしない。 呼出し/実行順/受渡しを実装境界に沿ってつなぎ、架空の概念工程へ過剰再編しない。単なる全関数/import一覧にしない。",
+        "conciseness-without-loss": "Pass: 機能理解に必要な粒度で説明し、重要な意味を落とさない。一般DB操作の仕組みや付随的detailsが本筋を圧迫しない。短さ/行数/特定語彙/章立てを品質指標にしない。Fail: 冗長さで処理とコードの関係を把握できない、または短縮で重要な意味が失われる。",
+        "traceability": "Pass: 主要な処理・判断・接続・作用から実在するファイルとクラス/関数へ辿れる。行番号や見出しの固定は不要。Fail: 重要な対応が追跡不能/誤り。材料不足はindeterminate。",
+        "usefulness": "Pass: 依頼対象の全体像と意味のある処理順を読み手が理解できる。機能対象なら基盤詳細の列挙に埋没せず、基盤対象なら基盤の役割を説明する。Fail: 名前一覧や一般論で主要経路を代替。"
+      },
+      "files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# Synthetic WebView-like session\n\nTeaching code only; Python standard library, no database, SDK, API or network. Inspect statically.\n`app.build()` wires the supplied paths. `SessionOperation.prepare(binding, now)` returns a challenge id;\n`issue(challenge, user, now)` returns a code. A caller supplies these and the binding cookie to the exchange route,\nthen supplies the issued session cookie to the cart route. The real app/WebView transport and binding-cookie\ninstallation are not provided. No security adequacy or production concurrency guarantee is claimed.\n`lock_*` are lookups in this single-threaded memory model, not real locks. Normal transaction context exit\ncommits; an exception rolls back parent/code/session maps. The id counter is deliberately outside rollback.\nRequests are dictionaries with `now` and `cookies`; exchange also has `parent` and `code`. Use well-shaped\nrequests when explaining the main path. Unexpected exceptions and missing route keys propagate.\n",
+        "app.py": "from operation import SessionOperation\nfrom store import MemoryStore\nfrom web import Controller, Cookies, Dispatcher, SessionAuth\n\n\ndef build():\n    store, cookies = MemoryStore(), Cookies()\n    operation = SessionOperation(store)\n    controller = Controller(operation, store, cookies)\n    auth = SessionAuth(store)\n    dispatcher = Dispatcher({\n        \"exchange\": controller.exchange,\n        \"cart\": lambda request: auth.call(request, controller.cart),\n    })\n    return store, cookies, operation, dispatcher\n",
+        "operation.py": "from store import Rejected\n\n\nclass SessionOperation:\n    def __init__(self, store):\n        self.store = store\n\n    def prepare(self, binding, now):\n        parent_id = self.store.fresh(\"challenge\")\n        self.store.parents[parent_id] = {\n            \"binding\": binding, \"expires\": now + 30, \"refresh_active\": True\n        }\n        return parent_id\n\n    def issue(self, parent_id, user_id, now):\n        parent = self.store.lock_parent(parent_id)\n        if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n            raise Rejected(\"inactive challenge\")\n        code = self.store.fresh(\"code\")\n        self.store.codes[code] = {\"parent\": parent_id, \"user\": user_id, \"used\": False}\n        return code\n\n    def exchange(self, parent_id, code, binding, now):\n        with self.store.transaction():\n            parent = self.store.lock_parent(parent_id)\n            item = self.store.lock_code(code)\n            if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n                raise Rejected(\"inactive challenge\")\n            if not item or item[\"parent\"] != parent_id or item[\"used\"]:\n                raise Rejected(\"invalid code\")\n            if parent[\"binding\"] != binding:\n                raise Rejected(\"binding mismatch\")\n            self.store.purge_expired(now)\n            session_id = self.store.register(code, item[\"user\"], now)\n        return session_id\n",
+        "store.py": "from contextlib import contextmanager\nfrom copy import deepcopy\n\n\nclass Rejected(Exception):\n    pass\n\n\nclass MemoryStore:\n    \"\"\"Single-threaded teaching store; no database or external calls.\"\"\"\n    def __init__(self):\n        self.parents = {}\n        self.codes = {}\n        self.sessions = {}\n        self.carts = {}\n        self.serial = 0\n        self.fail_commit = False\n\n    def fresh(self, prefix):\n        self.serial += 1\n        return f\"{prefix}-{self.serial}\"\n\n    @contextmanager\n    def transaction(self):\n        before = deepcopy((self.parents, self.codes, self.sessions))\n        try:\n            yield self\n            if self.fail_commit:\n                raise RuntimeError(\"commit failed\")\n        except Exception:\n            self.parents, self.codes, self.sessions = before\n            raise\n        # Normal context exit is the commit boundary in this synthetic store.\n\n    def lock_parent(self, parent_id):\n        return self.parents.get(parent_id)\n\n    def lock_code(self, code):\n        return self.codes.get(code)\n\n    def register(self, code, user_id, now):\n        self.codes[code][\"used\"] = True\n        session_id = self.fresh(\"session\")\n        self.sessions[session_id] = {\"user\": user_id, \"expires\": now + 60}\n        return session_id\n\n    def purge_expired(self, now):\n        for key in list(self.sessions):\n            if self.sessions[key][\"expires\"] <= now:\n                del self.sessions[key]\n",
+        "web.py": "from store import Rejected\n\n\nclass Cookies:\n    def __init__(self):\n        self.issued = []\n        self.fail = False\n\n    def session(self, session_id):\n        if self.fail:\n            raise RuntimeError(\"cookie failed\")\n        self.issued.append((\"session\", session_id))\n\n\nclass Controller:\n    def __init__(self, operation, store, cookies):\n        self.operation, self.store, self.cookies = operation, store, cookies\n\n    def exchange(self, request):\n        session_id = self.operation.exchange(\n            request[\"parent\"], request[\"code\"], request[\"cookies\"].get(\"binding\"), request[\"now\"]\n        )\n        self.cookies.session(session_id)\n        return {\"status\": 204}\n\n    def cart(self, request):\n        return {\"status\": 200, \"cart\": self.store.carts.get(request[\"user\"], [])}\n\n\nclass SessionAuth:\n    def __init__(self, store):\n        self.store = store\n\n    def call(self, request, next_handler):\n        session = self.store.sessions.get(request[\"cookies\"].get(\"session\"))\n        if not session or session[\"expires\"] <= request[\"now\"]:\n            raise Rejected(\"unauthenticated\")\n        authenticated = dict(request, user=session[\"user\"])\n        return next_handler(authenticated)\n\n\nclass Dispatcher:\n    def __init__(self, routes):\n        self.routes = routes\n\n    def dispatch(self, name, request):\n        handler = self.routes[name]\n        try:\n            return handler(request)\n        except Rejected as error:\n            return {\"status\": 403, \"reason\": str(error)}\n"
+      },
+      "id": "explain-398-infrastructure",
+      "observations": [
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "app.buildの配線、exchange/cartで異なるmiddleware適用、requestコピーによるuser受渡し、403変換と例外伝播、tx commit/rollbackをコードから説明する。",
+          "id": "grounded-infrastructure",
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "Dispatcher等を名前で省略せず、基盤を主題として意味ある構成を説明する。lock名から排他保証を断定せず、mapsのrollbackとserial非rollbackを区別する。",
+          "id": "398-no-name-exclusion",
+          "issue_basis": {
+            "comments_observed": 0,
+            "note": "Issue defines the new expectations; basis source quote below only supports common evidence/accuracy. Candidate source provenance is checked when its SHA is available, without changing expectations.",
+            "observed_date": "2026-10-29",
+            "sections": [
+              "改善方針 4. 調査の深さと出力の粒度",
+              "受入条件: 対象が共通基盤そのものの場合"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/398"
+          },
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "実在する関数・class・構造体等を流れの骨格にし、呼び出し・処理順・データ受渡しをつないで示す。構造が追える実コード抜粋を並べ、その内部処理を短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。架空の概念的工程を先に作って実装を過剰に再編しない。対象機能に関係する実装要素のつながりを選び、全関数一覧/import一覧にしない。複数関数/ファイルの抜粋は実際の境界・呼出し関係を保って出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。 内部で実際に行っている処理とつながりに絞る。引数一覧・型・デフォルト値・全入力の網羅説明を追加しない。値/引数は重要な分岐・状態変更・受渡しを理解するために必要な箇所だけコードに沿って短く補足し、APIリファレンス化や引数解説の量で加点しない。 説明量は見て分かる引数や単純代入の逐語説明へ割かず、コードをまたぐ接続、重要な分岐/状態変化/実行順序へ集中する。コードを読む理解を補助し、一行ずつ日本語へ翻訳しない。これは出力粒度の優先順位であり、説明量や短さの機械判定にはしない。",
+          "id": "code-centered-explanation",
+          "user_requirement_basis": {
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "granularity_quote": "そうですね、引数とかの見てわかるものに情報をあまり割かないでください。コ",
+            "granularity_quote_note": "末尾の「コ」は未完の文字として保持し、意味を補完しない。接続/分岐/状態/順序への集中は親からの明示した補足に基づく。",
+            "precedence": "Latest explicit user clarification supersedes original issue process-first main-unit wording. Real implementation elements form the skeleton; meaningful internal behavior is concise supporting explanation.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "received_date": "2026-10-29",
+            "scope_quote": "あとは引数とかもゼロイチで全て解説する必要はありません。あくまで内部で行っている処理に絞ってください。",
+            "structure_quote": "あとは説明の際は関数やclass、構造体などを基準に流れを組み立ててください。コードを基準にとはそういう意味で言っています"
+          },
+          "versions": [
+            "candidate"
+          ]
+        }
+      ],
+      "prompt": "説明対象は共通基盤そのものです。app.build、Dispatcher、SessionAuth、MemoryStore.transactionがroute選択・呼出し順・request受渡し・例外・状態確定をどうつないでいるか、対応コードと限界を説明してください。実行・変更は不要です。",
+      "skill": "explain-this",
+      "track": "comparison",
+      "versions": [
+        "candidate"
+      ],
+      "working_changes": {}
+    },
+    {
+      "category": "failure",
+      "common_metrics": {
+        "accuracy": "Pass: 重要な分岐、データ/状態、作用、順序、失敗境界をコードに沿って保持し、静的事実/観測/推定/不明を区別する。Fail: 重要な誤り/欠落/捏造、意図適合の断定。",
+        "code-centered-readability": "Prospective common quality comparison only. Pass: 実在する関数/class/構造体等を骨格にする実コード抜粋と短い内部処理の補足により読者が何をする処理かを理解し、出典・省略・重要境界を追える。Fail: コード位置一覧/長い散文だけ、過剰dump、出典不明な断片、実在と偽った合成コードで理解を妨げる。該当しない未提供コードを要求しない。行数/短さ/fence数/特定構成をoracleにしない。旧版の仕様違反や旧14件のregressionへ読み替えない。 抜粋が孤立せず入力値→判断/変更→次へ渡す値・呼出先を読み順に追え、自分で実装していないHumanが接続を理解できることを重視する。 内部処理の接続に必要な値のみを補足し、引数/型/デフォルト値/全入力の網羅説明やその量を加点基準にしない。 明白な引数/単純代入の逐語説明よりコードをまたぐ接続と重要な分岐/状態/順序へ説明量を配分し、一行ずつの翻訳にしない。 呼出し/実行順/受渡しを実装境界に沿ってつなぎ、架空の概念工程へ過剰再編しない。単なる全関数/import一覧にしない。",
+        "conciseness-without-loss": "Pass: 機能理解に必要な粒度で説明し、重要な意味を落とさない。一般DB操作の仕組みや付随的detailsが本筋を圧迫しない。短さ/行数/特定語彙/章立てを品質指標にしない。Fail: 冗長さで処理とコードの関係を把握できない、または短縮で重要な意味が失われる。",
+        "traceability": "Pass: 主要な処理・判断・接続・作用から実在するファイルとクラス/関数へ辿れる。行番号や見出しの固定は不要。Fail: 重要な対応が追跡不能/誤り。材料不足はindeterminate。",
+        "usefulness": "Pass: 依頼対象の全体像と意味のある処理順を読み手が理解できる。機能対象なら基盤詳細の列挙に埋没せず、基盤対象なら基盤の役割を説明する。Fail: 名前一覧や一般論で主要経路を代替。"
+      },
+      "files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "Synthetic incomplete excerpt; provider_adapter and authentication wiring are intentionally not supplied. No network.\n",
+        "app.py": "from provider_adapter import exchange_ticket\n\n\ndef exchange(request, cookies):\n    session_id = exchange_ticket(request[\"ticket\"], request[\"cookies\"].get(\"binding\"))\n    cookies.session(session_id)\n    return {\"status\": 204}\n\n\ndef cart(request, repository):\n    return repository.cart_for(request[\"user\"])\n\n\nROUTES = {\"exchange\": exchange, \"cart\": cart}\n"
+      },
+      "id": "explain-398-unknown-connection",
+      "observations": [
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "exchange_ticketの戻り後にCookie発行する順序とcart_forへのuser引渡しは説明できる。一方adapter内部の検証/消費/session永続化/tx/失敗時作用とCookieからrequest.userを得る接続は不明。ROUTESだけで認証接続や実行成功を補わない。",
+          "id": "bounded-knowledge",
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "既知処理と必要だが未確認の接続を切り分け、全経路確認済みとしない。未提供adapterを自動生成/実通信せず、コードから読めない意図やセキュリティ保証を捏造しない。",
+          "id": "398-preserve-gap",
+          "issue_basis": {
+            "comments_observed": 0,
+            "note": "Issue defines the new expectations; basis source quote below only supports common evidence/accuracy. Candidate source provenance is checked when its SHA is available, without changing expectations.",
+            "observed_date": "2026-10-29",
+            "sections": [
+              "改善方針 2. コードから確認できない接続は推測で補わない",
+              "受入条件: 実装で確認できない内容を事実として補わない"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/398"
+          },
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+              "sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b"
+            }
+          },
+          "expectation": "実在する関数・class・構造体等を流れの骨格にし、呼び出し・処理順・データ受渡しをつないで示す。構造が追える実コード抜粋を並べ、その内部処理を短く補足する。コード位置名一覧・長い散文だけ・全コードdumpでは代替しない。架空の概念的工程を先に作って実装を過剰に再編しない。対象機能に関係する実装要素のつながりを選び、全関数一覧/import一覧にしない。複数関数/ファイルの抜粋は実際の境界・呼出し関係を保って出典と省略を明示し、存在しない合成関数/擬似コードを実在コードと偽らない。重要な条件・順序・tx・状態/副作用・失敗境界・接続を追える必要十分な範囲を選ぶ。未提供部分は抜粋せず限界を説明する。短さ・fence数・固定語句ではなく意味と追跡可能性で判断する。 狙いは自分で実装していないHumanが処理間のつながりをコードで追えること。入力値→判断/変更→次へ渡す値・呼出先を読み順に追えるように選び、孤立した抜粋列挙にしない。文章は接続と省略の補助に留め、全呼出しdumpへ戻さない。 内部で実際に行っている処理とつながりに絞る。引数一覧・型・デフォルト値・全入力の網羅説明を追加しない。値/引数は重要な分岐・状態変更・受渡しを理解するために必要な箇所だけコードに沿って短く補足し、APIリファレンス化や引数解説の量で加点しない。 説明量は見て分かる引数や単純代入の逐語説明へ割かず、コードをまたぐ接続、重要な分岐/状態変化/実行順序へ集中する。コードを読む理解を補助し、一行ずつ日本語へ翻訳しない。これは出力粒度の優先順位であり、説明量や短さの機械判定にはしない。",
+          "id": "code-centered-explanation",
+          "user_requirement_basis": {
+            "applicability": "New candidate only, prospective user requirement; old outputs are not regraded. Source quote is common accuracy provenance, not proof of the new presentation rule.",
+            "granularity_quote": "そうですね、引数とかの見てわかるものに情報をあまり割かないでください。コ",
+            "granularity_quote_note": "末尾の「コ」は未完の文字として保持し、意味を補完しない。接続/分岐/状態/順序への集中は親からの明示した補足に基づく。",
+            "precedence": "Latest explicit user clarification supersedes original issue process-first main-unit wording. Real implementation elements form the skeleton; meaningful internal behavior is concise supporting explanation.",
+            "purpose_quote": "はい、自分で書かないとつながりというのが見えにくいのでそこを追いやすくするという狙いです",
+            "quote": "実際のレスポンスを見ているのですが、応答内容が口語的に説明すぎますね。自分としてはある単位の処理をコードでまとめて示し何をやっているか説明してもらうぐらいのイメージなのですが",
+            "received_date": "2026-10-29",
+            "scope_quote": "あとは引数とかもゼロイチで全て解説する必要はありません。あくまで内部で行っている処理に絞ってください。",
+            "structure_quote": "あとは説明の際は関数やclass、構造体などを基準に流れを組み立ててください。コードを基準にとはそういう意味で言っています"
+          },
+          "versions": [
+            "candidate"
+          ]
+        }
+      ],
+      "prompt": "この提供範囲のexchangeからCookie認証後のcart取得までを、処理とコードの対応として説明してください。provider_adapterは未提供で、追加配線もありません。ネットワーク実行・変更は許可しません。分かる点から説明してください。",
+      "skill": "explain-this",
+      "track": "comparison",
+      "versions": [
+        "candidate"
+      ],
+      "working_changes": {}
+    }
+  ],
+  "created_utc": "2026-10-29T13:46:53Z",
+  "explicit_versions": true,
+  "repetition": {
+    "additional": "disagreement or indeterminate; record reason before running trials 4/5",
+    "initial": 3,
+    "maximum": 5,
+    "stop": "5 trials, infrastructure denial, identity drift, or safety failure"
+  },
+  "requested": {
+    "effort": "medium",
+    "model": "gpt-6.1-sol"
+  },
+  "round_id": "bc49a83d-4d9f-4839-b91f-931fd8843d80",
+  "schema": 1,
+  "source_acquisition": "separate temporary bare Git repository; shallow fetch of exact SHAs",
+  "source_repository": "https://github.com/akitanabe/tugite.git",
+  "versions": {
+    "candidate": "56ac61bb4cc83236ecf3a233131aa8def75ab0f6"
+  }
+}

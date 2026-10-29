@@ -1,0 +1,15 @@
+{
+  "semantics_freeze_commit": "2b5337842248e8fbc20662007fb14034d8b542f4",
+  "adapter_commit": "1006c176c4427eeddefb2a26bf986e001f23b1a4",
+  "corpus_sha256": "afd9416583a6a1c0fe771917dc95ba8e6cf7c0b27e011dc3aa59a5a0f5ea250d",
+  "candidate_sha": "56ac61bb4cc83236ecf3a233131aa8def75ab0f6",
+  "candidate_tree": "d90a8ea982dc94c0ccb1bd7515363f876a030cd3",
+  "skill_path": "plugins/codex/skills/explain-this/SKILL.md",
+  "skill_sha256": "b2d2808ca321e50dc73421999393ad741a5b393d0bea7a8801189a90b2ad4f4b",
+  "source_quotes_present": [
+    "説明の骨格は、対象機能に関わる実在の関数・クラス・構造体などの実装要素とする。",
+    "概念的な工程を先に作って実装をそこへ組み替えず、実コードの構造に沿って処理の意味とつながりを説明する。",
+    "抜粋は原文を保ち、別々の断片を単一の実在関数のように合成しない。"
+  ],
+  "note": "Source read only for provenance/distribution identity after semantics freeze. No candidate diff/output inspected, no trial launched/scored. Exactly3 candidate packets, trial1 only."
+}
