@@ -5,15 +5,17 @@
   "baseline_proposed": "2e7ae9237103cc9a6c6d9afbb748c11ad2ea51e7",
   "candidate_sha": null,
   "corpus": "cases/explain-398-code-centered/corpus.json",
-  "corpus_sha256": "52c45cba589780225cf41add220893285c6c54619a8d9670fe79d679dc06aed1",
+  "corpus_sha256": "afd9416583a6a1c0fe771917dc95ba8e6cf7c0b27e011dc3aa59a5a0f5ea250d",
   "requested": {
     "model": "gpt-6.1-sol",
     "effort": "medium"
   },
-  "initial_scope": "New final candidate session-flow x1 first; parent inspects the actual code-centered response before selecting regression/comparison scope",
-  "repeat_scope": "After the first response, expand only as needed: candidate4 regressions, other focus cases, decision-relevant paired3 trials; pre-generated ceiling22 packets is not an execution obligation",
+  "initial_scope": "Only2-3 representative candidate cases: session-flow and infrastructure, optionally unknown-connection. Parent starts tasks and presents actual responses to Human for judgment.",
+  "repeat_scope": "STOP after the sample. No automatic full evaluation, regression expansion, additional repetitions, version7.5.2 update, or PR. Wait for Human decision.",
   "old_result_status": "Parent reports old candidate14 results PASS under old criteria; user presentation expectation differed. No retroactive rescoring.",
   "evaluation_execution": "Parent only; no tasks launched or outputs scored in preparation.",
   "nonfinal_candidate_received": "34afef723211ae48a8447917bc18bf835b40e69f is explicitly nonfinal and must not be frozen or used for trials",
-  "old_result_use": "Historical note only; never evidence of conformance to the new user requirement"
+  "old_result_use": "Historical note only; never evidence of conformance to the new user requirement",
+  "latest_structure_policy": "Real functions/classes/structs form the explanation skeleton; latest user instruction supersedes original process-first unit policy for new candidate only",
+  "latest_stop_quote": "ok。修正後はevalは全て行わず数ケースためすのみにしてこちらの判断を仰いでください"
 }
