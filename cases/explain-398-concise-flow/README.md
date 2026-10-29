@@ -24,3 +24,6 @@ fixture bytes・対象case・working changesは旧006と同じ。promptはフロ
 
 prompt・response reporting・rubricも旧006と異なるため、このsampleからSkill変更単独の効果を切り分けて主張しない。
 中立promptへの改訂は親の明示指示に基づき、candidate SHA通知後・source/outputを読む前に行った。意味の中心基準は先行commitで固定済み。
+
+独立開発reviewを優先する親の指示により、暫定6b3f4ac…のcandidate packet固定は停止中。
+実施済みはsource identity/引用確認だけ。新candidate packet・snapshot・LLM評価は未作成。レビュー後final SHAを待つ。

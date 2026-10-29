@@ -1,6 +1,6 @@
 # 短い処理フロー: 2 sample handoff
 
-新candidate SHA待ち。candidate packet/index/snapshotはまだ作らない。
+独立レビュー後の新final candidate SHA待ち。candidate packet/index/snapshotはまだ作らない。
 [要件と適用](../../cases/explain-398-concise-flow/README.md)、[harness監査](../../cases/explain-398-concise-flow/AUDIT.md)、
 [事実参照](../../cases/explain-398-concise-flow/REFERENCE.md)、[登録](preregistration.json)を使用する。
 旧004/005/006のfixture/input/rubric/resultsは保持し、新適合の根拠にしない。
@@ -12,7 +12,7 @@
 ## 新SHA受領後だけ実施
 
 ```bash
-python3 evals/prepare_398.py candidate <NEW_FINAL_CANDIDATE_SHA> .local/explain-398-concise-samples \
+python3 evals/prepare_398.py candidate <NEW_REVIEWED_FINAL_CANDIDATE_SHA> .local/explain-398-concise-samples \
   --corpus cases/explain-398-concise-flow/corpus.json \
   --case explain-398-session-flow --case explain-398-infrastructure
 ```
@@ -34,5 +34,11 @@ seal/path等の輸送情報は親が別に保持し、応答本文へ参照一�
 今回のpromptはフローと各関数/classの役割を尋ねる中立な依頼へ改訂した。回答templateや受理済みfixture回答を埋め込まない。
 prompt・response reporting・rubricも旧006から変更されるため、結果をSkill変更だけの独立した改善とは主張しない。
 
-source全体改訂で旧版の引用が無くなったため、適用source引用だけを固定candidateの実文へ更新した。
+暫定6b3f4ac…のsource全体改訂で旧引用が無くなったため、source根拠引用だけをその実文へ更新した。
+その後、親が開発側の独立review待ちとしてfreeze停止を指示した。6bのpacket/snapshotは未作成。
+レビュー後final SHAを受領するまで作成しない。根拠引用もその時点で再確認する。
 期待観測・prompt・fixture・共通metricに変更がないことをbasis除外で機械照合した。
+
+準備QA: 新corpus静的3件、cloud-task30件、cloud-receipt24件が成功。機構testは歴史的sourceだけを使い、
+新candidate corpusのpacket/snapshotを作成していない。response_reportingはexport/stageとfrozen case/importの一致を検証し、
+旧省略defaultを保持。不明なmode/固定caseと違うmodeは拒否する。旧round/resultsは変更なし。

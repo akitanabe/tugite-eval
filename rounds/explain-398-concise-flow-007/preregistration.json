@@ -1,5 +1,5 @@
 {
-  "state": "semantics-fixed-awaiting-new-candidate",
+  "state": "semantics-fixed-awaiting-reviewed-final-candidate",
   "prospective": true,
   "candidate_sha": null,
   "corpus": "cases/explain-398-concise-flow/corpus.json",
@@ -22,5 +22,6 @@
   "primary_goal": "Understand processing flow and the role of each function/class within it, rather than code internals or an exhaustive role catalog.",
   "prompt_revision": "Neutral requests for flow and each function/class role, amended on parent instruction after SHA notice but before source/output inspection; no answer template or accepted fixture answer.",
   "attribution_limit": "Skill, case prompts, response reporting, and rubric differ from round006; these samples cannot isolate a skill-only effect.",
-  "basis_revision": "Candidate full rewrite removed the historical source quote. Source basis quotes updated to actual pinned definition; expectation/prompt/fixture/common metrics unchanged from cd597e79."
+  "basis_revision": "Provisional source full rewrite removed the historical quote; basis quotes only updated, expectations/prompt/fixture/metrics unchanged from cd597e79. Reconfirm source provenance after reviewed final SHA arrives.",
+  "provisional_source_read": "6b3f4ac86bb49e7e1e1259cbd17cd568fbb44f5b source identity/quotes only; packet freeze paused before any candidate packet/snapshot generation."
 }
