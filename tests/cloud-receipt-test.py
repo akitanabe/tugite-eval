@@ -13,6 +13,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 RECEIPT = ROOT / 'evals/cloud_receipt.py'
+sys.path.insert(0, str(ROOT / 'evals'))
+import cloud_receipt as receipt_module
 spec = importlib.util.spec_from_file_location('transport_tests', ROOT / 'tests/cloud-task-test.py')
 transport = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(transport)
@@ -48,6 +50,20 @@ class CloudReceiptTest(unittest.TestCase):
         result = subprocess.run([sys.executable, str(RECEIPT), *map(str, args)], capture_output=True, text=True)
         self.assertEqual(result.returncode == 0, ok, result.stderr)
         return result
+
+    def test_response_reporting_matches_frozen_case_with_legacy_default(self) -> None:
+        package, _ = self.package()
+        input_path = package / 'input.json'
+        attempt = next((self.round / 'attempts').iterdir())
+        receipt_module.validate_packet(self.round, attempt, input_path)
+        packet = json.loads(input_path.read_text())
+        packet['response_reporting'] = 'operational-inventory'
+        input_path.write_text(json.dumps(packet))
+        receipt_module.validate_packet(self.round, attempt, input_path)
+        packet['response_reporting'] = 'task-response-only'
+        input_path.write_text(json.dumps(packet))
+        with self.assertRaisesRegex(ValueError, 'cloud input differs from frozen attempt'):
+            receipt_module.validate_packet(self.round, attempt, input_path)
 
     def setup_receipt(self, available: bool | None = True, source: str = 'parent-runtime') -> tuple[Path, Path]:
         package, staged, self.identity = self.stage_package()

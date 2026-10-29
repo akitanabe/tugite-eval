@@ -37,6 +37,7 @@ def export(round_path: Path, attempt: Path, destination: Path) -> None:
         'case_id': metadata['case_id'], 'trial': metadata['trial'],
         'version': metadata['version'], 'repo_sha': metadata['repo_sha'],
         'skill': case['skill'], 'prompt': case['prompt'],
+        **({'response_reporting': case['response_reporting']} if 'response_reporting' in case else {}),
         'required_capabilities': required_capabilities(case['skill']),
         'files': case['files'], 'working_changes': case.get('working_changes', {}),
         'requested': spec['requested'],
@@ -57,6 +58,8 @@ def verify_input(path: Path, expected: str) -> dict:
     if r.digest(path.read_bytes()) != expected:
         raise ValueError('input identity mismatch')
     packet = r.read_json(path)
+    if packet.get('response_reporting', 'operational-inventory') not in {'operational-inventory', 'task-response-only'}:
+        raise ValueError('unknown response reporting mode')
     versions = r.VERSIONS
     if packet.get('schema') == 3:
         versions = packet['fixed_versions']
@@ -126,13 +129,18 @@ def stage(path: Path, expected: str, destination: Path, source: str) -> None:
             'agent_config': r.file_inventory(workspace / '.codex'),
             'discovery': {p.name: str(p.readlink()) for p in discovery.iterdir()},
         })
+        response_instruction = (
+            'Return the requested task response. Include limitations only where they materially affect the explanation.'
+            if packet.get('response_reporting') == 'task-response-only' else
+            'Return your task response and identify files actually read, commands used and limitations.'
+        )
         (destination / 'prompt.txt').write_text(
             f"Read {bundle.resolve()}/skills/{packet['skill']}/SKILL.md first and use ${packet['skill']}. "
             'Resolve references and dependencies only within that fixed distribution. '
             'Work in ' + str(workspace.resolve()) + '. Custom agents are staged in .codex/agents. '
             'No network, push, dependency installation, or work outside this disposable fixture is authorized. '
             'Do not read the eval corpus, control files, rubrics, other versions or prior trial results. '
-            'Return your task response and identify files actually read, commands used and limitations.\n\n' + packet['prompt'] + '\n')
+            + response_instruction + '\n\n' + packet['prompt'] + '\n')
         print(r.canonical({
             'stage': str(destination), 'input_sha256': expected,
             'attempt_id': packet['attempt_id'], 'round_id': packet['round_id'],

@@ -140,7 +140,8 @@ def validate_packet(round_path: Path, attempt: Path, input_path: Path) -> tuple[
                     required_capabilities=cloud.required_capabilities(case['skill']),
                     distribution=r.file_inventory(round_path / 'distributions' / metadata['version']))
     config = {key.removeprefix('.codex/'): r.digest(value.encode()) for key, value in packet['agent_config'].items()}
-    if any(packet.get(key) != value for key, value in expected.items()) or config != metadata['staged_config']:
+    reporting_matches = packet.get('response_reporting', 'operational-inventory') == case.get('response_reporting', 'operational-inventory')
+    if any(packet.get(key) != value for key, value in expected.items()) or config != metadata['staged_config'] or not reporting_matches:
         raise ValueError('cloud input differs from frozen attempt')
     return packet, metadata
 

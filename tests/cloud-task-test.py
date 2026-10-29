@@ -58,8 +58,42 @@ class CloudTaskTest(unittest.TestCase):
         self.assertEqual(hashlib.sha256((staged / 'input.json').read_bytes()).hexdigest(), identity)
         prompt = (staged / 'prompt.txt').read_text()
         self.assertIn('distribution/plugins/codex/skills/test-report/SKILL.md first', prompt)
+        self.assertIn('identify files actually read, commands used and limitations', prompt)
         self.assertTrue((staged / 'workspace/.agents/skills/test-report').is_symlink())
         self.assertFalse(subprocess.check_output(['git', 'remote'], cwd=staged / 'workspace'))
+
+    def test_task_response_mode_survives_export_and_removes_operational_appendix_request(self) -> None:
+        # Existing historical versions are mechanism fixtures, not new candidate packets.
+        corpus = json.loads((ROOT / 'evals/corpus.json').read_text())
+        case = next(c for c in corpus['cases'] if c['id'] == 'test-report-normal')
+        case['response_reporting'] = 'task-response-only'
+        corpus_path = self.directory / 'response-corpus.json'
+        corpus_path.write_text(json.dumps(corpus))
+        round_path = self.directory / 'response-round'
+        self.cli('freeze', round_path, '--corpus', corpus_path)
+        attempt = Path(self.cli('prepare', round_path, 'test-report-normal', 'v7.3.7').stdout.strip())
+        package = self.directory / 'response-package'
+        self.cloud('export', round_path, attempt, package)
+        packet = json.loads((package / 'input.json').read_text())
+        self.assertEqual(packet['response_reporting'], 'task-response-only')
+        identity = hashlib.sha256((package / 'input.json').read_bytes()).hexdigest()
+        staged = self.directory / 'response-stage'
+        self.cloud('stage', package / 'input.json', identity, staged, '--source-repo', self.source_repository)
+        prompt = (staged / 'prompt.txt').read_text()
+        self.assertIn('Return the requested task response.', prompt)
+        self.assertNotIn('identify files actually read', prompt)
+        self.assertEqual((staged / 'workspace/app.py').read_text(), packet['files']['app.py'])
+
+    def test_unknown_response_mode_is_rejected_before_staging(self) -> None:
+        package, _ = self.package()
+        path = package / 'input.json'
+        packet = json.loads(path.read_text())
+        packet['response_reporting'] = 'unknown'
+        path.write_text(json.dumps(packet))
+        identity = hashlib.sha256(path.read_bytes()).hexdigest()
+        destination = self.directory / 'unknown-response-stage'
+        self.cloud('stage', path, identity, destination, ok=False)
+        self.assertFalse(destination.exists())
 
     def test_input_hash_mutation_is_rejected_before_staging(self) -> None:
         package, identity = self.package()
