@@ -1,7 +1,8 @@
 # Pilot handoff (parent only)
 
 新規 `tugite-eval-container` taskを親が作成し、要求モデルを `gpt-6.1-sol`、effortを `medium` とする。
-再開・forkは使わない。親はpush後に返された完全Git SHAへeval checkoutを固定する。
+再開・forkは使わない。この進行中pilotのcode/input revisionは
+`c2267c7d3b7107b73cdfa801e7f712b81813f166` に固定し、後続mainのadapterへ途中切替しない。
 この文書とcontrol.jsonは被評価taskの入力に含めず、下記promptだけを渡す。
 
 - Case: `test-report-normal`, version `v7.3.7`, trial `1`
@@ -12,6 +13,48 @@
 - Round ID: `5c45690f-6565-4b3a-baa9-511d3e3fee88`
 - 親専用適用rubric/元round identity: `control.json`
 - このroundはfresh cloud transport用の新round。旧nested CLI roundの実行済み扱いにはしない。
+
+## Checkout bootstrap（親が最初に渡す）
+
+環境のcheckout snapshotが最新mainとは仮定しない。以下はURL・revision・cwdを固定し、
+通常clone/fetch → commit存在 → clean → detach → HEAD一致を逐次確認する。
+各操作の非0終了・dirty・SHA不一致で直ちに停止し、stageを実行しない。force/reset/cleanは使わない。
+成功した場合だけ、次節のpilot promptを渡す。
+
+```bash
+python3 - <<'PYBOOT'
+from pathlib import Path
+import subprocess
+
+url = 'https://github.com/akitanabe/tugite-eval.git'
+revision = 'c2267c7d3b7107b73cdfa801e7f712b81813f166'
+repository = Path('/workspace/tugite-eval')
+
+def git(*args):
+    return subprocess.run(['git', *args], cwd=repository, check=True, capture_output=True, text=True).stdout.strip()
+
+if not repository.exists():
+    subprocess.run(['git', 'clone', url, str(repository)], check=True)
+if Path(git('rev-parse', '--show-toplevel')).resolve() != repository.resolve():
+    raise SystemExit('unexpected repository cwd; stop before stage')
+if git('remote', 'get-url', 'origin').rstrip('/') not in {url, url.removesuffix('.git')}:
+    raise SystemExit('unexpected repository origin; preserve checkout and stop before fetch')
+git('fetch', '--no-tags', url, revision)
+git('cat-file', '-e', revision + '^{commit}')
+if git('status', '--porcelain=v1', '--untracked-files=all'):
+    raise SystemExit('dirty checkout; preserve files and stop before stage')
+git('checkout', '--detach', revision)
+if git('rev-parse', 'HEAD') != revision:
+    raise SystemExit('HEAD mismatch; stop before stage')
+print('checkout verified:', repository, revision)
+PYBOOT
+```
+
+次節のコマンドは各々 `cwd=/workspace/tugite-eval` で実行する。作業directoryを変えるときも成功を確認する。
+この既存pilot revisionのcollectorには親baseline hash引数がない。
+その制約を親の受領記録へ残し、raw transcriptと固定inputによる独立照合を必須にする。
+後続の反復には [更新adapterのstage/親receipt/collect手順](../../evals/cloud-tasks.md) を使用し、別試行として扱う。
+input.json / control.jsonはこのbootstrap追記で変更しない。
 
 ## 被評価taskへ渡すprompt
 

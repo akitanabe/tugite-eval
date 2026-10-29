@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import shutil
 import subprocess
@@ -115,14 +116,23 @@ def stage(path: Path, expected: str, destination: Path, source: str) -> None:
             'No network, push, dependency installation, or work outside this disposable fixture is authorized. '
             'Do not read the eval corpus, control files, rubrics, other versions or prior trial results. '
             'Return your task response and identify files actually read, commands used and limitations.\n\n' + packet['prompt'] + '\n')
+        print(r.canonical({
+            'stage': str(destination), 'input_sha256': expected,
+            'before_sha256': r.digest((destination / 'before.json').read_bytes()),
+            'adapter_sha256': r.digest(Path(__file__).read_bytes()),
+            'state': 'staged-awaiting-parent-baseline-receipt',
+        }).decode(), end='')
     except Exception:
         shutil.rmtree(destination)
         raise
 
 
-def collect(staged: Path, expected: str, response: Path, destination: Path) -> None:
+def collect(staged: Path, expected: str, response: Path, destination: Path, expected_before: str) -> None:
     packet = verify_input(staged / 'input.json', expected)
-    before = r.read_json(staged / 'before.json')
+    before_bytes = (staged / 'before.json').read_bytes()
+    if r.digest(before_bytes) != expected_before:
+        raise ValueError('initial snapshot differs from parent-held before SHA-256')
+    before = json.loads(before_bytes)
     if before['input_sha256'] != expected:
         raise ValueError('staged input mismatch')
     if destination.resolve().is_relative_to(staged.resolve()):
@@ -131,7 +141,7 @@ def collect(staged: Path, expected: str, response: Path, destination: Path) -> N
     response_bytes = response.read_bytes()
     destination.mkdir(parents=True, exist_ok=False)
     (destination / 'response.txt').write_bytes(response_bytes)
-    shutil.copyfile(staged / 'before.json', destination / 'before.json')
+    (destination / 'before.json').write_bytes(before_bytes)
     artifacts = {}
     for path in sorted(workspace.rglob('*')):
         relative = path.relative_to(workspace)
@@ -152,7 +162,7 @@ def collect(staged: Path, expected: str, response: Path, destination: Path) -> N
                      diff=r.git('diff', before['head'], cwd=workspace).decode())
     r.write_json(destination / 'after.json', after)
     r.write_json(destination / 'collection.json', {
-        'attempt_id': packet['attempt_id'], 'input_sha256': expected,
+        'attempt_id': packet['attempt_id'], 'input_sha256': expected, 'before_sha256': expected_before,
         'state': 'collected', 'evidence_kind': 'unverified-cloud-output',
         'distribution_unchanged': r.file_inventory(staged / 'distribution') == packet['distribution'],
         'agent_config_unchanged': r.file_inventory(workspace / '.codex') == before['agent_config'],
@@ -183,6 +193,7 @@ def main() -> None:
     collected.add_argument('sha256')
     collected.add_argument('response', type=Path)
     collected.add_argument('destination', type=Path)
+    collected.add_argument('--before-sha256', required=True, help='Parent-held stage receipt hash captured before evaluated work; never recompute from mutable before.json at collection time')
     args = parser.parse_args()
     try:
         if args.action == 'export':
@@ -190,7 +201,7 @@ def main() -> None:
         elif args.action == 'stage':
             stage(args.input, args.sha256, args.destination.resolve(), args.source_repo)
         else:
-            collect(args.staged.resolve(), args.sha256, args.response, args.destination.resolve())
+            collect(args.staged.resolve(), args.sha256, args.response, args.destination.resolve(), args.before_sha256)
     except (ValueError, KeyError, OSError, subprocess.TimeoutExpired) as error:
         parser.exit(2, f'error: {error}\n')
 

@@ -4,6 +4,26 @@
 `codex exec` / `codex sandbox`、追加API credentialは必要ない。devでcorpus/adapterを開発し、evalでは固定入力を実行する。
 この文書と `control.json` は親の運用・判定用。被評価taskには下記のbootstrap promptとinputだけを渡す。
 
+## Checkoutの逐次確認
+
+親はtaskのcheckout snapshotを最新と仮定せず、起動promptに以下を明示する。
+repository URLは `https://github.com/akitanabe/tugite-eval.git`、cwdは `/workspace/tugite-eval`。
+評価input revisionと実行adapter revisionをそれぞれ完全SHAで記録する。
+既存pilot `cloud-pilot-001` の進行中実行は `c2267c7d3b7107b73cdfa801e7f712b81813f166` のまま保持する。
+更新adapterの試行には親が別途選んだadapter SHAと、その版に対応するCLIを使う。
+
+1. checkoutがなければ通常Git cloneする。既存directoryはGit top-levelとorigin URLを確認する。
+   originが上記GitHub URL（末尾`.git`省略可）と異なる場合は変更せず停止する。directory名だけでrepository identityを判定しない。
+2. `git fetch --no-tags https://github.com/akitanabe/tugite-eval.git EXACT_ADAPTER_SHA` の成功を確認する。
+3. `git cat-file -e EXACT_ADAPTER_SHA^{commit}` の成功を確認する。
+4. `git status --porcelain=v1 --untracked-files=all` が空であることを確認する。
+5. `git checkout --detach EXACT_ADAPTER_SHA` の成功を確認する。
+6. `git rev-parse HEAD` がEXACT_ADAPTER_SHAと一致し、cwdが上記repositoryであることを確認してからstageする。
+
+各操作は前の成功確認後だけ進める。非0終了、欠損、dirty、HEAD不一致ではstage未開始として報告する。
+force/reset/cleanや権限変更はbootstrapに含めない。
+[既存pilot handoff](../pilots/cloud-pilot-001/HANDOFF.md) に具体的なfail-stop bootstrapがある。
+
 ## 入出力
 
 `cloud_task.py export ROUND ATTEMPT DESTINATION` は、既存runnerが事前固定したroundとprepared attemptを検証する。
@@ -13,11 +33,14 @@ capability constraint付きケースは、実際のtool非提供を確認でき�
 
 ```bash
 python3 evals/cloud_task.py stage INPUT INPUT_SHA256 /workspace/pilot-stage
-# 評価対象agentはこのファイルから固定版Skillを読み、fixtureで作業する
+# stage成功時のstdout receiptにはbefore_sha256を含む。
+# ここで止まり、親が実行前receiptを信頼されたtranscriptから取得して保持する。
+# 親のbaseline受領後、評価対象agentがこのファイルを読みfixtureで作業する。
 cat /workspace/pilot-stage/prompt.txt
-# 完全な最終応答を /workspace/pilot-response.txt に保存して回収
+# 完全な最終応答を /workspace/pilot-response.txt に保存して回収。
+# PARENT_HELD_BEFORE_SHA256は親が実行前に保持した値。回収時にbefore.jsonから再計算しない。
 python3 evals/cloud_task.py collect /workspace/pilot-stage INPUT_SHA256 \
-  /workspace/pilot-response.txt /workspace/pilot-result
+  /workspace/pilot-response.txt /workspace/pilot-result --before-sha256 PARENT_HELD_BEFORE_SHA256
 ```
 
 stageはTugite本体を別の一時Git repositoryへ固定SHAでfetchし、選択版の配布物だけを配置する。
@@ -25,6 +48,14 @@ stageはTugite本体を別の一時Git repositoryへ固定SHAでfetchし、選�
 モデル・effortの要求は `gpt-6.1-sol / medium`。親がcloud task作成時に指定し、解決結果と実効値を別々に保存する。
 fixtureの初期commit SHAはstage時に生成されるため、元prepared attemptのcommit SHAとは異なりうる。
 同一性は固定fixture bytes / working changes / distribution hash / input SHAで追跡する。
+
+stageのstdout receiptにはinput SHA、before SHA、adapter SHAとstage pathを出す。
+親は評価作業開始前にraw tool transcriptからそのreceiptを取得し、task/input/code revisionと結び付けて子の書込範囲外に保持する。
+親が受領を確認するまではprompt.txtの読取・評価作業へ進めない。receiptを評価後の自己申告から再構成しない。
+collectは必須の `--before-sha256` とbefore.jsonのbytesを比較し、不一致・引数欠損なら出力先作成前に停止する。
+collection.jsonのbefore SHA、sealed before.json、親保持のreceiptを親が再照合する。
+子が別hashを引数に渡すこと自体はtool制御できないので、collectorの成功だけで親確認を代替しない。
+親側の実行前receipt取得/保持ができないruntimeではbaseline保証を未確認とし、通常の完了証拠にしない。
 
 collectは応答本文、変更後ファイル（ignored含む）、初期commitからのdiff、status、設定・配布物の変更観測を保存する。
 result sealはbyte同一性確認であり、署名・改竄防止ではない。symlinkなど通常回収できない成果物では停止し、部分出力を完成証拠にしない。
@@ -35,7 +66,8 @@ result sealはbyte同一性確認であり、署名・改竄防止ではない�
 
 1. cloud taskの識別子、作成時requested / resolved設定、実行transcript、完了応答を親が取得する。収集方法は親runtimeの機能を使用し、子に外部投稿させない。
 2. 親がinput SHA、result seal各項目のhash、返却task IDと実際のtask ID、transcriptの完了応答とresponse.txtを照合する。
-   repo revision、source SHA、case/trial/attempt ID、staged before.jsonも一緒に保持する。
+   repo revision、source SHA、case/trial/attempt ID、実行前に親が保持したstage receipt、sealed before.jsonも一緒に保持する。
+   親保持のbefore SHAとresult内before.json・collection.jsonのbefore SHAを照合し、不一致なら採点へ進めない。
 3. transcriptで実際のread対象、実行コマンド、子agentの作成/設定、予期しないtoolやデータアクセスを確認する。
    requested、resolved-at-creation、effective、unknownを分ける。自己申告やstaged hashだけをeffective / loadedと扱わない。
 4. 親が別の判定contextで `control.json` の適用rubricと共通metricsを使い、各項目にpass/fail/indeterminate、理由、証拠参照を残す。

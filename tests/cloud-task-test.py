@@ -26,6 +26,8 @@ class CloudTaskTest(unittest.TestCase):
     prepare = Base.prepare
 
     def cloud(self, *args: object, ok: bool = True) -> subprocess.CompletedProcess:
+        if args and args[0] == 'collect' and '--before-sha256' not in args:
+            args = (*args, '--before-sha256', self.before_sha256)
         result = subprocess.run([sys.executable, str(ADAPTER), *map(str, args)], capture_output=True, text=True)
         self.assertEqual(result.returncode == 0, ok, result.stderr)
         return result
@@ -40,7 +42,9 @@ class CloudTaskTest(unittest.TestCase):
     def stage_package(self) -> tuple[Path, Path, str]:
         package, identity = self.package()
         staged = self.directory / 'staged'
-        self.cloud('stage', package / 'input.json', identity, staged, '--source-repo', self.source_repository)
+        receipt = self.cloud('stage', package / 'input.json', identity, staged, '--source-repo', self.source_repository)
+        self.before_sha256 = json.loads(receipt.stdout)['before_sha256']
+        self.assertEqual(self.before_sha256, hashlib.sha256((staged / 'before.json').read_bytes()).hexdigest())
         return package, staged, identity
 
     def test_input_has_fixture_and_fixed_distribution_but_no_judge_observations(self) -> None:
@@ -145,6 +149,43 @@ class CloudTaskTest(unittest.TestCase):
         identity = hashlib.sha256(path.read_bytes()).hexdigest()
         self.cloud('stage', path, identity, self.directory / 'staged', ok=False)
         self.assertFalse((self.directory / 'staged').exists())
+
+    def test_parent_held_snapshot_hash_rejects_rewritten_baseline(self) -> None:
+        _, staged, identity = self.stage_package()
+        response = self.directory / 'response.txt'
+        response.write_text('test response')
+        baseline = staged / 'before.json'
+        original = baseline.read_bytes()
+        value = json.loads(original)
+        config = staged / 'workspace/.git/config'
+        config.write_text(config.read_text() + '\n# changed after stage\n')
+        # Rewriting baseline to the changed config would previously conceal drift.
+        rewritten_config_hash = hashlib.sha256(config.read_bytes()).hexdigest()
+        mutations = {
+            'head': '0' * 40, 'git_config': rewritten_config_hash, 'git_hooks': {},
+            'agent_config': {}, 'discovery': {}, 'files': {}, 'diff': 'rewritten',
+        }
+        for field, replacement in mutations.items():
+            with self.subTest(field=field):
+                changed = {**value, field: replacement}
+                baseline.write_text(json.dumps(changed))
+                result = self.directory / ('result-' + field)
+                failure = self.cloud('collect', staged, identity, response, result, ok=False)
+                self.assertIn('parent-held before SHA-256', failure.stderr)
+                self.assertFalse(result.exists())
+        baseline.write_bytes(original)
+        self.cloud('collect', staged, identity, response, self.directory / 'valid-result')
+
+    def test_collect_without_parent_snapshot_anchor_is_rejected(self) -> None:
+        _, staged, identity = self.stage_package()
+        response = self.directory / 'response.txt'
+        response.write_text('test response')
+        result = self.directory / 'result'
+        missing = subprocess.run([sys.executable, str(ADAPTER), 'collect', str(staged), identity,
+                                  str(response), str(result)], capture_output=True, text=True)
+        self.assertNotEqual(missing.returncode, 0)
+        self.assertIn('--before-sha256', missing.stderr)
+        self.assertFalse(result.exists())
 
 
 if __name__ == '__main__':
