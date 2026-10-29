@@ -34,7 +34,7 @@
           "basis": {
             "candidate": {
               "path": "skills/explain-this/SKILL.md",
-              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+              "quote": "実装の事実、実行観測、解釈、意図、テスト期待値を混同しない。"
             }
           },
           "requirement_basis": {
@@ -51,7 +51,7 @@
           "basis": {
             "candidate": {
               "path": "skills/explain-this/SKILL.md",
-              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+              "quote": "実在する関数・クラス・構造体などの識別子を先に置き、流れの中で担う働きと次へのつながりを短く添える。"
             }
           },
           "requirement_basis": {
@@ -89,7 +89,7 @@
           "basis": {
             "candidate": {
               "path": "skills/explain-this/SKILL.md",
-              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+              "quote": "実装の事実、実行観測、解釈、意図、テスト期待値を混同しない。"
             }
           },
           "requirement_basis": {
@@ -106,7 +106,7 @@
           "basis": {
             "candidate": {
               "path": "skills/explain-this/SKILL.md",
-              "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。"
+              "quote": "実在する関数・クラス・構造体などの識別子を先に置き、流れの中で担う働きと次へのつながりを短く添える。"
             }
           },
           "requirement_basis": {

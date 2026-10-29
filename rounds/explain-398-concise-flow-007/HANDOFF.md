@@ -29,7 +29,10 @@ seal/path等の輸送情報は親が別に保持し、応答本文へ参照一�
 **親が2caseを各1回だけ起動し、実際の本文をHumanへ提示して停止。追加case・反復・全件展開・version更新・PRは禁止。**
 準備taskはLLM trialを起動せず、採点しない。完全内部証跡/実効model不明は制約のまま保持する。
 
-事前固定corpus SHA-256: `28faa15b45219a02a0221c03acd794a36bcc5eb1b02a43e16b50c7c491080391`。
+事前固定corpus SHA-256: `ff942b689ca36a4fdca78edcd2875d6440279397516eda21b1218e0c941ab206`。
 
 今回のpromptはフローと各関数/classの役割を尋ねる中立な依頼へ改訂した。回答templateや受理済みfixture回答を埋め込まない。
 prompt・response reporting・rubricも旧006から変更されるため、結果をSkill変更だけの独立した改善とは主張しない。
+
+source全体改訂で旧版の引用が無くなったため、適用source引用だけを固定candidateの実文へ更新した。
+期待観測・prompt・fixture・共通metricに変更がないことをbasis除外で機械照合した。
