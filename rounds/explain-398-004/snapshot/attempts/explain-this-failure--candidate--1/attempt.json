@@ -1,0 +1,209 @@
+{
+  "additional_reason": null,
+  "attempt_id": "ebdd3bcf-64b9-4f15-86cb-31acebf78596",
+  "available_agents": {
+    "expert-implementer": {
+      "definition_sha256": "bb48f76f87f8268e76407fb7c8df9b90b0b7441ecc509b244440564463dff93b",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "max",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "focused-implementer": {
+      "definition_sha256": "376539acffdcd5a3b94deb193cee4ea38f2251d0a3e42b29439977ea11054a58",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6-luna"
+    },
+    "implementer": {
+      "definition_sha256": "a5101cb7173d66750d22ab5c63edd4d59a4443ab30aa87218707b43294771390",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "xhigh",
+      "requested_model": "gpt-6-luna"
+    },
+    "over-engineering-reviewer": {
+      "definition_sha256": "b48fd93dc365a371f29b8be3f88883f494288cba4c10f32f6394ab60b245e357",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "plan-adversarial-reviewer": {
+      "definition_sha256": "44729dbb387e30249cd4705e226923885308cd382166467dbbe38ec76d1048b8",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "plan-quality-advisor": {
+      "definition_sha256": "69540bdece4175209bad9199d2b7da6a29c09d111ea15eb0401712880d280b2a",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "researcher": {
+      "definition_sha256": "306450bab75f6c6abd918c33934002ad256139595e6e513c7b50760ccf6c8ae5",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6-luna"
+    },
+    "responsibility-boundary-reviewer": {
+      "definition_sha256": "d2208b3a35eb188e6cf24f754219db56537318281c11ca2504a4ebb1f5702ab3",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "security-side-effect-reviewer": {
+      "definition_sha256": "824e5fb6ce53cfa68399b8b77076c94132afeb529f4fddb02a00fea6f01892f8",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "xhigh",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "senior-implementer": {
+      "definition_sha256": "36a80a0b07f8410cbf460ab00b3448960264ea48d93d00af60f9364523df3ff4",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "medium",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "static-performance-reviewer": {
+      "definition_sha256": "356049b5d646b35930d6a04b1cdb70c15ae19ab9a220ee5b7a8abf577aecac3f",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "test-coverage-reviewer": {
+      "definition_sha256": "1717fbfe34ca2685fbb042b3e2015d41015a7aac3adcaafd0bcdb2a373d72217",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "test-validity-reviewer": {
+      "definition_sha256": "10b1fa765a154ba04fc586abd0e2fafc702b79f48312654ab4a6af8784fe2545",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "high",
+      "requested_model": "gpt-6.1-sol"
+    },
+    "writing-principles-reviewer": {
+      "definition_sha256": "b1fe848b3baffdc0a2d0442101724f84aebd30daa9bf5ed6ee68f6952f6ea981",
+      "effective_effort": null,
+      "effective_model": null,
+      "requested_effort": "xhigh",
+      "requested_model": "gpt-6-luna"
+    }
+  },
+  "before": {
+    "diff": "",
+    "files": {
+      ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+      "README.md": "68eb84a2ac0e5ffbaacb2401ef7b96650b9a6decc99c5f232cb7b7a58f68a6c8",
+      "app.py": "04d3da90a3e967df7e01a26d91ba4951f34d543d4522669e38be07163a550b1b",
+      "material.txt": "c516c435f0cdd1bcd9f27a5ed5c3b39fd1f48b41d961e00563f095741edd65ac",
+      "plan.md": "afe7d1d597e5a93c26522a285990252e9d4c01a54355003bff89fb27873cd2c4",
+      "requirements.md": "844e7091cbfcb8385830890243f5d7c5848ebf92a8975b910b1140e7c2503aa5",
+      "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tests/test_app.py": "e8e64ce1867c895e67d2562b458660163e724dd9fcce8b172a793ed4fafeec6a",
+      "unrelated.txt": "918e339f110b004e37668ab84f283788cdb18aa80f09479b9d62e81b89eddd38"
+    },
+    "git_config": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe",
+    "git_hooks": {
+      "applypatch-msg.sample": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7",
+      "commit-msg.sample": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437",
+      "fsmonitor-watchman.sample": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0",
+      "post-update.sample": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5",
+      "pre-applypatch.sample": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475",
+      "pre-commit.sample": "57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b",
+      "pre-merge-commit.sample": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53",
+      "pre-push.sample": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a",
+      "pre-rebase.sample": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3",
+      "pre-receive.sample": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989",
+      "prepare-commit-msg.sample": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619",
+      "push-to-checkout.sample": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f",
+      "sendemail-validate.sample": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92",
+      "update.sample": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    "head": "17d304ac32c34ada61c4bab29507a20a14b93d9d",
+    "status": ""
+  },
+  "case_id": "explain-this-failure",
+  "child_overlay": {
+    "effort": "medium",
+    "model": "gpt-6.1-sol"
+  },
+  "cost": null,
+  "discovery": {
+    "explain-this": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/explain-this",
+    "impl-lead": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/impl-lead",
+    "impl-plan": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/impl-plan",
+    "impl-review": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/impl-review",
+    "install-custom-agents": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/install-custom-agents",
+    "review-propose": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/review-propose",
+    "test-report": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/test-report",
+    "test-verify": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/test-verify",
+    "visualize-that": "/workspace/tugite-eval/.local/explain-398-paired/round/distributions/candidate/plugins/codex/skills/visualize-that"
+  },
+  "effective_parent": {
+    "effort": null,
+    "model": null
+  },
+  "evidence_kind": "not-run",
+  "loaded_distribution": null,
+  "repo_sha": "2e7ae9237103cc9a6c6d9afbb748c11ad2ea51e7",
+  "requested_parent": {
+    "effort": "medium",
+    "model": "gpt-6.1-sol"
+  },
+  "round_id": "8f27018c-ae9b-4968-995c-909a9b300eee",
+  "runtime": {
+    "os": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "python": "3.12.14"
+  },
+  "schema": 1,
+  "spawned_children": null,
+  "staged_agent_hashes": {
+    "expert-implementer.toml": "55a29f642f621fa756176af4ef0c09a32879c3bde47aa6723343ff9dd61407ae",
+    "focused-implementer.toml": "6921a4f829b701749e9da74a4ec97e443308775b1b70c10c4d56cba79fa92f89",
+    "implementer.toml": "c4bb195e472cbe6d3c008a5eaa3735e71e4f4cb65674a58e74b311f5d1fa61f4",
+    "over-engineering-reviewer.toml": "3d1dd1c0ef65a482b121242dcf92eccd2dd15b1453abda28c3d747aed465d3f4",
+    "plan-adversarial-reviewer.toml": "ade8ce5d4c6b8fb429cfe74dbbac6adcda06a22f5fa38286b008c7ccfa28c4ef",
+    "plan-quality-advisor.toml": "5d80d18edf11cfd511ed4498d0e054cf049bc5c699c8bbaee51e24852b7eed84",
+    "researcher.toml": "affc9fa1ada350f7509273c039f5f68529bc1a1a31b96bbda4695b9e1939d7b4",
+    "responsibility-boundary-reviewer.toml": "c03beedcb98cba88e8e0b03327da3a3b096639f632c29f3b77f27214b8b0d1b4",
+    "security-side-effect-reviewer.toml": "9368f9a5abff3a84318acc9feee6284460fa9282a56825f9af8d8a0ed42638ef",
+    "senior-implementer.toml": "36a80a0b07f8410cbf460ab00b3448960264ea48d93d00af60f9364523df3ff4",
+    "static-performance-reviewer.toml": "a6ed90b4e24ad207c9b652313428331caa855da7fdb1b545b64b7452ef8c60ad",
+    "test-coverage-reviewer.toml": "6ddceddcafba6effb54eeda991de30b11a8bffb8ea7cc4bb435af6a29b4b4a1c",
+    "test-validity-reviewer.toml": "92d877fc4811fea55356b447421f8d82c01da30c97316c282fe512ee532af2ff",
+    "writing-principles-reviewer.toml": "5894e060b89cf8e4b83da7cda189bbc531a450b25c28301bdf4c4ea889849805"
+  },
+  "staged_config": {
+    "agents/.tugite-version": "434f6fbfb8211c1b842b99f029fa1508711b9854366614317dcfa324708a4cef",
+    "agents/expert-implementer.toml": "55a29f642f621fa756176af4ef0c09a32879c3bde47aa6723343ff9dd61407ae",
+    "agents/focused-implementer.toml": "6921a4f829b701749e9da74a4ec97e443308775b1b70c10c4d56cba79fa92f89",
+    "agents/implementer.toml": "c4bb195e472cbe6d3c008a5eaa3735e71e4f4cb65674a58e74b311f5d1fa61f4",
+    "agents/over-engineering-reviewer.toml": "3d1dd1c0ef65a482b121242dcf92eccd2dd15b1453abda28c3d747aed465d3f4",
+    "agents/plan-adversarial-reviewer.toml": "ade8ce5d4c6b8fb429cfe74dbbac6adcda06a22f5fa38286b008c7ccfa28c4ef",
+    "agents/plan-quality-advisor.toml": "5d80d18edf11cfd511ed4498d0e054cf049bc5c699c8bbaee51e24852b7eed84",
+    "agents/researcher.toml": "affc9fa1ada350f7509273c039f5f68529bc1a1a31b96bbda4695b9e1939d7b4",
+    "agents/responsibility-boundary-reviewer.toml": "c03beedcb98cba88e8e0b03327da3a3b096639f632c29f3b77f27214b8b0d1b4",
+    "agents/security-side-effect-reviewer.toml": "9368f9a5abff3a84318acc9feee6284460fa9282a56825f9af8d8a0ed42638ef",
+    "agents/senior-implementer.toml": "36a80a0b07f8410cbf460ab00b3448960264ea48d93d00af60f9364523df3ff4",
+    "agents/static-performance-reviewer.toml": "a6ed90b4e24ad207c9b652313428331caa855da7fdb1b545b64b7452ef8c60ad",
+    "agents/test-coverage-reviewer.toml": "6ddceddcafba6effb54eeda991de30b11a8bffb8ea7cc4bb435af6a29b4b4a1c",
+    "agents/test-validity-reviewer.toml": "92d877fc4811fea55356b447421f8d82c01da30c97316c282fe512ee532af2ff",
+    "agents/writing-principles-reviewer.toml": "5894e060b89cf8e4b83da7cda189bbc531a450b25c28301bdf4c4ea889849805"
+  },
+  "state": "prepared",
+  "track": "candidate-regression",
+  "trial": 1,
+  "version": "candidate"
+}

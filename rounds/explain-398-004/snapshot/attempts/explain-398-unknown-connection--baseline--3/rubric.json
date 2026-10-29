@@ -1,0 +1,30 @@
+{
+  "common_metrics": {
+    "accuracy": "Pass: 重要な分岐、データ/状態、作用、順序、失敗境界をコードに沿って保持し、静的事実/観測/推定/不明を区別する。Fail: 重要な誤り/欠落/捏造、意図適合の断定。",
+    "conciseness-without-loss": "Pass: 機能理解に必要な粒度で説明し、重要な意味を落とさない。一般DB操作の仕組みや付随的detailsが本筋を圧迫しない。短さ/行数/特定語彙/章立てを品質指標にしない。Fail: 冗長さで処理とコードの関係を把握できない、または短縮で重要な意味が失われる。",
+    "traceability": "Pass: 主要な処理・判断・接続・作用から実在するファイルとクラス/関数へ辿れる。行番号や見出しの固定は不要。Fail: 重要な対応が追跡不能/誤り。材料不足はindeterminate。",
+    "usefulness": "Pass: 依頼対象の全体像と意味のある処理順を読み手が理解できる。機能対象なら基盤詳細の列挙に埋没せず、基盤対象なら基盤の役割を説明する。Fail: 名前一覧や一般論で主要経路を代替。"
+  },
+  "observations": [
+    {
+      "basis": {
+        "baseline": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "51e2d852933ee11a045ed5ac4365dbb4cef8b5f7e783f0722c99214167fe003b"
+        },
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "ee6b762540683324fb3c36d3850ff50febf3c847768b5dcd33451145ddeed499"
+        }
+      },
+      "expectation": "exchange_ticketの戻り後にCookie発行する順序とcart_forへのuser引渡しは説明できる。一方adapter内部の検証/消費/session永続化/tx/失敗時作用とCookieからrequest.userを得る接続は不明。ROUTESだけで認証接続や実行成功を補わない。",
+      "id": "bounded-knowledge",
+      "versions": [
+        "baseline",
+        "candidate"
+      ]
+    }
+  ]
+}

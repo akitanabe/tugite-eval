@@ -1,0 +1,34 @@
+{
+  "semantics_commit": "11b7dcdecb470050e4b35eb0ec2cce8c4ddeed90",
+  "adapter_commit": "0d2c38290c60abac4d52ee7e091bd4343f4fce11",
+  "corpus_sha256": "89f61d5d152983e63c5bd60c4ff6eb0d64450913f5222f16efff6f262f49e0e6",
+  "observed_main": "c44261f1f70da40c75123a91153a8aa6c6d4be1e",
+  "candidate": "2e7ae9237103cc9a6c6d9afbb748c11ad2ea51e7",
+  "candidate_source_quote_check": {
+    "398-process-and-effects": {
+      "path": "plugins/codex/skills/explain-this/SKILL.md",
+      "quotes": [
+        "説明の主要単位は、意味のある処理とする。",
+        "機能の結果や後続動作に関係する副作用は原則説明し、作用する対象、何をするか、実装箇所、発生条件を必要な粒度で対応づける。"
+      ],
+      "present": true
+    },
+    "398-no-name-exclusion": {
+      "path": "plugins/codex/skills/explain-this/SKILL.md",
+      "quotes": [
+        "クラス名やレイヤー名だけで省略を決めず、基盤自体が依頼対象なら、その基盤の処理と実装の対応を中心に説明する。"
+      ],
+      "present": true
+    },
+    "398-preserve-gap": {
+      "path": "plugins/codex/skills/explain-this/SKILL.md",
+      "quotes": [
+        "確認できない接続や順序は未確認として保持する。"
+      ],
+      "present": true
+    }
+  },
+  "note": "Candidate distribution/source read only after semantics commit; no candidate diff/output inspected; no trial launched.",
+  "baseline_skill_sha256": "51e2d852933ee11a045ed5ac4365dbb4cef8b5f7e783f0722c99214167fe003b",
+  "candidate_skill_sha256": "ee6b762540683324fb3c36d3850ff50febf3c847768b5dcd33451145ddeed499"
+}
