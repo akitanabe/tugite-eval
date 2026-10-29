@@ -175,3 +175,10 @@ Skill文書のlintはsource repository側のtextlintが所有し、本repository
 これらの静的検査をLLMの意味遵守の評価に読み替えない。
 
 具体的な再現コマンド、設定の最小変更案、実装不足と観測限界の分類は [runtime-diagnostics.md](runtime-diagnostics.md) を参照。
+
+## #398 explain-this comparison
+
+新しい固定SHA比較は [事前固定ケース](../cases/explain-398/EXPECTATIONS.md) と `prepare_398.py` を使う。
+`runner.py freeze --version-map MAP.json` は明示したlabel→完全SHAを新roundに固定する。
+既定の#397版集合・既存round/resultsは保持する。schema3 cloud inputは選択した版だけのfixed_versionsを含み、
+input hashと実fetch SHA、配布物inventoryをstageで照合する。候補未確定のplaceholderは実行できない。

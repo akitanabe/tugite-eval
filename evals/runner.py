@@ -84,7 +84,7 @@ def file_inventory(root: Path) -> dict[str, str]:
     return result
 
 
-def fetch_source(repository: str, destination: Path) -> None:
+def fetch_source(repository: str, destination: Path, versions: dict | None = None) -> None:
     """Read fixed snapshots from the source repo, never this eval repo's object DB."""
     if repository != SOURCE_REPOSITORY:
         local_source = Path(repository).resolve()
@@ -92,9 +92,10 @@ def fetch_source(repository: str, destination: Path) -> None:
             raise ValueError("source must be the canonical Tugite URL or an existing local Git repository")
         repository = str(local_source)
     git("init", "--bare", "-q", str(destination))
-    refs = [f"{sha}:refs/tugite-eval/{version}" for version, sha in VERSIONS.items()]
+    versions = VERSIONS if versions is None else versions
+    refs = [f"{sha}:refs/tugite-eval/{version}" for version, sha in versions.items()]
     git("fetch", "--no-tags", "--depth=1", "--update-shallow", repository, *refs, cwd=destination)
-    for version, sha in VERSIONS.items():
+    for version, sha in versions.items():
         if git("rev-parse", f"refs/tugite-eval/{version}^{{commit}}", cwd=destination).decode().strip() != sha:
             raise ValueError("source version identity mismatch")
 
@@ -110,10 +111,13 @@ def unpack_distribution(sha: str, destination: Path, source_repository: Path) ->
         archive.extractall(destination, filter="data")
 
 
-def validate_case(case: dict, distributions: Path) -> dict:
+def validate_case(case: dict, distributions: Path, versions: dict | None = None) -> dict:
     skill = case["skill"]
     expected_versions = list(VERSIONS) if skill in CONTINUING else ["v7.5.0"]
-    if skill not in CONTINUING | NEW or case["versions"] != expected_versions:
+    if versions is not None:
+        expected_versions = list(versions)
+    valid_versions = case["versions"] == expected_versions if versions is None else (bool(case["versions"]) and set(case["versions"]) <= set(expected_versions))
+    if skill not in CONTINUING | NEW or not valid_versions:
         raise ValueError(f"invalid track/versions: {case['id']}")
     if case["category"] not in {"normal", "boundary", "failure", "ambiguous"}:
         raise ValueError("invalid category")
@@ -138,14 +142,17 @@ def validate_case(case: dict, distributions: Path) -> dict:
     return case
 
 
-def freeze(destination: Path, corpus: Path, model: str, effort: str, source_repository: str = SOURCE_REPOSITORY) -> None:
+def freeze(destination: Path, corpus: Path, model: str, effort: str, source_repository: str = SOURCE_REPOSITORY, versions: dict | None = None) -> None:
     """Create once; every input, rubric and distribution is fixed before a trial."""
+    selected_versions = VERSIONS if versions is None else versions
+    if not selected_versions or any(not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9.-]*", key) or not re.fullmatch(r"[0-9a-f]{40}", sha) for key, sha in selected_versions.items()):
+        raise ValueError("version map requires safe labels and full lowercase Git SHAs")
     destination.mkdir(parents=True, exist_ok=False)
     try:
         with tempfile.TemporaryDirectory(prefix="tugite-eval-source-") as temporary:
             source_git = Path(temporary) / "source.git"
-            fetch_source(source_repository, source_git)
-            for version, sha in VERSIONS.items():
+            fetch_source(source_repository, source_git, selected_versions)
+            for version, sha in selected_versions.items():
                 unpack_distribution(sha, destination / "distributions" / version, source_git)
         source = read_json(corpus)
         cases = []
@@ -162,12 +169,12 @@ def freeze(destination: Path, corpus: Path, model: str, effort: str, source_repo
                     raise ValueError("fixture cannot supply runtime configuration")
             case["files"] = fixture
             case["common_metrics"] = {name: source["common_metrics"][name] for name in case["common_metrics"]}
-            cases.append(validate_case(case, destination / "distributions"))
+            cases.append(validate_case(case, destination / "distributions", versions))
         if not cases:
             raise ValueError("empty corpus")
         write_json(destination / "spec.json", {
             "schema": 1, "round_id": str(uuid.uuid4()), "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "versions": VERSIONS, "source_repository": source_repository,
+            "versions": selected_versions, "explicit_versions": versions is not None, "source_repository": source_repository,
             "source_acquisition": "separate temporary bare Git repository; shallow fetch of exact SHAs",
             "requested": {"model": model, "effort": effort},
             "repetition": {"initial": 3, "maximum": 5, "additional": "disagreement or indeterminate; record reason before running trials 4/5", "stop": "5 trials, infrastructure denial, identity drift, or safety failure"},
@@ -263,8 +270,8 @@ def prepare(round_path: Path, case_id: str, version: str, trial: int, reason: st
     write_json(attempt / "rubric.json", {"observations": applicable, "common_metrics": case["common_metrics"]})
     write_json(attempt / "attempt.json", {
         "schema": 1, "attempt_id": str(uuid.uuid4()), "round_id": spec["round_id"],
-        "case_id": case_id, "version": version, "repo_sha": VERSIONS[version], "trial": trial,
-        "additional_reason": reason, "track": "comparison" if case["skill"] in CONTINUING else "v7.5.0-attainment",
+        "case_id": case_id, "version": version, "repo_sha": spec["versions"][version], "trial": trial,
+        "additional_reason": reason, "track": case.get("track", "comparison" if case["skill"] in CONTINUING else "v7.5.0-attainment"),
         "requested_parent": spec["requested"], "effective_parent": {"model": None, "effort": None},
         "available_agents": available, "child_overlay": spec["requested"], "staged_agent_hashes": staged, "staged_config": file_inventory(workspace / ".codex"),
         "discovery": {path.name: str(path.readlink()) for path in discovery.iterdir()},
@@ -683,7 +690,7 @@ def report(round_path: Path) -> None:
                 conformance = "fail" if "fail" in values else ("pass" if values and set(values) == {"pass"} else "indeterminate")
             # Counts are descriptive only; differences need independent comparison adjudication.
             rows.append({"case_id": case["id"], "version": version,
-                "track": "comparison" if case["skill"] in CONTINUING else "v7.5.0-attainment",
+                "track": case.get("track", "comparison" if case["skill"] in CONTINUING else "v7.5.0-attainment"),
                 "attempts": attempts, "missing_initial_trials": sorted(set(range(1, 4)) - {a["trial"] for a in completed}),
                 "spec_conformance": conformance, "quality_change": "indeterminate",
                 "reason": "Independent semantic adjudication and complete repeated LLM evidence required; no automatic causal ranking."})
@@ -723,7 +730,7 @@ def compare(round_path: Path, judgment_path: Path) -> None:
         case = choose_case(spec, decision["case_id"], decision["baseline"])
         choose_case(spec, decision["case_id"], decision["candidate"])
         key = (case["id"], decision["baseline"], decision["candidate"])
-        if key in seen or case["skill"] not in CONTINUING or decision["baseline"] == decision["candidate"]:
+        if key in seen or (case["skill"] not in CONTINUING and case.get("track") != "comparison") or decision["baseline"] == decision["candidate"]:
             raise ValueError("invalid duplicate or attainment-track comparison")
         seen.add(key)
         if decision["result"] not in {"improved", "worsened", "equivalent", "indeterminate"} or not decision["reason"]:
@@ -768,6 +775,7 @@ def main() -> None:
     frozen = sub.add_parser("freeze")
     frozen.add_argument("round", type=Path)
     frozen.add_argument("--corpus", type=Path, default=ROOT / "evals/corpus.json")
+    frozen.add_argument("--version-map", type=Path, help="Explicit label-to-full-SHA JSON for a new preregistered corpus; legacy defaults remain unchanged")
     frozen.add_argument("--model", default="gpt-6.1-sol")
     frozen.add_argument("--effort", default="medium")
     frozen.add_argument("--source-repo", default=SOURCE_REPOSITORY, help="Canonical Tugite URL or a local Git source repository; never the eval object database implicitly")
@@ -779,7 +787,7 @@ def main() -> None:
         item.add_argument("round", type=Path)
         if name == "prepare":
             item.add_argument("case")
-            item.add_argument("version", choices=VERSIONS)
+            item.add_argument("version")
             item.add_argument("--trial", type=int, default=1)
             item.add_argument("--reason")
         elif name != "report":
@@ -793,7 +801,7 @@ def main() -> None:
     args = parser.parse_args()
     try:
         if args.action == "freeze":
-            freeze(args.round.resolve(), args.corpus, args.model, args.effort, args.source_repo)
+            freeze(args.round.resolve(), args.corpus, args.model, args.effort, args.source_repo, read_json(args.version_map) if args.version_map else None)
         elif args.action == "prepare":
             print(prepare(args.round.resolve(), args.case, args.version, args.trial, args.reason))
         elif args.action == "run":

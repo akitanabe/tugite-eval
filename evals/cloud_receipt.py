@@ -68,7 +68,7 @@ def restore(source: Path, destination: Path, repository: str) -> None:
         shutil.copytree(source / 'attempts', destination / 'attempts')
         with tempfile.TemporaryDirectory(prefix='tugite-cloud-restore-') as temporary:
             source_git = Path(temporary) / 'source.git'
-            r.fetch_source(repository, source_git)
+            r.fetch_source(repository, source_git, r.read_json(destination / 'spec.json')['versions'])
             for version, revision in r.read_json(destination / 'spec.json')['versions'].items():
                 r.unpack_distribution(revision, destination / 'distributions' / version, source_git)
         r.verify_round(destination)

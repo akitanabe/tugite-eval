@@ -30,7 +30,9 @@ def export(round_path: Path, attempt: Path, destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=False)
     distribution = round_path / 'distributions' / metadata['version']
     packet = {
-        'schema': 2, 'adapter': 'fresh-cloud-task-v2',
+        'schema': 3 if spec.get('explicit_versions') else 2,
+        **({'fixed_versions': {metadata['version']: spec['versions'][metadata['version']]}} if spec.get('explicit_versions') else {}),
+        'adapter': 'fresh-cloud-task-v2',
         'attempt_id': metadata['attempt_id'], 'round_id': metadata['round_id'],
         'case_id': metadata['case_id'], 'trial': metadata['trial'],
         'version': metadata['version'], 'repo_sha': metadata['repo_sha'],
@@ -55,7 +57,12 @@ def verify_input(path: Path, expected: str) -> dict:
     if r.digest(path.read_bytes()) != expected:
         raise ValueError('input identity mismatch')
     packet = r.read_json(path)
-    if packet['repo_sha'] != r.VERSIONS[packet['version']]:
+    versions = r.VERSIONS
+    if packet.get('schema') == 3:
+        versions = packet['fixed_versions']
+        if versions != {packet['version']: packet['repo_sha']} or not r.re.fullmatch(r'[0-9a-f]{40}', packet['repo_sha']):
+            raise ValueError('explicit fixed source identity required')
+    if packet['repo_sha'] != versions[packet['version']]:
         raise ValueError('fixed source identity mismatch')
     for relative in list(packet['files']) + list(packet['working_changes']):
         r.safe_path(Path('/fixture'), relative)
