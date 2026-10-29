@@ -12,6 +12,15 @@ import tempfile
 import runner as r
 
 
+def required_capabilities(skill: str) -> list[str]:
+    required = ['fixture_read', 'shell', 'git']
+    if skill in {'impl-lead', 'test-verify', 'visualize-that'}:
+        required.append('fixture_write')
+    if skill == 'test-verify':
+        required.append('python_execution')
+    return required
+
+
 def export(round_path: Path, attempt: Path, destination: Path) -> None:
     spec, metadata = r.verify_attempt(round_path, attempt)
     r.verify_workspace(attempt, metadata)
@@ -21,11 +30,12 @@ def export(round_path: Path, attempt: Path, destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=False)
     distribution = round_path / 'distributions' / metadata['version']
     packet = {
-        'schema': 1, 'adapter': 'fresh-cloud-task-v1',
+        'schema': 2, 'adapter': 'fresh-cloud-task-v2',
         'attempt_id': metadata['attempt_id'], 'round_id': metadata['round_id'],
         'case_id': metadata['case_id'], 'trial': metadata['trial'],
         'version': metadata['version'], 'repo_sha': metadata['repo_sha'],
         'skill': case['skill'], 'prompt': case['prompt'],
+        'required_capabilities': required_capabilities(case['skill']),
         'files': case['files'], 'working_changes': case.get('working_changes', {}),
         'requested': spec['requested'],
         'distribution': r.file_inventory(distribution),
@@ -118,8 +128,11 @@ def stage(path: Path, expected: str, destination: Path, source: str) -> None:
             'Return your task response and identify files actually read, commands used and limitations.\n\n' + packet['prompt'] + '\n')
         print(r.canonical({
             'stage': str(destination), 'input_sha256': expected,
+            'attempt_id': packet['attempt_id'], 'round_id': packet['round_id'],
             'before_sha256': r.digest((destination / 'before.json').read_bytes()),
             'adapter_sha256': r.digest(Path(__file__).read_bytes()),
+            'runner_sha256': r.digest(Path(r.__file__).read_bytes()),
+            'prompt_sha256': r.digest((destination / 'prompt.txt').read_bytes()),
             'state': 'staged-awaiting-parent-baseline-receipt',
         }).decode(), end='')
     except Exception:
@@ -142,6 +155,7 @@ def collect(staged: Path, expected: str, response: Path, destination: Path, expe
     destination.mkdir(parents=True, exist_ok=False)
     (destination / 'response.txt').write_bytes(response_bytes)
     (destination / 'before.json').write_bytes(before_bytes)
+    shutil.copyfile(staged / 'prompt.txt', destination / 'prompt.txt')
     artifacts = {}
     for path in sorted(workspace.rglob('*')):
         relative = path.relative_to(workspace)

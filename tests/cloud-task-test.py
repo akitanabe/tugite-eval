@@ -43,7 +43,8 @@ class CloudTaskTest(unittest.TestCase):
         package, identity = self.package()
         staged = self.directory / 'staged'
         receipt = self.cloud('stage', package / 'input.json', identity, staged, '--source-repo', self.source_repository)
-        self.before_sha256 = json.loads(receipt.stdout)['before_sha256']
+        self.stage_receipt = json.loads(receipt.stdout)
+        self.before_sha256 = self.stage_receipt['before_sha256']
         self.assertEqual(self.before_sha256, hashlib.sha256((staged / 'before.json').read_bytes()).hexdigest())
         return package, staged, identity
 

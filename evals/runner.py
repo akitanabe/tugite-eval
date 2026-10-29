@@ -636,6 +636,8 @@ def adjudicate(round_path: Path, attempt: Path, judgment_path: Path) -> None:
         raise ValueError("identified independent judge required")
     execution = read_json(attempt / "execution.json")
     verify_evidence(attempt)
+    if execution.get("cloud_task_id") == judgment["judge_id"]:
+        raise ValueError("execution task cannot independently judge itself")
     for section, expected in (("observations", {item["id"] for item in rubric["observations"]}), ("common_metrics", set(rubric["common_metrics"]))):
         if set(judgment[section]) != expected:
             raise ValueError("judgment must cover every applicable observation/metric exactly once")
@@ -668,7 +670,12 @@ def report(round_path: Path) -> None:
                 attempts.append({"path": str(path.relative_to(round_path)), "trial": metadata["trial"],
                     "execution_state": execution.get("state", "not-run"), "evidence_kind": execution.get("evidence_kind", "not-run"),
                     "judgment": judgment, "effective_parent": execution.get("effective_parent"),
-                    "loaded_distribution": execution.get("loaded_distribution")})
+                    "loaded_distribution": execution.get("loaded_distribution"),
+                    "resolved_parent": execution.get("resolved_parent"),
+                    "cloud_task_id": execution.get("cloud_task_id"),
+                    "parent_pre_receipt_sha256": execution.get("parent_pre_receipt_sha256"),
+                    "observations": execution.get("observations"),
+                    "limitations": execution.get("limitations")})
             completed = [item for item in attempts if item["judgment"] is not None and item["evidence_kind"] == "llm" and item["execution_state"] == "completed"]
             values = [finding["result"] for item in completed for finding in item["judgment"]["observations"].values()]
             conformance = "indeterminate"
