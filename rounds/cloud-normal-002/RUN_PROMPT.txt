@@ -4,7 +4,7 @@ Eval code SHA: <EVAL_CODE_SHA>
 Input SHA-256: a47763ea50c0a7dad7ce6d80314287a06b2ea08b47ef5d5b73abd0798de81183
 Before SHA-256: <PARENT_HELD_BEFORE_SHA256>
 Prompt SHA-256: <PARENT_HELD_PROMPT_SHA256>
-Adapter SHA-256: aef1347765c52ab78c8771c47e279f763d51a8083bea5d8e40e925eb8f9e3c4f
+Adapter SHA-256: <PARENT_HELD_ADAPTER_SHA256>
 Runner SHA-256: c0ef2b64c7c57dc4cf5f937bb8c40bcde1877d768b18472ea2df6fb48165f6b2
 
 親のreceiptがreadyである場合だけ実行を許可します。cwd=/workspace/tugite-evalのHEADが上記eval SHAで、/workspace/pilot2-stage/input.json、before.json、prompt.txtのhashが上記値と一致することを、読込前に確認してください。adapter/runner codeもsetup receiptのhashから変更されていないことを確認してください。不一致や必要能力不足はblockedとして止め、架空の証拠で代替しないでください。

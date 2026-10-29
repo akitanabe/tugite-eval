@@ -140,22 +140,31 @@ def stage(path: Path, expected: str, destination: Path, source: str) -> None:
         raise
 
 
-def collect(staged: Path, expected: str, response: Path, destination: Path, expected_before: str) -> None:
+def collect(staged: Path, expected: str, response: Path, destination: Path, expected_before: str | None, quality: bool = False) -> None:
     packet = verify_input(staged / 'input.json', expected)
-    before_bytes = (staged / 'before.json').read_bytes()
-    if r.digest(before_bytes) != expected_before:
-        raise ValueError('initial snapshot differs from parent-held before SHA-256')
-    before = json.loads(before_bytes)
-    if before['input_sha256'] != expected:
-        raise ValueError('staged input mismatch')
+    before_path = staged / 'before.json'
+    before_bytes = before_path.read_bytes() if before_path.exists() else None
+    before = {}
+    if not quality:
+        if before_bytes is None:
+            raise ValueError('strict collection requires initial snapshot')
+        if not expected_before:
+            raise ValueError('--before-sha256 is required for strict collection; use --quality for output quality')
+        if r.digest(before_bytes) != expected_before:
+            raise ValueError('initial snapshot differs from parent-held before SHA-256')
+        before = json.loads(before_bytes)
+        if before['input_sha256'] != expected:
+            raise ValueError('staged input mismatch')
     if destination.resolve().is_relative_to(staged.resolve()):
         raise ValueError('result destination must be outside stage')
     workspace = staged / 'workspace'
     response_bytes = response.read_bytes()
     destination.mkdir(parents=True, exist_ok=False)
     (destination / 'response.txt').write_bytes(response_bytes)
-    (destination / 'before.json').write_bytes(before_bytes)
-    shutil.copyfile(staged / 'prompt.txt', destination / 'prompt.txt')
+    if before_bytes is not None:
+        (destination / 'before.json').write_bytes(before_bytes)
+    if not quality or (staged / 'prompt.txt').exists():
+        shutil.copyfile(staged / 'prompt.txt', destination / 'prompt.txt')
     artifacts = {}
     for path in sorted(workspace.rglob('*')):
         relative = path.relative_to(workspace)
@@ -168,7 +177,7 @@ def collect(staged: Path, expected: str, response: Path, destination: Path, expe
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(path.read_bytes())
             artifacts[str(relative)] = r.digest(path.read_bytes())
-    config_safe = r.digest((workspace / '.git/config').read_bytes()) == before['git_config'] and r.file_inventory(workspace / '.git/hooks') == before['git_hooks']
+    config_safe = None if quality else (r.digest((workspace / '.git/config').read_bytes()) == before['git_config'] and r.file_inventory(workspace / '.git/hooks') == before['git_hooks'])
     after = {'files': artifacts, 'git_configuration_unchanged': config_safe}
     if config_safe:
         after.update(head=r.git('rev-parse', 'HEAD', cwd=workspace).decode().strip(),
@@ -176,17 +185,18 @@ def collect(staged: Path, expected: str, response: Path, destination: Path, expe
                      diff=r.git('diff', before['head'], cwd=workspace).decode())
     r.write_json(destination / 'after.json', after)
     r.write_json(destination / 'collection.json', {
-        'attempt_id': packet['attempt_id'], 'input_sha256': expected, 'before_sha256': expected_before,
+        'attempt_id': packet['attempt_id'], 'input_sha256': expected, 'before_sha256': None if quality else expected_before,
+        'assessment_scope': 'output-quality-only' if quality else 'strict',
         'state': 'collected', 'evidence_kind': 'unverified-cloud-output',
-        'distribution_unchanged': r.file_inventory(staged / 'distribution') == packet['distribution'],
-        'agent_config_unchanged': r.file_inventory(workspace / '.codex') == before['agent_config'],
-        'discovery_unchanged': all(p.is_symlink() for p in (workspace / '.agents/skills').iterdir())
-            and {p.name: str(p.readlink()) for p in (workspace / '.agents/skills').iterdir()} == before['discovery'],
+        'distribution_unchanged': None if quality else r.file_inventory(staged / 'distribution') == packet['distribution'],
+        'agent_config_unchanged': None if quality else r.file_inventory(workspace / '.codex') == before['agent_config'],
+        'discovery_unchanged': None if quality else (all(p.is_symlink() for p in (workspace / '.agents/skills').iterdir())
+            and {p.name: str(p.readlink()) for p in (workspace / '.agents/skills').iterdir()} == before['discovery']),
         'requested_parent': packet['requested'],
         'resolved_parent': {'model': None, 'effort': None},
         'effective_parent': {'model': None, 'effort': None},
         'spawned_children': None, 'loaded_distribution': None, 'usage': None, 'cost': None,
-        'limitation': 'Task output/self report is not trusted runtime telemetry. Parent must attach transcript and attest actual execution; isolation is not established by this adapter.',
+        'limitation': 'Output is collected for parent validation. Internal operations, effective settings and isolation remain unknown unless independently observed; full transcript is optional for output quality.',
     })
     r.write_json(destination / 'result-seal.json', r.file_inventory(destination))
 
@@ -207,7 +217,8 @@ def main() -> None:
     collected.add_argument('sha256')
     collected.add_argument('response', type=Path)
     collected.add_argument('destination', type=Path)
-    collected.add_argument('--before-sha256', required=True, help='Parent-held stage receipt hash captured before evaluated work; never recompute from mutable before.json at collection time')
+    collected.add_argument('--quality', action='store_true', help='Collect output quality without a parent pre-run receipt; no internal compliance assurance')
+    collected.add_argument('--before-sha256', help='Parent-held stage receipt hash captured before evaluated work; never recompute from mutable before.json at collection time')
     args = parser.parse_args()
     try:
         if args.action == 'export':
@@ -215,7 +226,7 @@ def main() -> None:
         elif args.action == 'stage':
             stage(args.input, args.sha256, args.destination.resolve(), args.source_repo)
         else:
-            collect(args.staged.resolve(), args.sha256, args.response, args.destination.resolve(), args.before_sha256)
+            collect(args.staged.resolve(), args.sha256, args.response, args.destination.resolve(), args.before_sha256, args.quality)
     except (ValueError, KeyError, OSError, subprocess.TimeoutExpired) as error:
         parser.exit(2, f'error: {error}\n')
 

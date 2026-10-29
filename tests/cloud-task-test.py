@@ -26,7 +26,7 @@ class CloudTaskTest(unittest.TestCase):
     prepare = Base.prepare
 
     def cloud(self, *args: object, ok: bool = True) -> subprocess.CompletedProcess:
-        if args and args[0] == 'collect' and '--before-sha256' not in args:
+        if args and args[0] == 'collect' and '--quality' not in args and '--before-sha256' not in args:
             args = (*args, '--before-sha256', self.before_sha256)
         result = subprocess.run([sys.executable, str(ADAPTER), *map(str, args)], capture_output=True, text=True)
         self.assertEqual(result.returncode == 0, ok, result.stderr)

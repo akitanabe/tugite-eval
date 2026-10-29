@@ -1,5 +1,9 @@
 # Normal-case cloud round 002 (parent only)
 
+標準の実行・独立品質比較は [QUALITY_HANDOFF.md](QUALITY_HANDOFF.md) を参照する。
+以下の二段階receipt手順は任意のstrict監査経路として保持する。
+fixture/rubric/input identityは両経路で同じ。
+
 既存corpusの正常ケースを変更せず抽出した8ケース・16版別セル。継続4 Skillは3版、追加4 Skillはv7.5.0のみ。
 [index.json](index.json) がcase、版、固定source SHA、input SHA、attempt identity、必要能力の一覧。
 各セルtrial 1をprepared状態で保存した。3初期試行方針は維持し、trial 2/3は親がpilot2確認後に別attemptとして準備する。

@@ -22,8 +22,14 @@ def sha(path: Path) -> str:
     return r.digest(path.read_bytes())
 
 
+def evidence_inventory(directory: Path) -> dict:
+    if directory.name == '.git' or any(path.name == '.git' for path in directory.rglob('*')):
+        raise ValueError('.git is not allowed in an evidence tree')
+    return r.file_inventory(directory)
+
+
 def verify_tree(directory: Path, seal_name: str) -> dict:
-    inventory = r.file_inventory(directory)
+    inventory = evidence_inventory(directory)
     inventory.pop(seal_name, None)
     seal = r.read_json(directory / seal_name)
     if not seal or inventory != seal:
@@ -114,7 +120,7 @@ def receive_stage(input_path: Path, stage_path: Path, evidence_path: Path, capab
 
 def verify_pre(directory: Path) -> dict:
     pre = r.read_json(directory / 'receipt.json')
-    actual = r.file_inventory(directory)
+    actual = evidence_inventory(directory)
     actual.pop('receipt.json', None)
     if pre['kind'] != 'parent-pre-run' or actual != pre['files']:
         raise ValueError('parent pre-run receipt evidence drift')
@@ -168,7 +174,7 @@ def import_result(round_path: Path, attempt: Path, input_path: Path, result: Pat
     verify_tree(result, 'result-seal.json')
     if post['result_seal_sha256'] != sha(result / 'result-seal.json'):
         raise ValueError('parent result seal mismatch')
-    if r.file_inventory(runtime) != post['runtime_files']:
+    if evidence_inventory(runtime) != post['runtime_files']:
         raise ValueError('parent runtime evidence hash mismatch')
     collection = r.read_json(result / 'collection.json')
     if collection['attempt_id'] != packet['attempt_id'] or collection['input_sha256'] != sha(input_path):
@@ -220,7 +226,7 @@ def import_result(round_path: Path, attempt: Path, input_path: Path, result: Pat
     shutil.copyfile(input_path, target / 'input.json')
     verify_tree(target / 'result', 'result-seal.json')
     verify_pre(target / 'pre')
-    if sha(target / 'result/result-seal.json') != post['result_seal_sha256'] or sha(target / 'pre/receipt.json') != pre_hash or r.file_inventory(target / 'runtime') != post['runtime_files']:
+    if sha(target / 'result/result-seal.json') != post['result_seal_sha256'] or sha(target / 'pre/receipt.json') != pre_hash or evidence_inventory(target / 'runtime') != post['runtime_files']:
         raise ValueError('evidence changed during parent import; preserve incomplete copy for inspection')
     execution = {'adapter': 'fresh-cloud-task-v2', 'state': state, 'evidence_kind': evidence_kind,
                  'attempt_id': metadata['attempt_id'], 'synthetic': synthetic,
@@ -234,8 +240,81 @@ def import_result(round_path: Path, attempt: Path, input_path: Path, result: Pat
                  'trust_boundary': 'Parent attestations with hashed evidence; source classification and completeness are not authenticated by this importer. Independent adjudication required.'}
     r.write_json(attempt / 'execution.json', execution)
     seal = {'execution.json': sha(attempt / 'execution.json')}
-    seal.update({'cloud/' + name: value for name, value in r.file_inventory(target).items()})
+    seal.update({'cloud/' + name: value for name, value in evidence_inventory(target).items()})
     r.write_json(attempt / 'evidence-seal.json', seal)
+
+
+def import_quality(round_path: Path, attempt: Path, input_path: Path, result: Path,
+                   post_path: Path, completion: Path, protocol_path: Path, repository: Path) -> None:
+    packet, metadata = validate_packet(round_path, attempt, input_path)
+    if (attempt / 'execution.json').exists() or (attempt / 'cloud').exists():
+        raise ValueError('preserve previous execution/import; use a new trial')
+    protocol = r.read_json(protocol_path)
+    index_path = r.safe_path(protocol_path.parent, protocol['input_index'])
+    if protocol['protocol_id'] != 'output-quality-v1' or protocol['round_id'] != metadata['round_id'] or sha(index_path) != protocol['input_index_sha256']:
+        raise ValueError('quality protocol/input round mismatch')
+    cells = r.read_json(index_path)['cells']
+    cell = next((item for item in cells if item['case_id'] == metadata['case_id'] and item['version'] == metadata['version']), None)
+    if cell is None or (metadata['trial'] == 1 and cell['input_sha256'] != sha(input_path)) or packet['requested'] != protocol['requested']:
+        raise ValueError('input not registered for this quality protocol')
+    for parent_path in (post_path, completion):
+        if parent_path.resolve().is_relative_to(result.resolve()):
+            raise ValueError('parent completion record must be separate from child result')
+    post_bytes = post_path.read_bytes()
+    post = json.loads(post_bytes)
+    expected = {'protocol_sha256': sha(protocol_path), 'attempt_id': metadata['attempt_id'], 'input_sha256': sha(input_path),
+                'result_seal_sha256': sha(result / 'result-seal.json')}
+    if any(post.get(key) != value for key, value in expected.items()) or not post['task_id'] or not post['parent_id']:
+        raise ValueError('parent task/input/artifact/protocol identity mismatch')
+    if code_hash(repository, post['eval_code_sha'], 'runner.py') != sha(round_path / 'runner.py'):
+        raise ValueError('quality run code and frozen runner mismatch')
+    verify_tree(result, 'result-seal.json')
+    if evidence_inventory(completion) != post['evidence_files']:
+        raise ValueError('parent completion evidence hash mismatch')
+    references = post['completion_evidence']
+    if not isinstance(references, list) or not set(references) <= set(post['evidence_files']):
+        raise ValueError('completion references must name parent-held evidence')
+    for key in ('parent_observed_completion', 'output_match_verified', 'synthetic'):
+        if post[key] is not None and type(post[key]) is not bool:
+            raise ValueError('completion/output/synthetic flags must be true/false/null')
+    if post['synthetic'] is None:
+        raise ValueError('parent must distinguish a real task from a synthetic test')
+    collection = r.read_json(result / 'collection.json')
+    if collection['attempt_id'] != metadata['attempt_id'] or collection['input_sha256'] != sha(input_path):
+        raise ValueError('collected output differs from fixed input identity')
+    if evidence_inventory(result / 'artifacts') != r.read_json(result / 'after.json')['files']:
+        raise ValueError('collected artifact inventory mismatch')
+    if metadata['trial'] > 3:
+        extra = post.get('additional_trial_reason', {})
+        if extra.get('kind') != 'disagreement' or not extra.get('detail'):
+            raise ValueError('quality trials 4/5 require a preregistered disagreement reason')
+    blockers = post['capability_blockers']
+    observed = post['observation_source'] == 'parent-task-completion' and bool(references) and post['parent_observed_completion'] is True and post['output_match_verified'] is True
+    completed = observed and not post['synthetic'] and not blockers
+    target = attempt / 'cloud'
+    shutil.copytree(result, target / 'result')
+    shutil.copytree(completion, target / 'completion')
+    shutil.copyfile(input_path, target / 'input.json')
+    shutil.copyfile(protocol_path, target / 'quality-protocol.json')
+    (target / 'post.json').write_bytes(post_bytes)
+    verify_tree(target / 'result', 'result-seal.json')
+    if sha(target / 'result/result-seal.json') != post['result_seal_sha256'] or evidence_inventory(target / 'completion') != post['evidence_files']:
+        raise ValueError('output changed during quality import')
+    execution = {
+        'adapter': 'output-quality-v1', 'assessment_scope': 'output-quality-only',
+        'state': 'completed' if completed else ('blocked' if blockers else 'evidence-incomplete'),
+        'evidence_kind': 'synthetic' if post['synthetic'] else ('llm' if observed else 'cloud-reference'),
+        'attempt_id': metadata['attempt_id'], 'cloud_task_id': post['task_id'], 'run_turn_id': post.get('run_turn_id'),
+        'eval_code_sha': post['eval_code_sha'], 'input_sha256': sha(input_path), 'quality_protocol_sha256': sha(protocol_path),
+        'requested_parent': packet['requested'], 'resolved_parent': {'model': None, 'effort': None},
+        'effective_parent': {'model': None, 'effort': None}, 'loaded_distribution': None,
+        'spawned_children': None, 'usage': None, 'cost': None, 'internal_compliance': 'indeterminate',
+        'capability_blockers': blockers, 'comparison_eligible': completed,
+        'limitations': post['limitations'] + ['Output quality only. Complete transcript and effective model are not required; hidden operations and internal compliance remain indeterminate.'],
+    }
+    r.write_json(attempt / 'execution.json', execution)
+    r.write_json(attempt / 'evidence-seal.json', {'execution.json': sha(attempt / 'execution.json'),
+                 **{'cloud/' + name: value for name, value in evidence_inventory(target).items()}})
 
 
 def main() -> None:
@@ -258,6 +337,10 @@ def main() -> None:
     for name in ('round', 'attempt', 'input', 'result', 'pre', 'post', 'runtime'):
         imported.add_argument(name, type=Path)
     imported.add_argument('--eval-repository', type=Path, default=r.ROOT)
+    quality = sub.add_parser('quality-import')
+    for name in ('round', 'attempt', 'input', 'result', 'post', 'completion', 'protocol'):
+        quality.add_argument(name, type=Path)
+    quality.add_argument('--eval-repository', type=Path, default=r.ROOT)
     args = parser.parse_args()
     try:
         if args.action == 'snapshot':
@@ -268,6 +351,9 @@ def main() -> None:
             receive_stage(args.input, args.stage, args.evidence, args.capabilities, args.destination,
                           args.task_id, args.setup_turn_id, args.parent_id, args.eval_code_sha,
                           args.eval_repository, args.observation_source)
+        elif args.action == 'quality-import':
+            import_quality(args.round.resolve(), args.attempt.resolve(), args.input, args.result,
+                           args.post, args.completion, args.protocol, args.eval_repository)
         else:
             import_result(args.round.resolve(), args.attempt.resolve(), args.input, args.result,
                           args.pre, args.post, args.runtime, args.eval_repository)

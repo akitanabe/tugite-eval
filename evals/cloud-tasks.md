@@ -1,5 +1,9 @@
 # Fresh cloud task adapter
 
+出力・成果物の品質比較は [output-quality-v1](../rounds/cloud-normal-002/QUALITY_HANDOFF.md) が標準。
+setup/pre-receipt/runの二段階や完全transcriptは品質経路の必須条件ではない。
+以下の親baseline receipt制約は任意のstrict監査経路に適用する。
+
 親が1試行ごとに新規 `tugite-eval-container` cloud taskを起動する。子task自身が評価対象のLLMであり、
 `codex exec` / `codex sandbox`、追加API credentialは必要ない。devでcorpus/adapterを開発し、evalでは固定入力を実行する。
 この文書と `control.json` は親の運用・判定用。被評価taskには下記のbootstrap promptとinputだけを渡す。

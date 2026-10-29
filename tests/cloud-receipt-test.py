@@ -271,6 +271,123 @@ class CloudReceiptTest(unittest.TestCase):
                                '--observation-source', 'parent-runtime', ok=False)
         self.assertIn('pre-receipt-free pilot remains reference-only', failure.stderr)
 
+    def test_unsealed_git_directory_is_rejected_before_import(self) -> None:
+        self.outputs()
+        (self.result / '.git').mkdir()
+        (self.result / '.git/unsealed').write_text('extra hidden evidence')
+        failure = self.import_output(ok=False)
+        self.assertIn('.git is not allowed in an evidence tree', failure.stderr)
+        self.assertFalse((self.attempt / 'execution.json').exists())
+        self.assertFalse((self.attempt / 'cloud').exists())
+
+
+class QualityReceiptTest(unittest.TestCase):
+    setUpClass = classmethod(CloudReceiptTest.setUpClass.__func__)
+    setUp = CloudReceiptTest.setUp
+    cli = CloudReceiptTest.cli
+    prepare = CloudReceiptTest.prepare
+    cloud = CloudReceiptTest.cloud
+    package = CloudReceiptTest.package
+    stage_package = CloudReceiptTest.stage_package
+    receipt = CloudReceiptTest.receipt
+    execution = CloudReceiptTest.execution
+    def quality_outputs(self, source: str = 'parent-task-completion', observed: bool | None = True,
+                        blockers: list[str] | None = None, synthetic: bool = False) -> None:
+        package, staged, self.identity = self.stage_package()
+        self.input = package / 'input.json'
+        self.attempt = next((self.round / 'attempts').iterdir())
+        # No pre-run receipt or even a retained before.json is required for quality.
+        (staged / 'before.json').unlink()
+        response = self.directory / 'response.txt'
+        response.write_text('SYNTHETIC TEST DATA: completed output')
+        self.result = self.directory / 'result'
+        self.cloud('collect', staged, self.identity, response, self.result, '--quality')
+        self.completion = self.directory / 'parent-completion'
+        self.completion.mkdir()
+        proof = self.completion / 'completion.txt'
+        proof.write_text('SYNTHETIC TEST DATA: parent task completion with collected output')
+        packet = json.loads(self.input.read_text())
+        index = self.directory / 'index.json'
+        index.write_text(json.dumps({'cells': [{'case_id': packet['case_id'], 'version': packet['version'],
+                                              'input_sha256': self.identity}]}))
+        self.protocol = self.directory / 'quality-protocol.json'
+        self.protocol.write_text(json.dumps({'protocol_id': 'output-quality-v1', 'round_id': packet['round_id'],
+                                            'input_index': 'index.json', 'input_index_sha256': sha(index),
+                                            'requested': packet['requested']}))
+        self.post = self.directory / 'quality-post.json'
+        self.post.write_text(json.dumps({
+            'parent_id': 'parent-fixture', 'task_id': 'task-fixture', 'run_turn_id': None,
+            'attempt_id': packet['attempt_id'], 'input_sha256': self.identity, 'eval_code_sha': self.revision,
+            'protocol_sha256': sha(self.protocol), 'result_seal_sha256': sha(self.result / 'result-seal.json'),
+            'observation_source': source, 'parent_observed_completion': observed, 'output_match_verified': True,
+            'completion_evidence': ['completion.txt'], 'evidence_files': {'completion.txt': sha(proof)},
+            'synthetic': synthetic, 'capability_blockers': blockers or [], 'limitations': ['test data only'],
+        }))
+
+    def import_quality(self, ok: bool = True) -> subprocess.CompletedProcess:
+        return self.receipt('quality-import', self.round, self.attempt, self.input, self.result,
+                            self.post, self.completion, self.protocol, '--eval-repository', self.code, ok=ok)
+
+    def test_quality_completion_counts_without_pre_receipt_transcript_or_effective_model(self) -> None:
+        self.quality_outputs()
+        self.import_quality()
+        value = self.execution()
+        self.assertEqual(value['state'], 'completed')
+        self.assertEqual(value['evidence_kind'], 'llm')
+        self.assertEqual(value['internal_compliance'], 'indeterminate')
+        self.assertIsNone(value['effective_parent']['model'])
+        self.assertFalse((self.attempt / 'cloud/pre').exists())
+        judgment = self.directory / 'quality-judgment.json'
+        self.cli('judge-template', str(self.round), str(self.attempt), str(judgment))
+        packet = json.loads(judgment.read_text())
+        packet['judge_id'] = 'independent-output-fixture'
+        for section in ('observations', 'common_metrics'):
+            for finding in packet[section].values():
+                finding.update(result='indeterminate' if section == 'observations' else 'pass',
+                               reason='Output-only mechanism fixture; internal operations unknown',
+                               evidence=['cloud/result/response.txt'])
+        packet['output_quality'] = {'result': 'pass', 'reason': 'test fixture output', 'evidence': ['cloud/result/response.txt']}
+        judgment.write_text(json.dumps(packet))
+        self.cli('adjudicate', str(self.round), str(self.attempt), str(judgment))
+        self.cli('report', str(self.round))
+        row = next(row for row in json.loads((self.round / 'report.json').read_text())['rows']
+                   if row['case_id'] == 'test-report-normal' and row['version'] == 'v7.3.7')
+        self.assertEqual(row['missing_initial_trials'], [2, 3])
+        self.assertEqual(row['spec_conformance'], 'indeterminate')
+        self.assertEqual(row['attempts'][0]['judgment']['output_quality']['result'], 'pass')
+
+    def test_quality_child_self_report_is_not_a_completed_actual_trial(self) -> None:
+        self.quality_outputs(source='child-self-report')
+        self.import_quality()
+        self.assertEqual(self.execution()['state'], 'evidence-incomplete')
+        self.assertEqual(self.execution()['evidence_kind'], 'cloud-reference')
+
+    def test_quality_unknown_completion_is_not_counted(self) -> None:
+        self.quality_outputs(observed=None)
+        self.import_quality()
+        self.assertNotEqual(self.execution()['state'], 'completed')
+
+    def test_quality_permission_blocker_still_blocks(self) -> None:
+        self.quality_outputs(blockers=['fixture write denied by runtime'])
+        self.import_quality()
+        self.assertEqual(self.execution()['state'], 'blocked')
+        self.assertFalse(self.execution()['comparison_eligible'])
+
+    def test_quality_synthetic_never_counts_as_actual_trial(self) -> None:
+        self.quality_outputs(synthetic=True)
+        self.import_quality()
+        self.assertEqual(self.execution()['evidence_kind'], 'synthetic')
+        self.assertNotEqual(self.execution()['state'], 'completed')
+
+    def test_quality_mismatched_input_artifact_or_protocol_is_rejected(self) -> None:
+        self.quality_outputs()
+        original = json.loads(self.post.read_text())
+        for field in ('input_sha256', 'protocol_sha256', 'result_seal_sha256'):
+            with self.subTest(field=field):
+                self.post.write_text(json.dumps({**original, field: '0' * 64}))
+                self.import_quality(ok=False)
+                self.assertFalse((self.attempt / 'execution.json').exists())
+
 
 if __name__ == '__main__':
     unittest.main()

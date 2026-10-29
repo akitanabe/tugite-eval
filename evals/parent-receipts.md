@@ -1,5 +1,8 @@
 # Parent receipts and existing reports
 
+この文書は任意のstrict監査経路。標準の出力品質比較は [品質handoff](../rounds/cloud-normal-002/QUALITY_HANDOFF.md) を使う。
+品質経路は完全transcript・実効モデル・事前baseline receiptを完了条件にしない。
+
 親がsetupと実行を別turnにし、評価作業開始前にbaselineを保存する。collectorの成功、子の自己申告、
 要求モデル値だけでtrusted completedを成立させない。receiptは親の証拠付き申告であり、runtime署名ではない。
 このプロトコルは親が指定した出典区分の真偽や「全transcript」の完全性をAPIで認証しない。
