@@ -2,7 +2,9 @@
 
 [Tugite Issue #397](https://github.com/akitanabe/tugite/issues/397) の振る舞い評価を、独立した `akitanabe/tugite-eval` repository で管理する。
 評価対象は配布済み `plugins/codex` 全体。source の静的 lint、契約検査と LLM の振る舞い評価は別の証拠である。
-現在の cloud 環境では実際の LLM 評価は未実行。下記のブロッカーを解消するまで Skill の優劣は判定不能である。
+実LLM評価は未実行で、Skillの優劣は判定不能である。
+親がfresh cloud taskを起動する [cloud adapter](cloud-tasks.md) ではnested CLIを必要としない。
+以下の `run` とcanaryの説明は任意のnested CLI adapterに適用する。
 
 ## 評価単位と事前固定
 
@@ -34,7 +36,7 @@
 
 ## セットアップと最小実行
 
-Python 3.12+、Git、Bash、Codex CLI が必要。Python の追加依存はない。
+Python 3.12+、Git、Bashが必要。Pythonの追加依存はない。`run` を選ぶ場合のみCodex CLIも必要。
 `freeze` は `https://github.com/akitanabe/tugite.git` から指定3 SHAを一時的な別Git repositoryへ浅く取得する。
 このeval repositoryのobject databaseにTugiteのcommitがあることを前提にせず、core履歴を取り込まない。
 GitHubへの読み取り接続が必要。既存のローカルGit sourceを使う場合は `freeze ... --source-repo /path/to/tugite` を明示する。
@@ -85,7 +87,7 @@ renderer 不在ケースは browser・image・shell 群を無効化して featur
    destination-policy denial を迂回せず停止した。恒久設定変更や新 credential は行っていない。
 3. standalone bubblewrap probe も uid map の read-only error。独立した sandbox 起動可能環境での再検証が必要。
 
-これらは Skill の failure や regression を示さない。backend を許可する環境設定と、nested sandbox の正常動作が必要。
+これらはSkillのfailureやregressionを示さない。nested CLI adapterの稼働前提であり、fresh cloud task方式の前提ではない。
 Cloud / dot 間の自動実行 API は確認できていない。dot への手動委任はこの CLI と round を受け渡す方式とし、
 権限・sandbox・認証・ネットワークの前提を受け側で再検証する。
 
