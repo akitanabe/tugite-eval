@@ -1,0 +1,17 @@
+同じ試行task <TASK_ID> のsetup turn <SETUP_TURN_ID> に対して、親が実行前receiptを保存しました。
+Parent pre-receipt SHA-256: <PARENT_PRE_SHA256>
+Eval code SHA: <EVAL_CODE_SHA>
+Input SHA-256: a47763ea50c0a7dad7ce6d80314287a06b2ea08b47ef5d5b73abd0798de81183
+Before SHA-256: <PARENT_HELD_BEFORE_SHA256>
+Prompt SHA-256: <PARENT_HELD_PROMPT_SHA256>
+Adapter SHA-256: aef1347765c52ab78c8771c47e279f763d51a8083bea5d8e40e925eb8f9e3c4f
+Runner SHA-256: c0ef2b64c7c57dc4cf5f937bb8c40bcde1877d768b18472ea2df6fb48165f6b2
+
+親のreceiptがreadyである場合だけ実行を許可します。cwd=/workspace/tugite-evalのHEADが上記eval SHAで、/workspace/pilot2-stage/input.json、before.json、prompt.txtのhashが上記値と一致することを、読込前に確認してください。adapter/runner codeもsetup receiptのhashから変更されていないことを確認してください。不一致や必要能力不足はblockedとして止め、架空の証拠で代替しないでください。
+
+/workspace/pilot2-stage/prompt.txtだけを読み、その指示どおり指定された固定版Skillを最初に読んで、/workspace/pilot2-stage/workspaceで1試行を行ってください。現行Skill、corpus/control/snapshot、他case/版/過去結果は読みません。採点・nested CLI・外部通信・push・依存導入は行いません。実効モデル・費用・読込・権限遵守を自己申告から断定しません。
+
+完全なtask応答を/workspace/pilot2-response.txtへ保存し、cwd=/workspace/tugite-evalで次を実行してください。
+python3 evals/cloud_task.py collect /workspace/pilot2-stage a47763ea50c0a7dad7ce6d80314287a06b2ea08b47ef5d5b73abd0798de81183 /workspace/pilot2-response.txt /workspace/pilot2-result --before-sha256 <PARENT_HELD_BEFORE_SHA256>
+
+最終返却には応答本文、result directory、result-seal.jsonのSHA-256、task/run turn ID（runtimeに公開されていなければunknown）、input/pre-receipt SHA、実際に読んだ固定Skill/参照、使用コマンド、観測制約を含めてください。結果を自己採点しません。失敗・拒否時は同じ操作を繰り返さず、正確な対象・操作・理由・完了済み部分・結果状態を返してください。

@@ -5,13 +5,16 @@
 
 ```bash
 python3 tests/cloud-task-test.py
+python3 tests/cloud-receipt-test.py
 python3 evals/runner.py freeze .local/eval-rounds/sol-medium-001
 ```
 
 Python 3.12+ / Git / Bashが必要です。固定版は別のTugite repositoryからSHAを指定して取得するため、
 初回にGitHubの読み取り接続を使います。詳細は [評価手順](evals/README.md) を参照してください。
 
-現時点の実LLM評価結果は0件で、Skillの優劣・デグレは判定不能です。
+比較用の完備したLLM試行は0件で、Skillの優劣・デグレは判定不能です。
+初回pilotは [親報告の参考観測](pilots/cloud-pilot-001/REFERENCE.md) として分離しています。
+[正常ケース16セルの新round](rounds/cloud-normal-002/README.md) と [親receipt/import](evals/parent-receipts.md) を用意しています。
 1試行ごとに親が新規cloud taskを起動する [cloud adapter](evals/cloud-tasks.md) と
 [固定pilot入力](pilots/cloud-pilot-001/input.json) を用意しています。nested Codex CLIは任意の別adapterです。
 [旧CLIの診断記録](evals/runtime-diagnostics.md) はその実測履歴です。

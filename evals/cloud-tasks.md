@@ -72,9 +72,9 @@ result sealはbyte同一性確認であり、署名・改竄防止ではない�
    requested、resolved-at-creation、effective、unknownを分ける。自己申告やstaged hashだけをeffective / loadedと扱わない。
 4. 親が別の判定contextで `control.json` の適用rubricと共通metricsを使い、各項目にpass/fail/indeterminate、理由、証拠参照を残す。
    実行task自身には採点させない。隔離やロードが判定に必要で不明ならindeterminateにする。
-5. pilot結果は別の親受領記録に保存する。既存runnerの `execution.json` 形式へ自動変換する機能はまだない。
-   `run` を実行し直したり、手書きの `evidence_kind=llm` で既存集計へ混ぜたりしない。
-   現段階ではcloud pilotの受領記録と既存CLI集計を分け、反復・比較の前に信頼されたimport adapterを別途実装する。
+5. v2入力は [親receipt/import手順](parent-receipts.md) で既存runnerへ接続する。
+   親が保持した実行前receipt、task/turn ID、固定code/input、artifact/runtime hashを照合する。
+   完全transcriptや必要な観測が欠ける結果を完了試行に数えない。初回pre-receipt-free pilotは別のreferenceとして保持する。
 
 親受領記録の最低項目はtask ID、eval Git SHA、input SHA、result seal SHA、raw transcriptの所在/hash、実行状態、
 要求/解決/実効設定とその出典、不明項目、観測したロードと子agent、通信・書込・retrievalの実測制約、独立判定者と各判定である。

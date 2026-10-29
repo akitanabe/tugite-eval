@@ -1,0 +1,13 @@
+{
+  "change_reason": "Normal-case expansion with parent pre-run receipt, conservative report import and two-phase setup/run; no result-driven rubric edits.",
+  "initial_trial_prepared": 1,
+  "previous_input_revision": "c2267c7d3b7107b73cdfa801e7f712b81813f166",
+  "previous_round": "cloud-pilot-001",
+  "result_status": "not-run; synthetic mechanism tests are not actual trials",
+  "selection": {
+    "case_count": 8,
+    "category": "normal",
+    "version_cells": 16
+  },
+  "source_corpus_sha256": "07a4edfabdae5cfbd2f2352623d19e9940c7d23e944b7f1e4e4f9ab188845def"
+}

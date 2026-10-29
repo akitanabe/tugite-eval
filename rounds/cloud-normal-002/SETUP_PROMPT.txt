@@ -1,0 +1,19 @@
+新しい1試行のsetupだけを行ってください。要求モデルはgpt-6.1-sol、effortはmediumです。評価Skill、task prompt、corpus、control、snapshot、他case/版/過去結果は読みません。nested CLIや評価実行はしません。
+
+Repository URL: https://github.com/akitanabe/tugite-eval.git
+Repository cwd: /workspace/tugite-eval
+Eval code revision: <EVAL_CODE_SHA>（親が最終handoffの完全40桁SHAへ置換する）
+
+checkoutがなければ通常cloneしてください。既存directoryではgit top-levelが上記cwdで、originが上記URL（末尾.git省略可）であることを確認し、異なれば保持して停止してください。次を一つずつ実行し、各成功/空status/SHA一致を確認してから次へ進んでください。非0終了、dirty、SHA不一致ならstage未開始として対象・操作・理由を返してください。force/reset/cleanは使いません。
+1. git fetch --no-tags https://github.com/akitanabe/tugite-eval.git <EVAL_CODE_SHA>
+2. git cat-file -e <EVAL_CODE_SHA>^{commit}
+3. git status --porcelain=v1 --untracked-files=all （空でなければ停止）
+4. git checkout --detach <EVAL_CODE_SHA>
+5. git rev-parse HEAD （指定SHAとの一致を確認）
+
+cwd=/workspace/tugite-evalで次を実行してください。
+python3 evals/cloud_task.py stage rounds/cloud-normal-002/inputs/test-report-normal--v7.3.7--1/input.json a47763ea50c0a7dad7ce6d80314287a06b2ea08b47ef5d5b73abd0798de81183 /workspace/pilot2-stage
+
+stageに必要な固定Tugite SHAの通常fetchは許可されています。stage後はprompt.txt/Skillを読まず停止してください。必須能力はfixture読取、shell、Gitです。stageの実際の成功とfixtureのbytes/hashを確認できる範囲のsetup証拠を返し、未確認の能力をavailableとしないでください。将来のrenderer/子agent利用可否は未確認ならunknownです。
+
+返却にはcheckout HEAD/cwd、stage stdout receipt原文、/workspace/pilot2-stage/before.jsonの所在/hash、stage失敗の有無、実際に観測したsetup証拠・能力とその出典を含めてください。親が実行前receiptを保存してrun promptを渡すまで、評価作業を開始しません。raw tool出力を取得できない場合は、取得できた出力と自己申告を区別してください。

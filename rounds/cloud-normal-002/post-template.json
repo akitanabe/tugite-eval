@@ -1,0 +1,60 @@
+{
+  "attempt_id": null,
+  "capability_blockers": [],
+  "eval_code_sha": null,
+  "input_sha256": null,
+  "limitations": [],
+  "observation_source": "unknown",
+  "observations": {
+    "agent_turn_completed": {
+      "evidence": [],
+      "value": null
+    },
+    "artifact_provenance_verified": {
+      "evidence": [],
+      "value": null
+    },
+    "input_identity_verified": {
+      "evidence": [],
+      "value": null
+    },
+    "transcript_complete": {
+      "evidence": [],
+      "value": null
+    }
+  },
+  "parent_id": null,
+  "pre_receipt_sha256": null,
+  "result_seal_sha256": null,
+  "run_turn_id": null,
+  "runtime_files": {},
+  "schema": 1,
+  "synthetic": null,
+  "task_id": null,
+  "telemetry": {
+    "cost": {
+      "evidence": [],
+      "value": null
+    },
+    "effective_parent": {
+      "evidence": [],
+      "value": null
+    },
+    "loaded_distribution": {
+      "evidence": [],
+      "value": null
+    },
+    "resolved_parent": {
+      "evidence": [],
+      "value": null
+    },
+    "spawned_children": {
+      "evidence": [],
+      "value": null
+    },
+    "usage": {
+      "evidence": [],
+      "value": null
+    }
+  }
+}

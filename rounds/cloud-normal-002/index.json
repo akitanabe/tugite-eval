@@ -1,0 +1,299 @@
+{
+  "cells": [
+    {
+      "attempt_id": "8e2e0789-ab13-4fd6-aabb-cfe63115320d",
+      "case_id": "impl-lead-normal",
+      "control": "rounds/cloud-normal-002/inputs/impl-lead-normal--v7.3.7--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/impl-lead-normal--v7.3.7--1/input.json",
+      "input_sha256": "025d1930416d2f2f6c55b5b0a57eba136d5bdd2cf83c8af5c265a869caf41e19",
+      "repo_sha": "886e919a16ff6d318ed824ab53e8335362261c95",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write"
+      ],
+      "skill": "impl-lead",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.3.7"
+    },
+    {
+      "attempt_id": "96423436-8ec2-474d-8b67-f83497020dd5",
+      "case_id": "impl-lead-normal",
+      "control": "rounds/cloud-normal-002/inputs/impl-lead-normal--v7.4.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/impl-lead-normal--v7.4.0--1/input.json",
+      "input_sha256": "37e99cac6efd72d19cd9ab1f35deb32b472446e2e4a6e70b2984c7d203fca358",
+      "repo_sha": "7578104046e97bc93d8cddffb882983827db3b0f",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write"
+      ],
+      "skill": "impl-lead",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.4.0"
+    },
+    {
+      "attempt_id": "b9bd1c31-19e0-4914-b562-5142b0ff4e32",
+      "case_id": "impl-lead-normal",
+      "control": "rounds/cloud-normal-002/inputs/impl-lead-normal--v7.5.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/impl-lead-normal--v7.5.0--1/input.json",
+      "input_sha256": "e4e5d08e674266bfd702db14b0247db33d52046ee7cc5d07344e05c87f0dc8a2",
+      "repo_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write"
+      ],
+      "skill": "impl-lead",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.5.0"
+    },
+    {
+      "attempt_id": "81625202-efb8-4336-a65d-99784d72d70a",
+      "case_id": "test-report-normal",
+      "control": "rounds/cloud-normal-002/inputs/test-report-normal--v7.3.7--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/test-report-normal--v7.3.7--1/input.json",
+      "input_sha256": "a47763ea50c0a7dad7ce6d80314287a06b2ea08b47ef5d5b73abd0798de81183",
+      "repo_sha": "886e919a16ff6d318ed824ab53e8335362261c95",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git"
+      ],
+      "skill": "test-report",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.3.7"
+    },
+    {
+      "attempt_id": "683d1b1b-6893-47d3-8c44-0ec2ba8aff03",
+      "case_id": "test-report-normal",
+      "control": "rounds/cloud-normal-002/inputs/test-report-normal--v7.4.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/test-report-normal--v7.4.0--1/input.json",
+      "input_sha256": "a873f234d5fcf48c3dee5ad3d0a8b9c58a4836cf087113dbc02c58a71884cdd0",
+      "repo_sha": "7578104046e97bc93d8cddffb882983827db3b0f",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git"
+      ],
+      "skill": "test-report",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.4.0"
+    },
+    {
+      "attempt_id": "a14f0f77-a74d-487b-be58-3a4635c369db",
+      "case_id": "test-report-normal",
+      "control": "rounds/cloud-normal-002/inputs/test-report-normal--v7.5.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/test-report-normal--v7.5.0--1/input.json",
+      "input_sha256": "c2eef0e15e0d14fa8022f6460f321b522620cc981f7f7a2ccbd1a99792fffade",
+      "repo_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git"
+      ],
+      "skill": "test-report",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.5.0"
+    },
+    {
+      "attempt_id": "6ce56d3a-7594-4e1d-9032-8ffec972b731",
+      "case_id": "test-verify-normal",
+      "control": "rounds/cloud-normal-002/inputs/test-verify-normal--v7.3.7--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/test-verify-normal--v7.3.7--1/input.json",
+      "input_sha256": "f16486ade9a7f6929650510b73b229623a1eb97da7d51fab31d9a56447f3eef2",
+      "repo_sha": "886e919a16ff6d318ed824ab53e8335362261c95",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write",
+        "python_execution"
+      ],
+      "skill": "test-verify",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.3.7"
+    },
+    {
+      "attempt_id": "8092a207-4991-484f-a3cf-f7036f64cbac",
+      "case_id": "test-verify-normal",
+      "control": "rounds/cloud-normal-002/inputs/test-verify-normal--v7.4.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/test-verify-normal--v7.4.0--1/input.json",
+      "input_sha256": "1b0edd99d1e6ead188a2a181cba2fd5b0b4810dd52290351086d056438f9af8f",
+      "repo_sha": "7578104046e97bc93d8cddffb882983827db3b0f",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write",
+        "python_execution"
+      ],
+      "skill": "test-verify",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.4.0"
+    },
+    {
+      "attempt_id": "2b7e1791-e509-462a-b15c-3ddf6e004f01",
+      "case_id": "test-verify-normal",
+      "control": "rounds/cloud-normal-002/inputs/test-verify-normal--v7.5.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/test-verify-normal--v7.5.0--1/input.json",
+      "input_sha256": "3e8dd3a668c5bd68c194cfe2f8f22830183f54faeed5e2835611a1b9b9676a18",
+      "repo_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write",
+        "python_execution"
+      ],
+      "skill": "test-verify",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.5.0"
+    },
+    {
+      "attempt_id": "9bcba5ff-5ab7-472b-ae49-791472096910",
+      "case_id": "visualize-that-normal",
+      "control": "rounds/cloud-normal-002/inputs/visualize-that-normal--v7.3.7--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/visualize-that-normal--v7.3.7--1/input.json",
+      "input_sha256": "65f94dde0f812c372eaa3bda8dd20b72c5c85326682a0bad50a1f08f23b7ccbc",
+      "repo_sha": "886e919a16ff6d318ed824ab53e8335362261c95",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write"
+      ],
+      "skill": "visualize-that",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.3.7"
+    },
+    {
+      "attempt_id": "c607cf97-f4f0-457a-99f4-1b36e5aae4e1",
+      "case_id": "visualize-that-normal",
+      "control": "rounds/cloud-normal-002/inputs/visualize-that-normal--v7.4.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/visualize-that-normal--v7.4.0--1/input.json",
+      "input_sha256": "ec6c294403164306e5a1265afaeb22e395b8699282198132aa80a2340b084c64",
+      "repo_sha": "7578104046e97bc93d8cddffb882983827db3b0f",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write"
+      ],
+      "skill": "visualize-that",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.4.0"
+    },
+    {
+      "attempt_id": "a1f6d3c7-4744-4b50-88b5-2fbaf2d017fd",
+      "case_id": "visualize-that-normal",
+      "control": "rounds/cloud-normal-002/inputs/visualize-that-normal--v7.5.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/visualize-that-normal--v7.5.0--1/input.json",
+      "input_sha256": "d774f7b24928f72d25b81efef01ad251738ad76de1209882c54941a3f5bafd84",
+      "repo_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git",
+        "fixture_write"
+      ],
+      "skill": "visualize-that",
+      "track": "comparison",
+      "trial": 1,
+      "version": "v7.5.0"
+    },
+    {
+      "attempt_id": "fca46c43-0a2e-4bce-a4c8-9926307bfbb5",
+      "case_id": "explain-this-normal",
+      "control": "rounds/cloud-normal-002/inputs/explain-this-normal--v7.5.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/explain-this-normal--v7.5.0--1/input.json",
+      "input_sha256": "d95c3436eb3de206016a69ac3275d3f3be496ba194702aba6720115685a5a39e",
+      "repo_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git"
+      ],
+      "skill": "explain-this",
+      "track": "v7.5.0-attainment",
+      "trial": 1,
+      "version": "v7.5.0"
+    },
+    {
+      "attempt_id": "6ebadd7a-cbe5-4f8f-aaf6-326c342e82c7",
+      "case_id": "review-propose-normal",
+      "control": "rounds/cloud-normal-002/inputs/review-propose-normal--v7.5.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/review-propose-normal--v7.5.0--1/input.json",
+      "input_sha256": "2097676dd4ed54c7d4cfe1b2f68949222ec2d195c92340b3d849ee317ae41a64",
+      "repo_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git"
+      ],
+      "skill": "review-propose",
+      "track": "v7.5.0-attainment",
+      "trial": 1,
+      "version": "v7.5.0"
+    },
+    {
+      "attempt_id": "60188e92-ae80-451d-a30a-1b2d92d9ea77",
+      "case_id": "impl-plan-normal",
+      "control": "rounds/cloud-normal-002/inputs/impl-plan-normal--v7.5.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/impl-plan-normal--v7.5.0--1/input.json",
+      "input_sha256": "6e3c31deb5051bf68e5ad0a9d357b9280f7ae8747107f329f6bd8fb8f9e0365c",
+      "repo_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git"
+      ],
+      "skill": "impl-plan",
+      "track": "v7.5.0-attainment",
+      "trial": 1,
+      "version": "v7.5.0"
+    },
+    {
+      "attempt_id": "83b6c902-165e-4d4e-8087-b6fe639900c7",
+      "case_id": "impl-review-normal",
+      "control": "rounds/cloud-normal-002/inputs/impl-review-normal--v7.5.0--1/control.json",
+      "input": "rounds/cloud-normal-002/inputs/impl-review-normal--v7.5.0--1/input.json",
+      "input_sha256": "651b96e32ac323e01f7e53a8dc75ecbc74b5f1bdae0ed67de0dfe74c10914f5b",
+      "repo_sha": "144cfb813efab5c4581d229a9ea221095cc4c55d",
+      "required_capabilities": [
+        "fixture_read",
+        "shell",
+        "git"
+      ],
+      "skill": "impl-review",
+      "track": "v7.5.0-attainment",
+      "trial": 1,
+      "version": "v7.5.0"
+    }
+  ],
+  "initial_trials_required": 3,
+  "pilot2": "test-report-normal--v7.3.7--1",
+  "prepared_trial_numbers": [
+    1
+  ],
+  "requested": {
+    "effort": "medium",
+    "model": "gpt-6.1-sol"
+  },
+  "round_id": "e7da77d4-bb42-4965-a8a0-6945b5c62f61",
+  "schema": 1
+}

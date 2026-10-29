@@ -2,7 +2,9 @@
 
 [Tugite Issue #397](https://github.com/akitanabe/tugite/issues/397) の振る舞い評価を、独立した `akitanabe/tugite-eval` repository で管理する。
 評価対象は配布済み `plugins/codex` 全体。source の静的 lint、契約検査と LLM の振る舞い評価は別の証拠である。
-実LLM評価は未実行で、Skillの優劣は判定不能である。
+初回cloud pilotは親から実行成功が報告されたが、pre receiptと完全transcriptがなくreference-onlyである。
+比較用の完備した試行は0件で、Skillの優劣は判定不能である。
+[正常ケース新round](../rounds/cloud-normal-002/README.md) と [親receipt/import](parent-receipts.md) を用意している。
 親がfresh cloud taskを起動する [cloud adapter](cloud-tasks.md) ではnested CLIを必要としない。
 以下の `run` とcanaryの説明は任意のnested CLI adapterに適用する。
 

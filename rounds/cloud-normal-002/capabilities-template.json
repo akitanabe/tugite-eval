@@ -1,0 +1,30 @@
+{
+  "child_agents": {
+    "available": null,
+    "evidence": ""
+  },
+  "fixture_read": {
+    "available": null,
+    "evidence": ""
+  },
+  "fixture_write": {
+    "available": null,
+    "evidence": ""
+  },
+  "git": {
+    "available": null,
+    "evidence": ""
+  },
+  "python_execution": {
+    "available": null,
+    "evidence": ""
+  },
+  "renderer": {
+    "available": null,
+    "evidence": ""
+  },
+  "shell": {
+    "available": null,
+    "evidence": ""
+  }
+}
