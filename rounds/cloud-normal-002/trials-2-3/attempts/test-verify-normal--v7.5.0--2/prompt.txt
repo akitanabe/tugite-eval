@@ -1,0 +1,3 @@
+Use $test-verify by reading /workspace/tugite-eval/.local/eval-rounds/cloud-normal-002/distributions/v7.5.0/plugins/codex/skills/test-verify/SKILL.md. Resolve its references against that distribution. Available custom agents are installed in .codex/agents. This is a fresh invocation. Work only inside the supplied disposable repository. No remote/network/push authority. Do not install dependencies.
+
+requirements.md を仕様として tests/ と app.py の配送料を検証してください。python3 -m unittest discover -v を実行可能です。現在の使い捨て checkout で app.py と tests/ の因果範囲に限る修復、ローカル commit を許可します。
