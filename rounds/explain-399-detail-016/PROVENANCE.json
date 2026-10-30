@@ -1,0 +1,12 @@
+{
+  "candidate_sha": "f4d98e83e51323256fb4b91d71b01f6262bcb1d8",
+  "candidate_tree": "d1e265a51945b3eecd1a7ec087141cbd9b16cd66",
+  "criteria_preregistration_commit": "bd382ddf5ecb3a553c3aa74c750eaa8f30d002db",
+  "preregistered_corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
+  "resolved_corpus_sha256": "5f50b59dd1229cf427c4f9dfee570ef2d12a86f95119f1d86f9d55fe620418f7",
+  "preserved": "All round014 fixtures, neutral prompts, observations, metrics, reporting and mandatory structural gate unchanged byte-for-byte in corpus.",
+  "criterion_change": "None. Existing semantic-understanding/meaningful-granularity/grounded-accuracy already cover understandable meaning, redundancy, and unsupported claims.",
+  "history": "Round015 and all earlier history preserved; no prior model outputs read or regraded by this preparation task.",
+  "scope": "Exactly two candidate/trial1 packets. Parent launches fresh tasks; preparation performs static restore/stage only, no LLM runs.",
+  "criteria_review_commit": "d455c7675379ac5b08ac162e7d5ad55f0ef46630"
+}

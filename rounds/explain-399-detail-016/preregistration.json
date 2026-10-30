@@ -1,5 +1,5 @@
 {
-  "state": "criteria-fixed-before-packet-preparation",
+  "state": "two-candidate-packets-frozen-not-executed",
   "previous_round": "rounds/explain-399-detail-015",
   "corpus": "rounds/explain-399-detail-016/corpus.json",
   "corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
@@ -20,5 +20,8 @@
     "issue": "https://github.com/akitanabe/tugite/issues/399",
     "summary": "User accepted visible round013 execution flow and requested better detail selection; parent proposed reducing repeated flow narration and peripheral detail, and user authorized continuation. This is prospective clarification, not a regrading of round013."
   },
-  "scope": "Exactly two fixed cases; no LLM runs. Candidate connection follows unchanged criteria assessment."
+  "scope": "Exactly two candidate/trial1 packets; static restore/stage only. Parent launches actual LLM tasks.",
+  "candidate_sha": "f4d98e83e51323256fb4b91d71b01f6262bcb1d8",
+  "resolved_corpus": "rounds/explain-399-detail-016/resolved-corpus.json",
+  "resolved_corpus_sha256": "5f50b59dd1229cf427c4f9dfee570ef2d12a86f95119f1d86f9d55fe620418f7"
 }
