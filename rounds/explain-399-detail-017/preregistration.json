@@ -1,0 +1,27 @@
+{
+  "state": "two-candidate-packets-frozen-not-executed",
+  "previous_round": "rounds/explain-399-detail-016",
+  "corpus": "rounds/explain-399-detail-017/corpus.json",
+  "corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
+  "selected_cases": [
+    "explain-399-separated",
+    "explain-399-mixed"
+  ],
+  "sample_count": 2,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "preserved": "All round016/015/014 case prompts, fixtures, observations, metrics, reporting and mandatory structural gate unchanged. Corpus and resolved-corpus byte-identical to016.",
+  "criterion_change": "None. No criteria tailored to prior outputs.",
+  "requirement_provenance": {
+    "kind": "user-authorized-output-detail-selection-refinement",
+    "issue": "https://github.com/akitanabe/tugite/issues/399",
+    "summary": "User accepted visible round013 execution flow and requested better detail selection; parent proposed reducing repeated flow narration and peripheral detail, and user authorized continuation. This is prospective clarification, not a regrading of round013."
+  },
+  "scope": "Exactly two candidate/trial1 packets; static restore/stage only. Parent launches actual LLM tasks.",
+  "candidate_sha": "cb57ec676436328e0d107896371dbb45d729504f",
+  "resolved_corpus": "rounds/explain-399-detail-017/resolved-corpus.json",
+  "resolved_corpus_sha256": "5f50b59dd1229cf427c4f9dfee570ef2d12a86f95119f1d86f9d55fe620418f7"
+}

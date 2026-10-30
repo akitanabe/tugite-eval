@@ -1,0 +1,12 @@
+{
+  "candidate_sha": "cb57ec676436328e0d107896371dbb45d729504f",
+  "candidate_tree": "01d98309fa2f9cb98514478d2e425832e5ce2cda",
+  "criteria_preregistration_commit": "bd382ddf5ecb3a553c3aa74c750eaa8f30d002db",
+  "preregistered_corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
+  "resolved_corpus_sha256": "5f50b59dd1229cf427c4f9dfee570ef2d12a86f95119f1d86f9d55fe620418f7",
+  "preserved": "All round016/015/014 case prompts, fixtures, observations, metrics, reporting and mandatory structural gate unchanged. Corpus and resolved-corpus byte-identical to016.",
+  "criterion_change": "None. No criteria tailored to prior outputs.",
+  "history": "Parent reports round016 structure/facts PASS and semantic style FAIL. All original history preserved, no regrading or actual model output reading by preparation task.",
+  "scope": "Exactly two candidate/trial1 packets. Parent launches fresh tasks; preparation performs static restore/stage only, no LLM runs.",
+  "criteria_review_commit": "d455c7675379ac5b08ac162e7d5ad55f0ef46630"
+}
