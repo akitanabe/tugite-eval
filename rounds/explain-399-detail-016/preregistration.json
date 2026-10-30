@@ -1,0 +1,24 @@
+{
+  "state": "criteria-fixed-before-packet-preparation",
+  "previous_round": "rounds/explain-399-detail-015",
+  "corpus": "rounds/explain-399-detail-016/corpus.json",
+  "corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
+  "selected_cases": [
+    "explain-399-separated",
+    "explain-399-mixed"
+  ],
+  "sample_count": 2,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "preserved": "All round014 fixtures, neutral prompts, observations, metrics, reporting and mandatory structural gate unchanged byte-for-byte in corpus.",
+  "criterion_change": "None. Existing semantic-understanding/meaningful-granularity/grounded-accuracy already cover understandable meaning, redundancy, and unsupported claims.",
+  "requirement_provenance": {
+    "kind": "user-authorized-output-detail-selection-refinement",
+    "issue": "https://github.com/akitanabe/tugite/issues/399",
+    "summary": "User accepted visible round013 execution flow and requested better detail selection; parent proposed reducing repeated flow narration and peripheral detail, and user authorized continuation. This is prospective clarification, not a regrading of round013."
+  },
+  "scope": "Exactly two fixed cases; no LLM runs. Candidate connection follows unchanged criteria assessment."
+}
