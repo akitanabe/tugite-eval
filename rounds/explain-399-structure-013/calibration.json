@@ -6,7 +6,7 @@
       "case_id": "explain-399-separated",
       "origin": "synthetic-judge-calibration-not-LLM",
       "assessment_scope": "exchange route slice only; not a complete case output/overall conformance judgment",
-      "text": "交換requestはDispatcher.dispatch(\"exchange\")からController.exchangeに届く。\n\nController.exchange → SessionOperation.exchangeという委譲がある。\n\n状態取得はMemoryStore.lock_parentとlock_code、検証はSessionOperation.exchange内で行う。期限切れsession削除はpurge_expired、code消費とsession登録はregister。\n\nSessionOperation.exchangeのtransactionが正常終了した後、呼出し元Controller.exchangeがCookies.sessionを呼ぶ。Controllerはstatus204のdictを返し、Dispatcherがそのdictをcallerへ返す。",
+      "text": "応答データの話: Controller.exchangeはstatus204のdictを返す。Dispatcher.dispatchはhandlerからのdictをcallerへ返す。\n\n状態保守の話: MemoryStore.purge_expiredは期限切れsessionを除く。MemoryStore.registerはcodeを消費してsessionを登録する。これらは検証の後にtransaction内で行われる。\n\n委譲の短い断片: Controller.exchange → SessionOperation.exchange。\n\nCookieの話: Cookies.sessionを呼ぶのはController.exchange。委譲先のtransactionが正常終了し、session_idが戻ってからの呼出しである。\n\n入口の話: exchange requestのDispatcher.dispatch(\"exchange\")はController.exchangeを選ぶ。\n\n検証の話: SessionOperation.exchangeがlock_parent/lock_codeで取得した状態を検証する。\n",
       "factual_claims": [
         "Dispatcher selects Controller.exchange for the exchange route.",
         "State/code validation precedes expiry cleanup and code consumption/session registration.",
@@ -17,7 +17,7 @@
         "execution-faithfulness": "pass",
         "displayed-execution-structure": "fail"
       },
-      "reason": "The same primary factual path is accurate; display itself requires paragraph reconstruction and does not show the connected path."
+      "reason": "Facts remain accurate, but topical fragments start with response/storage and scatter routing, delegated/inline validation and return continuation across separate topics. No displayed connected execution traversal exists; the reader must reorder and assemble the fragments. This is not a rejection of ordered integrated prose or a demand for a particular markup."
     },
     {
       "id": "separated-structured",
@@ -42,7 +42,7 @@
       "case_id": "explain-399-mixed",
       "origin": "synthetic-judge-calibration-not-LLM",
       "assessment_scope": "exchange route slice only; not a complete case output/overall conformance judgment",
-      "text": "交換の入口はDispatcher.dispatch(\"exchange\")で、Controller.exchangeへ振り分ける。\n\n状態取得にはMemoryStore.lock_parentとlock_codeを使う。検証は同じController.exchange内に直接ある。\n\npurge_expiredで期限切れsessionを除き、registerでcode消費とsession登録を行う。\n\n同じController.exchangeのtransactionが正常終了してからCookies.sessionが呼ばれる。Controllerはstatus204のdictを返し、Dispatcherがcallerへ返す。SessionOperation.exchangeへの委譲はない。",
+      "text": "応答の話: status204のdictはController.exchangeからDispatcher.dispatchへ戻り、Dispatcherがcallerへ返す。\n\n保存の話: MemoryStore.registerはcodeを消費してsessionを登録する。その前にpurge_expiredで期限切れsessionを除く。両方とも検証後のtransaction内の操作である。\n\nルーティングの短い断片: Dispatcher.dispatch(\"exchange\") → Controller.exchange。\n\nCookieの話: Controller.exchangeがCookies.sessionを呼ぶのは、同じ関数のtransactionが正常終了した後である。\n\n状態確認の話: lock_parent/lock_codeによる取得と検証はController.exchange内。SessionOperation.exchangeへの委譲はない。\n",
       "factual_claims": [
         "Dispatcher selects Controller.exchange for the exchange route.",
         "State/code validation precedes expiry cleanup and code consumption/session registration.",
@@ -53,7 +53,7 @@
         "execution-faithfulness": "pass",
         "displayed-execution-structure": "fail"
       },
-      "reason": "The same primary factual path is accurate; display itself requires paragraph reconstruction and does not show the connected path."
+      "reason": "Facts remain accurate, but topical fragments start with response/storage and scatter routing, delegated/inline validation and return continuation across separate topics. No displayed connected execution traversal exists; the reader must reorder and assemble the fragments. This is not a rejection of ordered integrated prose or a demand for a particular markup."
     },
     {
       "id": "mixed-structured",
