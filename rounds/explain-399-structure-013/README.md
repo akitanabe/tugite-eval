@@ -34,7 +34,8 @@ calibration.jsonは**judgeだけ**の合成校正例であり、LLMの実応答�
 ## 待機範囲
 
 fixtures・中立prompt・reporting・旧factual観測は012と同一。新観測と受入gateのみ追加。
-rubric/calibration/Referenceを被評価promptへ注入しない。新candidateは未提供、packet/snapshot/LLM評価は作らない。
+rubric/calibration/Referenceを被評価promptへ注入しない。事前固定時はnewcandidate未提供で、packet/snapshot/LLM評価を作らずに待機した。
+その後、親指定SHAで2packetのみ固定済み。実LLM評価は未実施。
 2case各1回のみを親が起動する。追加case・説明専用agent・全suite・version/PRは自動追加しない。
 
 独立QAで、初稿negativeは順序と復帰を散文でも相当に示しており、統合説明として有効と読める曖昧さを検出した。

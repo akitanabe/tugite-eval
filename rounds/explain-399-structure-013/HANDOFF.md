@@ -9,7 +9,7 @@ source引用を最終SHAで解決後、既存helperでseparated/mixedを各1pack
 新候補outputを見て基準を合わせない。旧012を含め全履歴/元judgmentを保存する。
 親報告の012 PASS撤回は本登録へ追記した歴史状態であり、新しい実行結果ではない。
 
-独立judgeにはcalibration.jsonを事前校正用として渡せる。prose-only fragmentsは事実Passでも構造Fail、
+独立judgeにはcalibration.jsonを事前校正用として渡せる。順序・接続が別topicに散在するfragmentsは事実Passでも構造Fail、
 structured separated/mixedは構造Passとなる境界を確認する。これはexchange sliceの合成校正で全caseの唯一解ではない。
 被評価taskにはcorpus/rubric/calibration/Reference/旧結果を渡さず、元の中立promptだけを維持する。
 
