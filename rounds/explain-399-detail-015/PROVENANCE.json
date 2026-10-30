@@ -1,0 +1,11 @@
+{
+  "candidate_sha": "cce79cc73f96d616ffaf1044216fb5d746432e2d",
+  "candidate_tree": "3d0e727bb08a4e229e72ae434923366c9babee34",
+  "criteria_preregistration_commit": "bd382ddf5ecb3a553c3aa74c750eaa8f30d002db",
+  "preregistered_corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
+  "resolved_corpus_sha256": "5f50b59dd1229cf427c4f9dfee570ef2d12a86f95119f1d86f9d55fe620418f7",
+  "preserved": "All round014 fixtures, neutral prompts, observations, metrics, reporting and mandatory structural gate unchanged byte-for-byte in corpus.",
+  "criterion_change": "None. Round014 detail-selection clarification retained unchanged.",
+  "history": "Round014 and all previous artifacts/assessments preserved. Parent reports round014 structural/factual passes and partial detail goal; not regraded here.",
+  "scope": "Exactly two candidate/trial1 packets. Parent launches fresh tasks; preparation performs static restore/stage only, no LLM runs."
+}
