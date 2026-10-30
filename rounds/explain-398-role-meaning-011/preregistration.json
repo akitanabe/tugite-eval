@@ -1,0 +1,22 @@
+{
+  "state": "criteria-clarification-fixed-awaiting-candidate",
+  "prospective": true,
+  "candidate_sha": null,
+  "corpus": "rounds/explain-398-role-meaning-011/corpus.json",
+  "corpus_sha256": "2d19fce1ab015c5cfa8930378f2dd5ef0406a6e5a59416e9dd8af66a740f9f46",
+  "previous_round": "rounds/explain-398-concise-flow-010",
+  "fixed_prompts_and_fixtures": "Neutral prompts, fixture bytes and task-response-only reporting unchanged from007–010.",
+  "criteria_change": "Explicit new user requirement: code-grounded processing-unit meaning/purpose within the flow; returns/pass/fields/status supplemental only when indispensable. Historical criteria/results remain unchanged.",
+  "attribution_limit": "New criterion clarification differs from010; do not retroactively rescore or use earlier results as conformance, or claim a skill-only causal effect from changed criteria.",
+  "selected_cases": [
+    "explain-398-session-flow",
+    "explain-398-infrastructure"
+  ],
+  "sample_count": 2,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "scope": "No packet freeze or LLM run until parent provides next candidate. Exactly2 fixed representative fresh tasks per authorized iteration; preserve all attempts; no full suite/version/PR."
+}
