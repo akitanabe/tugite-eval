@@ -139,6 +139,9 @@ def validate_case(case: dict, distributions: Path, versions: dict | None = None)
             if basis["quote"] not in content:
                 raise ValueError(f"basis not found: {case['id']}/{version}/{observation['id']}")
             basis["sha256"] = digest(path.read_bytes())
+    required = case.get("required_quality_observations", [])
+    if not isinstance(required, list) or len(required) != len(set(required)) or not set(required) <= ids:
+        raise ValueError("required quality observations must name unique case observations")
     return case
 
 
@@ -267,7 +270,8 @@ def prepare(round_path: Path, case_id: str, version: str, trial: int, reason: st
               "No remote/network/push authority. Do not install dependencies.\n\n" + case["prompt"])
     (attempt / "prompt.txt").write_text(prompt)
     applicable = [observation for observation in case["observations"] if version in observation["versions"]]
-    write_json(attempt / "rubric.json", {"observations": applicable, "common_metrics": case["common_metrics"]})
+    write_json(attempt / "rubric.json", {"observations": applicable, "common_metrics": case["common_metrics"],
+        **({"required_quality_observations": case["required_quality_observations"]} if "required_quality_observations" in case else {})})
     write_json(attempt / "attempt.json", {
         "schema": 1, "attempt_id": str(uuid.uuid4()), "round_id": spec["round_id"],
         "case_id": case_id, "version": version, "repo_sha": spec["versions"][version], "trial": trial,
@@ -633,6 +637,15 @@ def judge_template(round_path: Path, attempt: Path, destination: Path) -> None:
         "limitations": ["Effective model/effort must come from runtime telemetry, not requested settings."]})
 
 
+def validate_output_quality_observations(judgment: dict, rubric: dict) -> None:
+    """Consistency gate only; semantic assessment stays with the independent judge."""
+    if judgment.get("output_quality", {}).get("result") != "pass":
+        return
+    required = rubric.get("required_quality_observations", [])
+    if any(judgment.get("observations", {}).get(name, {}).get("result") != "pass" for name in required):
+        raise ValueError("output-quality PASS requires all mandatory quality observations to PASS")
+
+
 def adjudicate(round_path: Path, attempt: Path, judgment_path: Path) -> None:
     _, metadata = verify_attempt(round_path, attempt)
     if (attempt / "judgment.json").exists():
@@ -658,6 +671,7 @@ def adjudicate(round_path: Path, attempt: Path, judgment_path: Path) -> None:
             for reference in finding["evidence"]:
                 if reference not in read_json(attempt / "evidence-seal.json"):
                     raise ValueError("judgment may cite only sealed execution evidence")
+    validate_output_quality_observations(judgment, rubric)
     write_json(attempt / "judgment.json", judgment)
     (attempt / "judgment.sha256").write_text(digest((attempt / "judgment.json").read_bytes()) + "\n")
 
