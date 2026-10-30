@@ -1,0 +1,88 @@
+{
+  "common_metrics": {
+    "execution-faithfulness": "実際の入口から主要コードへの経路・順序・責務境界を追える。基盤を機械除去せず、inline処理を架空serviceに置換しない。意味上のまとめ方と実在の呼出しを区別する。",
+    "grounded-accuracy": "重要な条件・状態・副作用・順序・tx/失敗境界が実装に一致し、根拠へ辿れる。実装外の呼出し・理想責務・設計意図・観測成功を捏造しない。未確認の接続を保持する。",
+    "meaningful-granularity": "理解に必要な情報を適切な粒度で伝え、経路の連続性・重要条件/作用/境界を保つ。全内部呼出しや汎用機構の講義は不要。固定語数/行数/identifier-first-only/導入禁止/基盤省略/Reference文面一致は採点基準にしない。",
+    "semantic-understanding": "目的・主要な意味処理の全体像と、各主要処理の意味/条件/作用が理解できる。識別子一覧だけ、一般論だけ、動作の逐語訳だけでは代替しない。"
+  },
+  "observations": [
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "機能が何をどの順序で実現するかという「処理の流れ」と、実際のクラス・関数の呼び出し順序である「コード実行フロー」の双方を示す。",
+          "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+        }
+      },
+      "expectation": "目的と主要な意味処理の全体像を示し、その処理を実際の入口・Dispatcher・Controller・主要関数への呼出し経路に対応づける。全体の処理フローと実コード経路の双方が分かれば、説明と経路の一体化や異なる妥当な形式を許す。必要な基盤を名前で削除せず経路の連続性を保つ。prepare/issueとexchange/cart間のcallerによる接続、未提供WebView操作を自動呼出しと捏造しない。全内部呼出しの網羅は求めない。",
+      "id": "overall-and-execution-flow",
+      "requirement_basis": {
+        "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+        "comments_observed": 0,
+        "kind": "replacement-issue",
+        "observed_date": "2026-10-30",
+        "sections": [
+          "目的",
+          "設計原則1–3",
+          "基本出力フォーマット",
+          "受入条件1–3,5"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "データ・状態の変化や外部作用は、その条件と実装箇所に対応づける。",
+          "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+        }
+      },
+      "expectation": "各主要処理の意味・目的、成立/拒否条件、状態変化・副作用を実コードに対応づける。交換時の検証、code消費/session登録、tx確定後Cookie発行、session認証と対象利用者のcart取得の意味と重要な順序が理解できる。重要な失敗/確定境界を正確に保ち、未確認・推定と事実を区別する。一般DB/Cookie操作の内部講義や全guard/全例外/全SQLの網羅は不要。短さを理由に必要な意味や経路を落とさない。",
+      "id": "meanings-conditions-effects",
+      "requirement_basis": {
+        "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+        "comments_observed": 0,
+        "kind": "replacement-issue",
+        "observed_date": "2026-10-30",
+        "sections": [
+          "設計原則3",
+          "受入条件4,7"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "直接書かれた検証や更新は、その関数内の処理として示す。",
+          "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+        }
+      },
+      "expectation": "Controller.exchangeがSessionOperation.exchangeへ委譲し、その内部でstore操作が行われる実経路と、Controllerに戻ってCookie発行する実順序を保持する。一つの交換という意味処理が複数関数にまたがることを説明できる。実在しないroute/関数を追加しない。",
+      "id": "responsibility-faithfulness",
+      "requirement_basis": {
+        "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+        "comments_observed": 0,
+        "kind": "replacement-issue",
+        "observed_date": "2026-10-30",
+        "sections": [
+          "設計原則2,4",
+          "Reference Output A/B",
+          "受入条件3,6"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    }
+  ]
+}

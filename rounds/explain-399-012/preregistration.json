@@ -1,5 +1,5 @@
 {
-  "state": "preregistered-awaiting-new-issue399-candidate",
+  "state": "new399-candidate-two-packets-prepared-not-executed",
   "issue": {
     "kind": "replacement-issue",
     "url": "https://github.com/akitanabe/tugite/issues/399",
@@ -7,7 +7,7 @@
     "comments_observed": 0,
     "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle."
   },
-  "candidate_sha": null,
+  "candidate_sha": "4f57597a4eb758cd963c2de194a63ddaca224ff0",
   "old_candidates_allowed": false,
   "corpus": "cases/explain-399/corpus.json",
   "corpus_sha256": "cf7203e88c6dc6aa81a893aeadb0f16731d66758273ad8e438dd0bbc2b4e9c86",
@@ -23,5 +23,7 @@
   },
   "source_provenance": "All observations deliberately have basis_pending, not an old398 source quote. Resolve new399 source provenance after fixed SHA is provided, then materialize packets.",
   "scope": "No packet freeze or LLM evaluation until new399 SHA;2 representative fresh tasks only, preserve all history.",
-  "replacement": "Old398 brevity/identifier-first-only/omit-framework/no-intro rules are not authority. Source issue399 overview + actual execution + meaning/conditions/effects and mixed/separated faithfulness replace them."
+  "replacement": "Old398 brevity/identifier-first-only/omit-framework/no-intro rules are not authority. Source issue399 overview + actual execution + meaning/conditions/effects and mixed/separated faithfulness replace them.",
+  "resolved_corpus": "rounds/explain-399-012/resolved-corpus.json",
+  "resolved_corpus_sha256": "f16e3e1d2aacd4b972eb802326ded7f10e944e3e89c8ff3f36b1d67b9470af68"
 }

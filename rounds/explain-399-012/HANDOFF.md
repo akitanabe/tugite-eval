@@ -1,36 +1,56 @@
-# #399 preregistration — new candidate待ち
+# #399 candidate2 packet handoff
 
-[再利用監査と新基準](../../cases/explain-399/README.md)、[corpus](../../cases/explain-399/corpus.json)、[登録](preregistration.json)。
-#398の旧candidateは使用しない。新#399はmainから別開発taskで構築中。旧roundを変更せず新しい達成基準で扱う。
+Candidate `4f57597a4eb758cd963c2de194a63ddaca224ff0`、tree `540abdd27a1d1e29993aa17e560caf1ca5696262`。
+[2件のpath/hash](INPUTS.md)、[index](index.json)、[provenance](PROVENANCE.json)。実LLM試行・採点は未実施。
+[新基準と再利用監査](../../cases/explain-399/README.md)、[事前corpus](../../cases/explain-399/corpus.json)。
+新source引用だけを補った[resolved corpus](resolved-corpus.json)で固定した。事前のprompt/fixture/期待/metricは保持。
 
-ケースはexplain-399-separated、explain-399-mixedの2件。promptはどちらも合成Session機能の説明依頼のみ。
-全体の意味フロー、忠実な実コード実行フロー、主要処理の意味/条件/効果を確認する。
-経路と説明の一体化、適切な段落/図/表などは許し、旧brevity/identifier-first-only/基盤省略基準を課さない。
+#399は#398基準を置換する。全体の意味フロー、実際の入口から連続するコード実行フロー、意味/条件/作用を評価する。
+分離/混在双方で忠実な責務境界を保持し、inline処理を架空serviceへ置き換えない。基盤を機械除去せず、汎用機構の講義へ広げない。
+旧brevity/identifier-first-only/導入禁止/omit-frameworkやReference文面一致を採点に使わない。
+輸送のtask-response-onlyは操作一覧を本文へ混ぜないためで、全体像や必要な条件/経路を削る指示ではない。
 
-## 新SHA受領後
+## Fresh task用prompt
 
-まずcorpusのbasis_pendingを新sourceの正確なpath/quoteによるbasisへ解決する。
-期待・fixture・promptは固定のまま、source provenance補完を別commitで記録する。
-未解決corpusを旧sourceや架空quoteで実行しない。現時点でinput/index/snapshotは作らない。
+`<EVAL_SHA>`は本inputsを含む最終remote main完全SHA、`<INPUT_PATH>`/`<INPUT_SHA256>`はINPUTS.mdから選ぶ。
+各taskは独立fresh eval環境、requested gpt-6.1-sol / medium。1taskに1packet。
 
-source provenance解決後だけ、既存helperを明示corpusで使える:
-
-```bash
-python3 evals/prepare_398.py candidate <NEW_ISSUE399_SHA> .local/explain-399-012 \
-  --corpus cases/explain-399/corpus.json \
-  --case explain-399-separated --case explain-399-mixed
+```text
+新規の1試行です。要求設定gpt-6.1-sol / medium。
+Repo=https://github.com/akitanabe/tugite-eval.git、cwd=/workspace/tugite-eval、固定code/data SHA=<EVAL_SHA>。
+checkoutがなければ通常clone。既存ならtop-levelとorigin URLがこのrepoと一致することを確認。
+次を一つずつ成功確認:
+git fetch --no-tags https://github.com/akitanabe/tugite-eval.git <EVAL_SHA>
+git cat-file -e <EVAL_SHA>^{commit}
+git status --porcelain=v1 --untracked-files=all
+statusが空ならgit checkout --detach <EVAL_SHA>、git rev-parse HEADが指定SHAと一致することを確認。
+失敗/dirty/別repoなら保持して停止。force/reset/cleanは使わない。
+repo cwdで:
+python3 evals/cloud_task.py stage <INPUT_PATH> <INPUT_SHA256> /workspace/quality-stage
+固定SHAの通常fetchを許可。/workspace/quality-stage/prompt.txtを読み、指定固定Skillを最初に読み、指定fixtureで依頼に応答する。
+現行Skill/corpus/control/snapshot/rubric/REFERENCE/他版/旧応答は読まない。採点/nested CLI/push/依存導入/fixtureからの外部通信をしない。
+/workspace/quality-response.txtには依頼への説明本文だけを保存する。操作ファイル/commandsや環境報告を追記しない。理解を左右する未確認箇所は本文の該当箇所で短く示す。実行上の拒否/失敗は本文と別に正確に報告する。
+repo cwdで:
+python3 evals/cloud_task.py collect /workspace/quality-stage <INPUT_SHA256> /workspace/quality-response.txt /workspace/quality-result --quality
+最終返却は説明本文、result directory、result-seal.jsonのSHA-256。内部証跡/実効modelが未観測なら不明のまま。
+拒否時は操作/対象/理由/完了部分/denied-pending-uncertainを正確に返して停止し、迂回しない。
 ```
 
-helper名は旧名だが、新caseは旧398版/期待値を継承しない。candidateのみ・各1回に限定する。
-固定SHAの配布物全体とagent定義をstageし、親がfresh task（requested gpt-6.1-sol/medium）を起動する。
-被評価taskへcorpus/rubric/旧結果/本handoffを渡さない。説明本文と操作証拠は分け、collect --qualityを利用する。
-独立judgeは#399要件と実codeで構造・忠実性・説明粒度を判断し、Reference Outputの文面一致や内部全列挙をoracleにしない。
 
-新candidate SHA未提供のため、配布identity/source引用確認・packet freeze・実LLM評価は未実施。
-全歴史を保持し、旧結果から新合格/モデル優越を主張しない。全suite、余計な説明agent、version/PRは対象外。
+Human向け本文と輸送証拠を分ける。新sourceの固定Skillを読み、#399による説明を返す。
+case promptは機能説明の中立依頼のみで、解答例・Reference Output・rubricを含めない。
+親が2fresh taskを各1回起動し、必要な独立judgeに#399基準と実codeを渡して品質を判断する。
+全結果を保持。全suite/旧candidate再利用/追加の説明agent/version/PRを自動追加しない。
+旧入力・基準・結果を保持し、旧失敗を合格へ読み替えず、新旧基準差をSkillだけの因果効果やmodel優越としない。
 
-準備QA: tests/explain-399-test.pyの3検査成功。分離fixture byte一致、新基準の#399根拠、
-新candidate/source basis未解決、2case scopeを確認。両fixtureの成功・binding拒否・commit失敗・再利用拒否・
-認証状態取得・Cookie失敗後の確定状態を実行確認した。混在variantに架空のexchange委譲がないことも確認。
-このfixture検証はLLM評価ではない。静的読解でも実装上の状態境界を照合し、期待の最終責任は準備ownerにある。
-単回sampleの出力品質判断と、既存reportの3回完了gateを区別し、1回から反復比較/因果効果を主張しない。
+## 再利用と置換
+
+再利用: SHA transport、stage/collect --quality、配布物/agent定義全体、分離Session fixture。
+追加: Controller内に交換処理が混在する最小fixture。
+置換: #398の出力選択/粒度方針をすべて#399の目的・原則・出力要件・受入条件に置換。
+新候補はmainから別dev taskで構築された親指定SHA。旧398candidateは使わない。
+
+準備QA: 新3検査（fixture分離/混在の成功・拒否・commit失敗・再利用拒否・認証・Cookie失敗境界を含む）成功。
+事前登録60786573…からprompt/fixture/期待/metricは不変、source basisだけを解決したことを照合。
+2packet candidate/trial1、frozen case対応、snapshot restore、2stage smoke、評価基準非混入、公開scan/diff check成功。
+旧round/resultsは変更なし。これは準備検証であり、実LLMの品質評価ではない。

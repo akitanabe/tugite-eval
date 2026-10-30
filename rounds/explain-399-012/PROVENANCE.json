@@ -1,0 +1,15 @@
+{
+  "issue": "https://github.com/akitanabe/tugite/issues/399",
+  "preregistration_commit": "607865730e6bea08855f1b0caf1f219778017934",
+  "candidate_sha": "4f57597a4eb758cd963c2de194a63ddaca224ff0",
+  "candidate_tree": "540abdd27a1d1e29993aa17e560caf1ca5696262",
+  "base_reported_by_parent": "c44261f1f70da40c75123a91153a8aa6c6d4be1e",
+  "preregistered_corpus_sha256": "cf7203e88c6dc6aa81a893aeadb0f16731d66758273ad8e438dd0bbc2b4e9c86",
+  "resolved_corpus_sha256": "f16e3e1d2aacd4b972eb802326ded7f10e944e3e89c8ff3f36b1d67b9470af68",
+  "source_resolution": "Only basis_pending was replaced by actual new399 source path/quotes. Prompts/fixtures/expectations/metrics unchanged from preregistration.",
+  "skill_path": "plugins/codex/skills/explain-this/SKILL.md",
+  "skill_sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b",
+  "reuse": "Existing transport, fixed-distribution staging, task-response-only reporting and separated synthetic fixture. Minimal mixed Controller-inline variant added.",
+  "replaced": "All old398 presentation/brief-role/identifier-first-only/framework-omission criteria replaced by issue399; old outputs/results are not evidence of new conformance.",
+  "not_executed": "No actual LLM trials, output reading or scoring."
+}

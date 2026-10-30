@@ -28,10 +28,18 @@ class Issue399Test(unittest.TestCase):
                 self.assertIn('basis_pending', observation)
                 self.assertNotIn('basis', observation)
         registration = json.loads((ROUND / 'preregistration.json').read_text())
-        self.assertIsNone(registration['candidate_sha'])
+        self.assertEqual(registration['candidate_sha'], '4f57597a4eb758cd963c2de194a63ddaca224ff0')
         self.assertEqual(registration['corpus_sha256'], hashlib.sha256(CORPUS.read_bytes()).hexdigest())
-        self.assertFalse((ROUND / 'inputs').exists())
-        self.assertFalse((ROUND / 'snapshot').exists())
+        cells = json.loads((ROUND / 'index.json').read_text())['cells']
+        self.assertEqual([c['case_id'] for c in cells], registration['selected_cases'])
+        self.assertEqual(len(cells), 2)
+        for cell in cells:
+            path = ROUND / cell['input']
+            packet = json.loads(path.read_text())
+            self.assertEqual(cell['input_sha256'], hashlib.sha256(path.read_bytes()).hexdigest())
+            self.assertEqual(packet['repo_sha'], registration['candidate_sha'])
+            self.assertEqual((packet['version'], packet['trial']), ('candidate', 1))
+            self.assertFalse({'observations', 'rubric', 'common_metrics'} & packet.keys())
 
     def test_fixture_success_rejection_and_commit_boundary(self):
         corpus = json.loads(CORPUS.read_text())

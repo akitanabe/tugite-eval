@@ -1,0 +1,235 @@
+{
+  "cases": [
+    {
+      "category": "normal",
+      "common_metrics": {
+        "execution-faithfulness": "実際の入口から主要コードへの経路・順序・責務境界を追える。基盤を機械除去せず、inline処理を架空serviceに置換しない。意味上のまとめ方と実在の呼出しを区別する。",
+        "grounded-accuracy": "重要な条件・状態・副作用・順序・tx/失敗境界が実装に一致し、根拠へ辿れる。実装外の呼出し・理想責務・設計意図・観測成功を捏造しない。未確認の接続を保持する。",
+        "meaningful-granularity": "理解に必要な情報を適切な粒度で伝え、経路の連続性・重要条件/作用/境界を保つ。全内部呼出しや汎用機構の講義は不要。固定語数/行数/identifier-first-only/導入禁止/基盤省略/Reference文面一致は採点基準にしない。",
+        "semantic-understanding": "目的・主要な意味処理の全体像と、各主要処理の意味/条件/作用が理解できる。識別子一覧だけ、一般論だけ、動作の逐語訳だけでは代替しない。"
+      },
+      "files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# Synthetic WebView-like session\n\nTeaching code only; Python standard library, no database, SDK, API or network. Inspect statically.\n`app.build()` wires the supplied paths. `SessionOperation.prepare(binding, now)` returns a challenge id;\n`issue(challenge, user, now)` returns a code. A caller supplies these and the binding cookie to the exchange route,\nthen supplies the issued session cookie to the cart route. The real app/WebView transport and binding-cookie\ninstallation are not provided. No security adequacy or production concurrency guarantee is claimed.\n`lock_*` are lookups in this single-threaded memory model, not real locks. Normal transaction context exit\ncommits; an exception rolls back parent/code/session maps. The id counter is deliberately outside rollback.\nRequests are dictionaries with `now` and `cookies`; exchange also has `parent` and `code`. Use well-shaped\nrequests when explaining the main path. Unexpected exceptions and missing route keys propagate.\n",
+        "app.py": "from operation import SessionOperation\nfrom store import MemoryStore\nfrom web import Controller, Cookies, Dispatcher, SessionAuth\n\n\ndef build():\n    store, cookies = MemoryStore(), Cookies()\n    operation = SessionOperation(store)\n    controller = Controller(operation, store, cookies)\n    auth = SessionAuth(store)\n    dispatcher = Dispatcher({\n        \"exchange\": controller.exchange,\n        \"cart\": lambda request: auth.call(request, controller.cart),\n    })\n    return store, cookies, operation, dispatcher\n",
+        "operation.py": "from store import Rejected\n\n\nclass SessionOperation:\n    def __init__(self, store):\n        self.store = store\n\n    def prepare(self, binding, now):\n        parent_id = self.store.fresh(\"challenge\")\n        self.store.parents[parent_id] = {\n            \"binding\": binding, \"expires\": now + 30, \"refresh_active\": True\n        }\n        return parent_id\n\n    def issue(self, parent_id, user_id, now):\n        parent = self.store.lock_parent(parent_id)\n        if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n            raise Rejected(\"inactive challenge\")\n        code = self.store.fresh(\"code\")\n        self.store.codes[code] = {\"parent\": parent_id, \"user\": user_id, \"used\": False}\n        return code\n\n    def exchange(self, parent_id, code, binding, now):\n        with self.store.transaction():\n            parent = self.store.lock_parent(parent_id)\n            item = self.store.lock_code(code)\n            if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n                raise Rejected(\"inactive challenge\")\n            if not item or item[\"parent\"] != parent_id or item[\"used\"]:\n                raise Rejected(\"invalid code\")\n            if parent[\"binding\"] != binding:\n                raise Rejected(\"binding mismatch\")\n            self.store.purge_expired(now)\n            session_id = self.store.register(code, item[\"user\"], now)\n        return session_id\n",
+        "store.py": "from contextlib import contextmanager\nfrom copy import deepcopy\n\n\nclass Rejected(Exception):\n    pass\n\n\nclass MemoryStore:\n    \"\"\"Single-threaded teaching store; no database or external calls.\"\"\"\n    def __init__(self):\n        self.parents = {}\n        self.codes = {}\n        self.sessions = {}\n        self.carts = {}\n        self.serial = 0\n        self.fail_commit = False\n\n    def fresh(self, prefix):\n        self.serial += 1\n        return f\"{prefix}-{self.serial}\"\n\n    @contextmanager\n    def transaction(self):\n        before = deepcopy((self.parents, self.codes, self.sessions))\n        try:\n            yield self\n            if self.fail_commit:\n                raise RuntimeError(\"commit failed\")\n        except Exception:\n            self.parents, self.codes, self.sessions = before\n            raise\n        # Normal context exit is the commit boundary in this synthetic store.\n\n    def lock_parent(self, parent_id):\n        return self.parents.get(parent_id)\n\n    def lock_code(self, code):\n        return self.codes.get(code)\n\n    def register(self, code, user_id, now):\n        self.codes[code][\"used\"] = True\n        session_id = self.fresh(\"session\")\n        self.sessions[session_id] = {\"user\": user_id, \"expires\": now + 60}\n        return session_id\n\n    def purge_expired(self, now):\n        for key in list(self.sessions):\n            if self.sessions[key][\"expires\"] <= now:\n                del self.sessions[key]\n",
+        "web.py": "from store import Rejected\n\n\nclass Cookies:\n    def __init__(self):\n        self.issued = []\n        self.fail = False\n\n    def session(self, session_id):\n        if self.fail:\n            raise RuntimeError(\"cookie failed\")\n        self.issued.append((\"session\", session_id))\n\n\nclass Controller:\n    def __init__(self, operation, store, cookies):\n        self.operation, self.store, self.cookies = operation, store, cookies\n\n    def exchange(self, request):\n        session_id = self.operation.exchange(\n            request[\"parent\"], request[\"code\"], request[\"cookies\"].get(\"binding\"), request[\"now\"]\n        )\n        self.cookies.session(session_id)\n        return {\"status\": 204}\n\n    def cart(self, request):\n        return {\"status\": 200, \"cart\": self.store.carts.get(request[\"user\"], [])}\n\n\nclass SessionAuth:\n    def __init__(self, store):\n        self.store = store\n\n    def call(self, request, next_handler):\n        session = self.store.sessions.get(request[\"cookies\"].get(\"session\"))\n        if not session or session[\"expires\"] <= request[\"now\"]:\n            raise Rejected(\"unauthenticated\")\n        authenticated = dict(request, user=session[\"user\"])\n        return next_handler(authenticated)\n\n\nclass Dispatcher:\n    def __init__(self, routes):\n        self.routes = routes\n\n    def dispatch(self, name, request):\n        handler = self.routes[name]\n        try:\n            return handler(request)\n        except Rejected as error:\n            return {\"status\": 403, \"reason\": str(error)}\n"
+      },
+      "id": "explain-399-separated",
+      "observations": [
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "機能が何をどの順序で実現するかという「処理の流れ」と、実際のクラス・関数の呼び出し順序である「コード実行フロー」の双方を示す。",
+              "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+            }
+          },
+          "expectation": "目的と主要な意味処理の全体像を示し、その処理を実際の入口・Dispatcher・Controller・主要関数への呼出し経路に対応づける。全体の処理フローと実コード経路の双方が分かれば、説明と経路の一体化や異なる妥当な形式を許す。必要な基盤を名前で削除せず経路の連続性を保つ。prepare/issueとexchange/cart間のcallerによる接続、未提供WebView操作を自動呼出しと捏造しない。全内部呼出しの網羅は求めない。",
+          "id": "overall-and-execution-flow",
+          "requirement_basis": {
+            "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+            "comments_observed": 0,
+            "kind": "replacement-issue",
+            "observed_date": "2026-10-30",
+            "sections": [
+              "目的",
+              "設計原則1–3",
+              "基本出力フォーマット",
+              "受入条件1–3,5"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/399"
+          },
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "データ・状態の変化や外部作用は、その条件と実装箇所に対応づける。",
+              "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+            }
+          },
+          "expectation": "各主要処理の意味・目的、成立/拒否条件、状態変化・副作用を実コードに対応づける。交換時の検証、code消費/session登録、tx確定後Cookie発行、session認証と対象利用者のcart取得の意味と重要な順序が理解できる。重要な失敗/確定境界を正確に保ち、未確認・推定と事実を区別する。一般DB/Cookie操作の内部講義や全guard/全例外/全SQLの網羅は不要。短さを理由に必要な意味や経路を落とさない。",
+          "id": "meanings-conditions-effects",
+          "requirement_basis": {
+            "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+            "comments_observed": 0,
+            "kind": "replacement-issue",
+            "observed_date": "2026-10-30",
+            "sections": [
+              "設計原則3",
+              "受入条件4,7"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/399"
+          },
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "直接書かれた検証や更新は、その関数内の処理として示す。",
+              "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+            }
+          },
+          "expectation": "Controller.exchangeがSessionOperation.exchangeへ委譲し、その内部でstore操作が行われる実経路と、Controllerに戻ってCookie発行する実順序を保持する。一つの交換という意味処理が複数関数にまたがることを説明できる。実在しないroute/関数を追加しない。",
+          "id": "responsibility-faithfulness",
+          "requirement_basis": {
+            "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+            "comments_observed": 0,
+            "kind": "replacement-issue",
+            "observed_date": "2026-10-30",
+            "sections": [
+              "設計原則2,4",
+              "Reference Output A/B",
+              "受入条件3,6"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/399"
+          },
+          "versions": [
+            "candidate"
+          ]
+        }
+      ],
+      "prompt": "この合成WebView風セッション機能を説明してください。実行・変更は不要です。",
+      "response_reporting": "task-response-only",
+      "skill": "explain-this",
+      "track": "issue399-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "working_changes": {}
+    },
+    {
+      "category": "boundary",
+      "common_metrics": {
+        "execution-faithfulness": "実際の入口から主要コードへの経路・順序・責務境界を追える。基盤を機械除去せず、inline処理を架空serviceに置換しない。意味上のまとめ方と実在の呼出しを区別する。",
+        "grounded-accuracy": "重要な条件・状態・副作用・順序・tx/失敗境界が実装に一致し、根拠へ辿れる。実装外の呼出し・理想責務・設計意図・観測成功を捏造しない。未確認の接続を保持する。",
+        "meaningful-granularity": "理解に必要な情報を適切な粒度で伝え、経路の連続性・重要条件/作用/境界を保つ。全内部呼出しや汎用機構の講義は不要。固定語数/行数/identifier-first-only/導入禁止/基盤省略/Reference文面一致は採点基準にしない。",
+        "semantic-understanding": "目的・主要な意味処理の全体像と、各主要処理の意味/条件/作用が理解できる。識別子一覧だけ、一般論だけ、動作の逐語訳だけでは代替しない。"
+      },
+      "files": {
+        ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+        "README.md": "# Synthetic WebView-like session\n\nTeaching code only; Python standard library, no database, SDK, API or network. Inspect statically.\n`app.build()` wires the supplied paths. `SessionOperation.prepare(binding, now)` returns a challenge id;\n`issue(challenge, user, now)` returns a code. A caller supplies these and the binding cookie to the exchange route,\nthen supplies the issued session cookie to the cart route. The real app/WebView transport and binding-cookie\ninstallation are not provided. No security adequacy or production concurrency guarantee is claimed.\n`lock_*` are lookups in this single-threaded memory model, not real locks. Normal transaction context exit\ncommits; an exception rolls back parent/code/session maps. The id counter is deliberately outside rollback.\nRequests are dictionaries with `now` and `cookies`; exchange also has `parent` and `code`. Use well-shaped\nrequests when explaining the main path. Unexpected exceptions and missing route keys propagate.\n\nThis variant keeps the exchange orchestration and validation directly in Controller.exchange. SessionOperation provides prepare and issue only. Inspect the actual code; no production framework or external API is present.\n",
+        "app.py": "from operation import SessionOperation\nfrom store import MemoryStore\nfrom web import Controller, Cookies, Dispatcher, SessionAuth\n\n\ndef build():\n    store, cookies = MemoryStore(), Cookies()\n    operation = SessionOperation(store)\n    controller = Controller(operation, store, cookies)\n    auth = SessionAuth(store)\n    dispatcher = Dispatcher({\n        \"exchange\": controller.exchange,\n        \"cart\": lambda request: auth.call(request, controller.cart),\n    })\n    return store, cookies, operation, dispatcher\n",
+        "operation.py": "from store import Rejected\n\n\nclass SessionOperation:\n    def __init__(self, store):\n        self.store = store\n\n    def prepare(self, binding, now):\n        parent_id = self.store.fresh(\"challenge\")\n        self.store.parents[parent_id] = {\n            \"binding\": binding, \"expires\": now + 30, \"refresh_active\": True\n        }\n        return parent_id\n\n    def issue(self, parent_id, user_id, now):\n        parent = self.store.lock_parent(parent_id)\n        if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n            raise Rejected(\"inactive challenge\")\n        code = self.store.fresh(\"code\")\n        self.store.codes[code] = {\"parent\": parent_id, \"user\": user_id, \"used\": False}\n        return code\n\n",
+        "store.py": "from contextlib import contextmanager\nfrom copy import deepcopy\n\n\nclass Rejected(Exception):\n    pass\n\n\nclass MemoryStore:\n    \"\"\"Single-threaded teaching store; no database or external calls.\"\"\"\n    def __init__(self):\n        self.parents = {}\n        self.codes = {}\n        self.sessions = {}\n        self.carts = {}\n        self.serial = 0\n        self.fail_commit = False\n\n    def fresh(self, prefix):\n        self.serial += 1\n        return f\"{prefix}-{self.serial}\"\n\n    @contextmanager\n    def transaction(self):\n        before = deepcopy((self.parents, self.codes, self.sessions))\n        try:\n            yield self\n            if self.fail_commit:\n                raise RuntimeError(\"commit failed\")\n        except Exception:\n            self.parents, self.codes, self.sessions = before\n            raise\n        # Normal context exit is the commit boundary in this synthetic store.\n\n    def lock_parent(self, parent_id):\n        return self.parents.get(parent_id)\n\n    def lock_code(self, code):\n        return self.codes.get(code)\n\n    def register(self, code, user_id, now):\n        self.codes[code][\"used\"] = True\n        session_id = self.fresh(\"session\")\n        self.sessions[session_id] = {\"user\": user_id, \"expires\": now + 60}\n        return session_id\n\n    def purge_expired(self, now):\n        for key in list(self.sessions):\n            if self.sessions[key][\"expires\"] <= now:\n                del self.sessions[key]\n",
+        "web.py": "from store import Rejected\n\n\nclass Cookies:\n    def __init__(self):\n        self.issued = []\n        self.fail = False\n\n    def session(self, session_id):\n        if self.fail:\n            raise RuntimeError(\"cookie failed\")\n        self.issued.append((\"session\", session_id))\n\n\nclass Controller:\n    def __init__(self, operation, store, cookies):\n        self.operation, self.store, self.cookies = operation, store, cookies\n\n    def exchange(self, request):\n        parent_id, code, now = request[\"parent\"], request[\"code\"], request[\"now\"]\n        binding = request[\"cookies\"].get(\"binding\")\n        with self.store.transaction():\n            parent = self.store.lock_parent(parent_id)\n            item = self.store.lock_code(code)\n            if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n                raise Rejected(\"inactive challenge\")\n            if not item or item[\"parent\"] != parent_id or item[\"used\"]:\n                raise Rejected(\"invalid code\")\n            if parent[\"binding\"] != binding:\n                raise Rejected(\"binding mismatch\")\n            self.store.purge_expired(now)\n            session_id = self.store.register(code, item[\"user\"], now)\n        self.cookies.session(session_id)\n        return {\"status\": 204}\n\n    def cart(self, request):\n        return {\"status\": 200, \"cart\": self.store.carts.get(request[\"user\"], [])}\n\n\nclass SessionAuth:\n    def __init__(self, store):\n        self.store = store\n\n    def call(self, request, next_handler):\n        session = self.store.sessions.get(request[\"cookies\"].get(\"session\"))\n        if not session or session[\"expires\"] <= request[\"now\"]:\n            raise Rejected(\"unauthenticated\")\n        authenticated = dict(request, user=session[\"user\"])\n        return next_handler(authenticated)\n\n\nclass Dispatcher:\n    def __init__(self, routes):\n        self.routes = routes\n\n    def dispatch(self, name, request):\n        handler = self.routes[name]\n        try:\n            return handler(request)\n        except Rejected as error:\n            return {\"status\": 403, \"reason\": str(error)}\n"
+      },
+      "id": "explain-399-mixed",
+      "observations": [
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "機能が何をどの順序で実現するかという「処理の流れ」と、実際のクラス・関数の呼び出し順序である「コード実行フロー」の双方を示す。",
+              "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+            }
+          },
+          "expectation": "目的と主要な意味処理の全体像を示し、その処理を実際の入口・Dispatcher・Controller・主要関数への呼出し経路に対応づける。全体の処理フローと実コード経路の双方が分かれば、説明と経路の一体化や異なる妥当な形式を許す。必要な基盤を名前で削除せず経路の連続性を保つ。prepare/issueとexchange/cart間のcallerによる接続、未提供WebView操作を自動呼出しと捏造しない。全内部呼出しの網羅は求めない。",
+          "id": "overall-and-execution-flow",
+          "requirement_basis": {
+            "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+            "comments_observed": 0,
+            "kind": "replacement-issue",
+            "observed_date": "2026-10-30",
+            "sections": [
+              "目的",
+              "設計原則1–3",
+              "基本出力フォーマット",
+              "受入条件1–3,5"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/399"
+          },
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "データ・状態の変化や外部作用は、その条件と実装箇所に対応づける。",
+              "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+            }
+          },
+          "expectation": "各主要処理の意味・目的、成立/拒否条件、状態変化・副作用を実コードに対応づける。交換時の検証、code消費/session登録、tx確定後Cookie発行、session認証と対象利用者のcart取得の意味と重要な順序が理解できる。重要な失敗/確定境界を正確に保ち、未確認・推定と事実を区別する。一般DB/Cookie操作の内部講義や全guard/全例外/全SQLの網羅は不要。短さを理由に必要な意味や経路を落とさない。",
+          "id": "meanings-conditions-effects",
+          "requirement_basis": {
+            "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+            "comments_observed": 0,
+            "kind": "replacement-issue",
+            "observed_date": "2026-10-30",
+            "sections": [
+              "設計原則3",
+              "受入条件4,7"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/399"
+          },
+          "versions": [
+            "candidate"
+          ]
+        },
+        {
+          "basis": {
+            "candidate": {
+              "path": "skills/explain-this/SKILL.md",
+              "quote": "直接書かれた検証や更新は、その関数内の処理として示す。",
+              "sha256": "b0adb307be67a8b02d08aa65bb5917ee855155ec747e294a96460dc7a186c00b"
+            }
+          },
+          "expectation": "Controller.exchangeの同じ関数内に要求値取得・状態取得/検証・保守・code消費/session登録・Cookie発行が混在している実装を忠実に示す。意味では区切れるが、コード経路ではController内の処理として保持する。存在しないSessionOperation.exchange/Validator/Serviceへの委譲を捏造せず、混在を設計不良や改善提案へ自動変換しない。",
+          "id": "responsibility-faithfulness",
+          "requirement_basis": {
+            "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+            "comments_observed": 0,
+            "kind": "replacement-issue",
+            "observed_date": "2026-10-30",
+            "sections": [
+              "設計原則2,4",
+              "Reference Output A/B",
+              "受入条件3,6"
+            ],
+            "url": "https://github.com/akitanabe/tugite/issues/399"
+          },
+          "versions": [
+            "candidate"
+          ]
+        }
+      ],
+      "prompt": "この合成WebView風セッション機能を説明してください。実行・変更は不要です。",
+      "response_reporting": "task-response-only",
+      "skill": "explain-this",
+      "track": "issue399-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "working_changes": {}
+    }
+  ],
+  "created_utc": "2026-10-30T00:55:27Z",
+  "explicit_versions": true,
+  "repetition": {
+    "additional": "disagreement or indeterminate; record reason before running trials 4/5",
+    "initial": 3,
+    "maximum": 5,
+    "stop": "5 trials, infrastructure denial, identity drift, or safety failure"
+  },
+  "requested": {
+    "effort": "medium",
+    "model": "gpt-6.1-sol"
+  },
+  "round_id": "ac0b3e4e-be72-4c13-aeb2-5fcef51e9ac3",
+  "schema": 1,
+  "source_acquisition": "separate temporary bare Git repository; shallow fetch of exact SHAs",
+  "source_repository": "https://github.com/akitanabe/tugite.git",
+  "versions": {
+    "candidate": "4f57597a4eb758cd963c2de194a63ddaca224ff0"
+  }
+}
