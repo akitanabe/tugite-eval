@@ -1,0 +1,12 @@
+{
+  "candidate_sha": "4ffee85221ea0ff175be6a3b86a3de1bde9f47bb",
+  "candidate_tree": "4955bfb2d7bb786096612bb0d7793051f32b7f43",
+  "criteria_preregistration_commit": "bd382ddf5ecb3a553c3aa74c750eaa8f30d002db",
+  "preregistered_corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
+  "resolved_corpus_sha256": "5f50b59dd1229cf427c4f9dfee570ef2d12a86f95119f1d86f9d55fe620418f7",
+  "preserved": "All round017 case prompts, fixtures, observations, metrics, reporting and mandatory structural gate unchanged. Corpus and resolved-corpus byte-identical to017.",
+  "criterion_change": "None. Candidate and necessary packet identities only.",
+  "history": "Parent reports user positive feedback on round017 and authorization of minimal diagram/prose deduplication. All historical artifacts/assessments preserved, no regrading or actual model output reading by preparation task.",
+  "scope": "Exactly two candidate/trial1 packets. Parent launches fresh tasks; preparation performs static restore/stage only, no LLM runs.",
+  "criteria_review_commit": "d455c7675379ac5b08ac162e7d5ad55f0ef46630"
+}
