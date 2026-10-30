@@ -1,0 +1,18 @@
+{
+  "attempt_id": null,
+  "capability_blockers": [],
+  "completion_evidence": [],
+  "eval_code_sha": null,
+  "evidence_files": {},
+  "input_sha256": null,
+  "limitations": [],
+  "observation_source": "parent-task-completion",
+  "output_match_verified": null,
+  "parent_id": null,
+  "parent_observed_completion": null,
+  "protocol_sha256": "91c02180517b60e89b19d384d0cba2cec8dae9fd2c654f3ef62c31efbfd98bf2",
+  "result_seal_sha256": null,
+  "run_turn_id": null,
+  "synthetic": null,
+  "task_id": null
+}

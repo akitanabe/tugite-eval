@@ -1,6 +1,6 @@
 {
-  "state": "corrected-structural-criterion-preregistered-awaiting-candidate",
-  "candidate_sha": null,
+  "state": "corrected-criterion-two-candidate-packets-not-executed",
+  "candidate_sha": "3e9a42e29be0f0f81efad0ea1ef86d6c18615cba",
   "corpus": "rounds/explain-399-structure-013/corpus.json",
   "corpus_sha256": "d08addce5ef9d9612b09da7c346d25a3f39264c1b33ce449b58781ddc1196d25",
   "previous_round": "rounds/explain-399-012",
@@ -17,5 +17,7 @@
     "model": "gpt-6.1-sol",
     "effort": "medium"
   },
-  "scope": "No candidate packet/snapshot/LLM run until final SHA. No extra cases or explanation-only agent."
+  "scope": "No candidate packet/snapshot/LLM run until final SHA. No extra cases or explanation-only agent.",
+  "resolved_corpus": "rounds/explain-399-structure-013/resolved-corpus.json",
+  "resolved_corpus_sha256": "b66b380883f341774dc86dfd24501660f9133ed78256c2ea732cdcbc181a8896"
 }

@@ -1,0 +1,16 @@
+{
+  "candidate_sha": "3e9a42e29be0f0f81efad0ea1ef86d6c18615cba",
+  "candidate_tree": "ffe0aaa31b9a0364fdb90ee16f025ab58bab3298",
+  "criteria_preregistration_commit": "93550755e721f9400dab5a30ca817a9a977dc728",
+  "gate_commit": "0a11c101de0035fac0d00258565e0b771e16e122",
+  "calibration_correction_commit": "12a61b6deb5cf42233f848c1647a3abafa337582",
+  "preregistered_corpus_sha256": "d08addce5ef9d9612b09da7c346d25a3f39264c1b33ce449b58781ddc1196d25",
+  "resolved_corpus_sha256": "b66b380883f341774dc86dfd24501660f9133ed78256c2ea732cdcbc181a8896",
+  "preserved": "Two fixtures, neutral prompts, transport/reporting, prior factual observations/metric definitions remain identical to012.",
+  "added": "Separate positive displayed-execution-structure observation/metric and mandatory output-quality PASS consistency gate.",
+  "calibration": "Judge-only synthetic exchange slices: factually accurate disordered topical fragments fail structural display; faithful tree/table examples pass. No text-format parser or exact-answer oracle.",
+  "history": "012 original results/judgments unchanged; parent-reported PASS retraction recorded separately in SUPERSESSION.json.",
+  "skill_path": "plugins/codex/skills/explain-this/SKILL.md",
+  "skill_sha256": "681196d9fb6553e12983a780d0a426dfe58e40daf87bf50b6015c098c1ef895b",
+  "scope": "Exactly2 candidate packets,trial1; no LLM evaluation or scoring by preparation task."
+}

@@ -30,8 +30,17 @@ class StructuralCriterionTest(unittest.TestCase):
             self.assertEqual(a['common_metrics'], b['common_metrics'][:-1])
         reg = r.read_json(ROUND / 'preregistration.json')
         self.assertEqual(reg['corpus_sha256'], hashlib.sha256((ROUND / 'corpus.json').read_bytes()).hexdigest())
-        self.assertIsNone(reg['candidate_sha'])
-        self.assertFalse((ROUND / 'inputs').exists())
+        self.assertEqual(reg['candidate_sha'], '3e9a42e29be0f0f81efad0ea1ef86d6c18615cba')
+        cells = r.read_json(ROUND / 'index.json')['cells']
+        self.assertEqual([c['case_id'] for c in cells], reg['selected_cases'])
+        self.assertEqual(len(cells), 2)
+        for cell in cells:
+            packet_path = ROUND / cell['input']
+            packet = r.read_json(packet_path)
+            self.assertEqual(r.digest(packet_path.read_bytes()), cell['input_sha256'])
+            self.assertEqual(packet['repo_sha'], reg['candidate_sha'])
+            self.assertEqual((packet['version'], packet['trial']), ('candidate', 1))
+            self.assertFalse({'observations', 'rubric', 'common_metrics', 'required_quality_observations'} & packet.keys())
 
     def test_factually_correct_fragments_cannot_be_quality_pass(self):
         # Expected semantic labels are curated judge calibration, not inferred from markup.

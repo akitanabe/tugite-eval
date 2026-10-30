@@ -1,0 +1,18 @@
+{
+  "cells": [
+    {
+      "case_id": "explain-399-separated",
+      "input": "inputs/explain-399-separated--candidate--1/input.json",
+      "input_sha256": "b964f40b318687253eea861449f624d2b79dbbe5c7c8a3a649ca7bd2da1a0689",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-399-mixed",
+      "input": "inputs/explain-399-mixed--candidate--1/input.json",
+      "input_sha256": "6990661ac349b2a01cfc7febb2c684a84daf3d416a6dcc6f993074a8ea195554",
+      "trial": 1,
+      "version": "candidate"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "common_metrics": {
+    "displayed-flow-readability": "表示された経路そのものから主要順序、必要な呼出し入れ子/同一関数内処理、復帰後の応答/終了への続きが追えること。事実の正しさとは独立。散在する短い断片と散文を読者が再構成する必要がある場合はFail。経路と説明の統合や適切な別layoutは許す。矢印/見出し/wordmatch/全call/長さで機械判定しない。",
+    "execution-faithfulness": "実際の入口から主要コードへの経路・順序・責務境界を追える。基盤を機械除去せず、inline処理を架空serviceに置換しない。意味上のまとめ方と実在の呼出しを区別する。",
+    "grounded-accuracy": "重要な条件・状態・副作用・順序・tx/失敗境界が実装に一致し、根拠へ辿れる。実装外の呼出し・理想責務・設計意図・観測成功を捏造しない。未確認の接続を保持する。",
+    "meaningful-granularity": "理解に必要な情報を適切な粒度で伝え、経路の連続性・重要条件/作用/境界を保つ。全内部呼出しや汎用機構の講義は不要。固定語数/行数/identifier-first-only/導入禁止/基盤省略/Reference文面一致は採点基準にしない。",
+    "semantic-understanding": "目的・主要な意味処理の全体像と、各主要処理の意味/条件/作用が理解できる。識別子一覧だけ、一般論だけ、動作の逐語訳だけでは代替しない。"
+  },
+  "observations": [
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "機能が何をどの順序で実現するかという「処理の流れ」と、実際のクラス・関数の呼び出し順序である「コード実行フロー」の双方を示す。",
+          "sha256": "681196d9fb6553e12983a780d0a426dfe58e40daf87bf50b6015c098c1ef895b"
+        }
+      },
+      "expectation": "目的と主要な意味処理の全体像を示し、その処理を実際の入口・Dispatcher・Controller・主要関数への呼出し経路に対応づける。全体の処理フローと実コード経路の双方が分かれば、説明と経路の一体化や異なる妥当な形式を許す。必要な基盤を名前で削除せず経路の連続性を保つ。prepare/issueとexchange/cart間のcallerによる接続、未提供WebView操作を自動呼出しと捏造しない。全内部呼出しの網羅は求めない。",
+      "id": "overall-and-execution-flow",
+      "requirement_basis": {
+        "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+        "comments_observed": 0,
+        "kind": "replacement-issue",
+        "observed_date": "2026-10-30",
+        "sections": [
+          "目的",
+          "設計原則1–3",
+          "基本出力フォーマット",
+          "受入条件1–3,5"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "データ・状態の変化や外部作用は、その条件と実装箇所に対応づける。",
+          "sha256": "681196d9fb6553e12983a780d0a426dfe58e40daf87bf50b6015c098c1ef895b"
+        }
+      },
+      "expectation": "各主要処理の意味・目的、成立/拒否条件、状態変化・副作用を実コードに対応づける。交換時の検証、code消費/session登録、tx確定後Cookie発行、session認証と対象利用者のcart取得の意味と重要な順序が理解できる。重要な失敗/確定境界を正確に保ち、未確認・推定と事実を区別する。一般DB/Cookie操作の内部講義や全guard/全例外/全SQLの網羅は不要。短さを理由に必要な意味や経路を落とさない。",
+      "id": "meanings-conditions-effects",
+      "requirement_basis": {
+        "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+        "comments_observed": 0,
+        "kind": "replacement-issue",
+        "observed_date": "2026-10-30",
+        "sections": [
+          "設計原則3",
+          "受入条件4,7"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "直接書かれた検証や更新は、その関数内の処理として示す。",
+          "sha256": "681196d9fb6553e12983a780d0a426dfe58e40daf87bf50b6015c098c1ef895b"
+        }
+      },
+      "expectation": "Controller.exchangeの同じ関数内に要求値取得・状態取得/検証・保守・code消費/session登録・Cookie発行が混在している実装を忠実に示す。意味では区切れるが、コード経路ではController内の処理として保持する。存在しないSessionOperation.exchange/Validator/Serviceへの委譲を捏造せず、混在を設計不良や改善提案へ自動変換しない。",
+      "id": "responsibility-faithfulness",
+      "requirement_basis": {
+        "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle.",
+        "comments_observed": 0,
+        "kind": "replacement-issue",
+        "observed_date": "2026-10-30",
+        "sections": [
+          "設計原則2,4",
+          "Reference Output A/B",
+          "受入条件3,6"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "いずれも、表示されたフローだけで主要な実行順序と呼び出し関係を追え、長い本文から経路を再構成する必要のない出力にする。",
+          "sha256": "681196d9fb6553e12983a780d0a426dfe58e40daf87bf50b6015c098c1ef895b"
+        }
+      },
+      "expectation": "表示された主要コード実行フロー自体から、入口から主要節点への実行順・必要な呼出しの入れ子/帰属・同一関数内の処理・呼出しから戻った後のCookie/応答/終了までの続きが一続きに追える。本文中の短い経路断片と散在する散文を読者が組み直さないと経路にならない場合は不合格。分離実装では委譲先と呼出し元への復帰、混在実装では同一Controller関数内の処理としての帰属を表示で保つ。図/入れ子/表/統合説明など適切なlayoutを許し、厳密な見出し・矢印・文面・行数・全内部呼出しは要求しない。事実が正しいことだけでは本項目を満たさない。",
+      "id": "displayed-execution-structure",
+      "requirement_basis": {
+        "kind": "issue399-structural-acceptance-clarification",
+        "provenance": "User format complaint and parent/independent audit retracted round012 PASS: factual path fragments did not provide a visibly traceable execution flow. This prospective criterion closes that blindspot; original judgments remain historical/superseded.",
+        "sections": [
+          "基本出力フォーマット2",
+          "Reference Output A/B",
+          "受入条件2,3,5"
+        ],
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    }
+  ],
+  "required_quality_observations": [
+    "displayed-execution-structure"
+  ]
+}
