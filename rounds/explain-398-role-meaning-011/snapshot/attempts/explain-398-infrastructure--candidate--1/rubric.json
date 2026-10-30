@@ -1,0 +1,47 @@
+{
+  "common_metrics": {
+    "code-grounded-accuracy": "Pass: 処理単位の意味/目的をコードと確認できる接続に根拠づけ、重要な状態/作用/順序/失敗の境界が正しい。機能上の目的と未共有の設計意図を区別する。Fail: 重要な誤り・捏造・意味を変える欠落、意図の断定。全内部操作の列挙は不要だが、Cookieが確定前に発行される等の誤説明を短さのために許さない。静的読解を実行成功としない。",
+    "essential-connections": "Pass: 主要経路の実在する処理単位と機能上のつながりを理解できる。受渡し/戻り値/fields/statusは流れや意味を理解するために不可欠な場合だけ補足する。全節点のpayload/戻り値紹介や独立した制約章を要求しない。出典は必要な範囲で辿れればよい。Fail: 重要接続の欠落/捏造や、何を担うか不明な名称/値の羅列。",
+    "short-implementation-flow": "Pass: 実装識別子を先に、各処理単位の意味・機能上の寄与と流れを短く追える。戻り値/受渡しの動作列挙やコード内部講義で意味を代替せず、網羅的な役割catalogへ広げない。不要な導入/重複要約/操作報告を加えない。固定行数・語数・template・例文一致・抜粋量を尺度にしない。Fail: 意味が伝わらない名称一覧、逐語動作説明、過剰な細部で流れが追えない。"
+  },
+  "observations": [
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "実装の事実、実行観測、解釈、意図、テスト期待値を混同しない。",
+          "sha256": "e25aa2ad61171ccf854ec28e734304ba6e351a7378640d4c144370ad6c0e4a4c"
+        }
+      },
+      "expectation": "app.build、Dispatcher、SessionAuth、transactionが基盤の流れで担う役割を実装に沿って短くつなぐ。配線/振分け、認証の介在と認証された利用者での処理、変更の確定/例外時復元という意味・境界を保つ。request項目や戻り値/ステータスの列挙を既定とせず、理解に必要な接続だけを補足する。基盤名で一律に省略しない。全route/全例外/内部項目の列挙は不要だが、認証適用先や復元対象を誤説明しない。",
+      "id": "essential-flow",
+      "requirement_basis": {
+        "historical_boundary": "New criterion clarification, not retroactive rescoring or acceptance of earlier failed responses.",
+        "kind": "explicit-prospective-user-clarification",
+        "summary": "Explain the code-grounded meaning and functional purpose of processing units within the flow. Return/pass/fields/status details are supplemental only when indispensable to that understanding. Do not invent historical design intent."
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "選んだ主要節点ごとに、実在する関数・クラス・構造体などの識別子を先に置いた短い寄与文を一つ書き、実際の処理順につなぐ。",
+          "sha256": "e25aa2ad61171ccf854ec28e734304ba6e351a7378640d4c144370ad6c0e4a4c"
+        }
+      },
+      "expectation": "実装識別子を先に、その処理単位が流れの中で何を担い、何のためにあるかという意味・役割を短く示す。目的は実コードと接続から説明できる機能上の寄与であり、共有されていない歴史的な設計意図を創作しない。戻り値・項目名・status・次へ渡す値の列挙を各節点の既定説明にせず、役割や流れを理解するために不可欠な場合だけ補足する。動作の逐語説明や役割catalogで代替しない。重要な作用・順序・境界は正確に保つ。固定行数/語数/templateや受理例文の再現を求めない。",
+      "id": "role-meaning-in-flow",
+      "requirement_basis": {
+        "historical_boundary": "New criterion clarification, not retroactive rescoring or acceptance of earlier failed responses.",
+        "kind": "explicit-prospective-user-clarification",
+        "summary": "Explain the code-grounded meaning and functional purpose of processing units within the flow. Return/pass/fields/status details are supplemental only when indispensable to that understanding. Do not invent historical design intent."
+      },
+      "versions": [
+        "candidate"
+      ]
+    }
+  ]
+}

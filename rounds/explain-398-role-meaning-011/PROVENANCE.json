@@ -1,0 +1,13 @@
+{
+  "candidate_sha": "3fc608131926491866503c154e176b67e60a3890",
+  "candidate_tree": "7bd1415cd0cee0ea9a6ecbdecba854b85bb51a77",
+  "requirement_clarification_freeze_commit": "f6fe8bb6b7d3836734fd13e0d014186abdc37285",
+  "fixed_harness_commit": "d59af57f65ae015bbe829f7cc7528604db90078b",
+  "corpus_sha256": "2d19fce1ab015c5cfa8930378f2dd5ef0406a6e5a59416e9dd8af66a740f9f46",
+  "criteria_change": "Explicit latest-user clarification: meaning/functional purpose of processing units within the flow, not returns/plumbing per node. Returns/fields/status/pass details are supplemental only if indispensable. No invented historical design intent.",
+  "preserved": "Neutral case prompts, fixtures, task-response-only reporting, same2 representative cases; important correctness/ordering/boundaries remain.",
+  "attribution_limit": "Criteria were clarified relative to010. Do not retroactively rescore, bless failed responses, or claim a skill-only causal/model effect.",
+  "skill_path": "plugins/codex/skills/explain-this/SKILL.md",
+  "skill_sha256": "e25aa2ad61171ccf854ec28e734304ba6e351a7378640d4c144370ad6c0e4a4c",
+  "not_executed": "No actual LLM runs, output inspection or scoring."
+}

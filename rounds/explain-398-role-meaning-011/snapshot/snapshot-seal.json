@@ -1,0 +1,13 @@
+{
+  "attempts/explain-398-infrastructure--candidate--1/attempt.json": "3c8419f5eab2838605e39e793b999f0f0ae6c1454e2ac768117af556c2d291aa",
+  "attempts/explain-398-infrastructure--candidate--1/input-seal.json": "c1c6867a86f6899af82f289e010ae44f304297b8cba006f05269873293e68cb3",
+  "attempts/explain-398-infrastructure--candidate--1/prompt.txt": "74055967fe3575fd2f78fc32a75474a00c2a3cae92b7dabec08cd62af3c099bd",
+  "attempts/explain-398-infrastructure--candidate--1/rubric.json": "71e52a2b52e5b86f4776424b9742cbb7cc52141011c647d5ef3ab1eec7f0f65c",
+  "attempts/explain-398-session-flow--candidate--1/attempt.json": "36d84ac807417ab1fd8cf042407d87e1cdf3396db11bc05299704e0867bef75d",
+  "attempts/explain-398-session-flow--candidate--1/input-seal.json": "591c4b2a8d80cf290454b83584a10f1fa842875c20dbf81ed74ffbba60875705",
+  "attempts/explain-398-session-flow--candidate--1/prompt.txt": "9454810cc1b3f5c45bc29188af547bba573bf6fe61a57556e214a2c8976cc2c9",
+  "attempts/explain-398-session-flow--candidate--1/rubric.json": "4d34ae093683bab2fb4f38c778fa9200140a43ce445bdd09d8e9a408709e633f",
+  "runner.py": "9703236e2fd9472c67d2860dcf3aca7737ea13527b23d33bfd3417be7ab62f4a",
+  "seal.json": "1eb910b476e42970dc1c2953cf1f2f7f3fbb150944c67b55d69092c23c1520ad",
+  "spec.json": "4bccfa230b95197251c964478fc9dd39ce395976a9998073b5820398b0200a08"
+}

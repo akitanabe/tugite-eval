@@ -1,7 +1,7 @@
 {
-  "state": "criteria-clarification-fixed-awaiting-candidate",
+  "state": "criteria-clarification-connected-two-packets-not-executed",
   "prospective": true,
-  "candidate_sha": null,
+  "candidate_sha": "3fc608131926491866503c154e176b67e60a3890",
   "corpus": "rounds/explain-398-role-meaning-011/corpus.json",
   "corpus_sha256": "2d19fce1ab015c5cfa8930378f2dd5ef0406a6e5a59416e9dd8af66a740f9f46",
   "previous_round": "rounds/explain-398-concise-flow-010",
@@ -18,5 +18,6 @@
     "model": "gpt-6.1-sol",
     "effort": "medium"
   },
-  "scope": "No packet freeze or LLM run until parent provides next candidate. Exactly2 fixed representative fresh tasks per authorized iteration; preserve all attempts; no full suite/version/PR."
+  "scope": "No packet freeze or LLM run until parent provides next candidate. Exactly2 fixed representative fresh tasks per authorized iteration; preserve all attempts; no full suite/version/PR.",
+  "requirement_clarification_freeze_commit": "f6fe8bb6b7d3836734fd13e0d014186abdc37285"
 }
