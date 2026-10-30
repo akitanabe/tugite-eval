@@ -1,0 +1,27 @@
+{
+  "state": "preregistered-awaiting-new-issue399-candidate",
+  "issue": {
+    "kind": "replacement-issue",
+    "url": "https://github.com/akitanabe/tugite/issues/399",
+    "observed_date": "2026-10-30",
+    "comments_observed": 0,
+    "authority": "Issue399 replaces issue398 presentation/granularity rules. No oldcandidate/output is an oracle."
+  },
+  "candidate_sha": null,
+  "old_candidates_allowed": false,
+  "corpus": "cases/explain-399/corpus.json",
+  "corpus_sha256": "cf7203e88c6dc6aa81a893aeadb0f16731d66758273ad8e438dd0bbc2b4e9c86",
+  "selected_cases": [
+    "explain-399-separated",
+    "explain-399-mixed"
+  ],
+  "sample_count": 2,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "source_provenance": "All observations deliberately have basis_pending, not an old398 source quote. Resolve new399 source provenance after fixed SHA is provided, then materialize packets.",
+  "scope": "No packet freeze or LLM evaluation until new399 SHA;2 representative fresh tasks only, preserve all history.",
+  "replacement": "Old398 brevity/identifier-first-only/omit-framework/no-intro rules are not authority. Source issue399 overview + actual execution + meaning/conditions/effects and mixed/separated faithfulness replace them."
+}
