@@ -1,0 +1,77 @@
+{
+  "purpose": "Judge-only structural regression calibration; never transported to evaluated tasks. Not an exact-answer oracle.",
+  "examples": [
+    {
+      "id": "separated-fragments",
+      "case_id": "explain-399-separated",
+      "origin": "synthetic-judge-calibration-not-LLM",
+      "assessment_scope": "exchange route slice only; not a complete case output/overall conformance judgment",
+      "text": "交換requestはDispatcher.dispatch(\"exchange\")からController.exchangeに届く。\n\nController.exchange → SessionOperation.exchangeという委譲がある。\n\n状態取得はMemoryStore.lock_parentとlock_code、検証はSessionOperation.exchange内で行う。期限切れsession削除はpurge_expired、code消費とsession登録はregister。\n\nSessionOperation.exchangeのtransactionが正常終了した後、呼出し元Controller.exchangeがCookies.sessionを呼ぶ。Controllerはstatus204のdictを返し、Dispatcherがそのdictをcallerへ返す。",
+      "factual_claims": [
+        "Dispatcher selects Controller.exchange for the exchange route.",
+        "State/code validation precedes expiry cleanup and code consumption/session registration.",
+        "Normal transaction exit occurs before Cookies.session.",
+        "Controller returns a status204 dictionary and Dispatcher returns it to the caller."
+      ],
+      "expected": {
+        "execution-faithfulness": "pass",
+        "displayed-execution-structure": "fail"
+      },
+      "reason": "The same primary factual path is accurate; display itself requires paragraph reconstruction and does not show the connected path."
+    },
+    {
+      "id": "separated-structured",
+      "case_id": "explain-399-separated",
+      "origin": "synthetic-judge-calibration-not-LLM",
+      "assessment_scope": "exchange route slice only; not a complete case output/overall conformance judgment",
+      "text": "主要な交換経路（store内部helperは省略）:\ncaller: exchange request\n  Dispatcher.dispatch(\"exchange\")\n    Controller.exchange\n      SessionOperation.exchange\n        MemoryStore.transaction: enter\n        MemoryStore.lock_parent / lock_code\n        [SessionOperation.exchange内: 親/code/binding検証]\n        MemoryStore.purge_expired\n        MemoryStore.register: code消費とsession登録\n        MemoryStore.transaction: 正常exitで確定\n      [Controller.exchangeへsession_idが戻る]\n      Cookies.session: 確定後のCookie発行記録\n      [Controller.exchange: status204のdictを返す]\n    [Dispatcher.dispatch: 応答dictをcallerへ返す]\n",
+      "factual_claims": [
+        "Dispatcher selects Controller.exchange for the exchange route.",
+        "State/code validation precedes expiry cleanup and code consumption/session registration.",
+        "Normal transaction exit occurs before Cookies.session.",
+        "Controller returns a status204 dictionary and Dispatcher returns it to the caller."
+      ],
+      "expected": {
+        "execution-faithfulness": "pass",
+        "displayed-execution-structure": "pass"
+      },
+      "reason": "The same primary factual path is accurate; display itself shows ordering, ownership/nesting and continuation to the caller. Different layouts are valid."
+    },
+    {
+      "id": "mixed-fragments",
+      "case_id": "explain-399-mixed",
+      "origin": "synthetic-judge-calibration-not-LLM",
+      "assessment_scope": "exchange route slice only; not a complete case output/overall conformance judgment",
+      "text": "交換の入口はDispatcher.dispatch(\"exchange\")で、Controller.exchangeへ振り分ける。\n\n状態取得にはMemoryStore.lock_parentとlock_codeを使う。検証は同じController.exchange内に直接ある。\n\npurge_expiredで期限切れsessionを除き、registerでcode消費とsession登録を行う。\n\n同じController.exchangeのtransactionが正常終了してからCookies.sessionが呼ばれる。Controllerはstatus204のdictを返し、Dispatcherがcallerへ返す。SessionOperation.exchangeへの委譲はない。",
+      "factual_claims": [
+        "Dispatcher selects Controller.exchange for the exchange route.",
+        "State/code validation precedes expiry cleanup and code consumption/session registration.",
+        "Normal transaction exit occurs before Cookies.session.",
+        "Controller returns a status204 dictionary and Dispatcher returns it to the caller."
+      ],
+      "expected": {
+        "execution-faithfulness": "pass",
+        "displayed-execution-structure": "fail"
+      },
+      "reason": "The same primary factual path is accurate; display itself requires paragraph reconstruction and does not show the connected path."
+    },
+    {
+      "id": "mixed-structured",
+      "case_id": "explain-399-mixed",
+      "origin": "synthetic-judge-calibration-not-LLM",
+      "assessment_scope": "exchange route slice only; not a complete case output/overall conformance judgment",
+      "text": "主要な交換経路（store内部helperは省略）:\n| 順序 | 実行位置 | 呼出し/同一関数内の処理 |\n|---|---|---|\n| 1 | caller | Dispatcher.dispatch(\"exchange\")へ交換request |\n| 2 | Dispatcher.dispatch | Controller.exchangeを呼ぶ |\n| 3 | Controller.exchange | MemoryStore.transactionへenter |\n| 4 | 同じController.exchange | lock_parent/lock_codeで取得、同じ関数内で検証 |\n| 5 | 同じController.exchange | purge_expired、registerでcode消費/session登録 |\n| 6 | 同じController.exchange | transaction正常exitで確定 |\n| 7 | 同じController.exchange | Cookies.sessionを呼ぶ |\n| 8 | Controller.exchange→Dispatcher.dispatch | status204のdictが戻る |\n| 9 | Dispatcher.dispatch→caller | 応答dictを返して終了 |\nSessionOperation.exchangeへの委譲はない。検証もController.exchange内の処理である。\n",
+      "factual_claims": [
+        "Dispatcher selects Controller.exchange for the exchange route.",
+        "State/code validation precedes expiry cleanup and code consumption/session registration.",
+        "Normal transaction exit occurs before Cookies.session.",
+        "Controller returns a status204 dictionary and Dispatcher returns it to the caller."
+      ],
+      "expected": {
+        "execution-faithfulness": "pass",
+        "displayed-execution-structure": "pass"
+      },
+      "reason": "The same primary factual path is accurate; display itself shows ordering, ownership/nesting and continuation to the caller. Different layouts are valid."
+    }
+  ]
+}

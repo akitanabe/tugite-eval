@@ -1,0 +1,21 @@
+{
+  "state": "corrected-structural-criterion-preregistered-awaiting-candidate",
+  "candidate_sha": null,
+  "corpus": "rounds/explain-399-structure-013/corpus.json",
+  "corpus_sha256": "d08addce5ef9d9612b09da7c346d25a3f39264c1b33ce449b58781ddc1196d25",
+  "previous_round": "rounds/explain-399-012",
+  "preserved": "Two fixtures, neutral evaluated prompts, transport/reporting and prior factual criteria unchanged.",
+  "addition": "Positive displayed-execution-structure observation, separate from factual execution-faithfulness. Output-quality PASS requires this observation PASS.",
+  "historical_status": "Parent reports round012 PASS retracted/superseded after user format complaint and independent audit. Original outputs/judgments remain unchanged; do not silently rewrite or treat retraction as a new LLM result.",
+  "sample_count": 2,
+  "trials_per_case": 1,
+  "selected_cases": [
+    "explain-399-separated",
+    "explain-399-mixed"
+  ],
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "scope": "No candidate packet/snapshot/LLM run until final SHA. No extra cases or explanation-only agent."
+}

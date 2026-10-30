@@ -1,0 +1,10 @@
+{
+  "target_round": "rounds/explain-399-012",
+  "original_eval_commit": "319480e945bf472c0067828e8d0f5c5717c66490",
+  "reported_previous_status": "PASS",
+  "current_acceptance_status": "retracted-superseded",
+  "status_source": "Parent reports user format complaint and independent structural audit.",
+  "reason": "Factual accuracy did not establish a visibly traceable major code execution flow.",
+  "preservation": "Original outputs/judgments/inputs remain unchanged wherever held. No old judgment files were supplied to this preparation task; no retrospective rewrite or fabricated result is created.",
+  "replacement_criterion": "Round013 adds displayed-execution-structure separately from execution-faithfulness."
+}
