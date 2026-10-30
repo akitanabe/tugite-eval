@@ -1,0 +1,13 @@
+{
+  "attempts/explain-399-mixed--candidate--1/attempt.json": "9545a8be76700b27f424ed60ecd738c98ecd8bfe73188afb8c4d6e76a25ad010",
+  "attempts/explain-399-mixed--candidate--1/input-seal.json": "9cb4aeed6a3a69ed3a73233223b3a75f9fcb118d61822d3033ae9f4ef0d5302e",
+  "attempts/explain-399-mixed--candidate--1/prompt.txt": "9289abdda4bde5c1a9cf04922b3bd2c56d4395debc59a641385abc3fabefe658",
+  "attempts/explain-399-mixed--candidate--1/rubric.json": "b4c589869d3f523a1881fddd49140b88c394044fa3fedcc804a015b7040472c3",
+  "attempts/explain-399-separated--candidate--1/attempt.json": "2103202ac73edad0b237ba41b72e72f08ad9cafdf254620416ade44c86961331",
+  "attempts/explain-399-separated--candidate--1/input-seal.json": "2ccee31ac8977d3eb9940d6389e5581718ee94ddc04499bcd492a60ac792aef3",
+  "attempts/explain-399-separated--candidate--1/prompt.txt": "9289abdda4bde5c1a9cf04922b3bd2c56d4395debc59a641385abc3fabefe658",
+  "attempts/explain-399-separated--candidate--1/rubric.json": "47f3dad01a25dbf27ff269dd82e6767b89cb278473f622d354a3cc7252136425",
+  "runner.py": "60b5fb73288ff963a806792a9c1e52c64a4d6e518e3edb22887aaa44c1c2bfbd",
+  "seal.json": "cde70d1659811f00db719604d0704ba80c1b87213577aa2931385a61b78930f0",
+  "spec.json": "f4f005c22ec26fd3c301a48f159c1c12b31703b28d531f30dd6b63c695f4c098"
+}

@@ -33,3 +33,5 @@ Round013の校正例と構造gate回帰testは引き続き有効だが、校正s
 新候補SHAは未接続。packet/snapshotのfreezeやLLM実行はしていない。
 候補受領後、同じ2case candidate各1packetのみ作り、親がfresh taskを起動する。
 全履歴・Round013の判断は保持し、追加caseや全suiteへ展開しない。
+
+候補受領後、事前登録commit bd382dd のcorpusを変更せずsource引用のみ解決し、9b289d0…の2packetを固定した。LLM未実行。

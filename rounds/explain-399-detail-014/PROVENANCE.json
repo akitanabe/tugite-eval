@@ -1,0 +1,11 @@
+{
+  "candidate_sha": "9b289d08e5d1e1459e2f30332f934c67beb88ab8",
+  "candidate_tree": "f1a46ca1a8e80b368df84657bac0ebadacc6f8b0",
+  "criteria_preregistration_commit": "bd382ddf5ecb3a553c3aa74c750eaa8f30d002db",
+  "preregistered_corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
+  "resolved_corpus_sha256": "5f50b59dd1229cf427c4f9dfee570ef2d12a86f95119f1d86f9d55fe620418f7",
+  "preserved": "Fixtures, neutral evaluated prompts, response reporting, all observations and required displayed-execution-structure gate unchanged from round013. Historical artifacts and assessments unchanged.",
+  "criterion_change": "Clarify existing meaningful-granularity metric only: complementary prose, no repeated step narration or incidental-detail checklist. Essential conditions/effects and faithful displayed path remain required.",
+  "history": "Round013 assessment and all prior artifacts preserved; this preparation does not read/regrade historical model outputs.",
+  "scope": "Exactly two candidate/trial1 packets. Parent launches fresh tasks; preparation performs static restore/stage only, no LLM runs."
+}

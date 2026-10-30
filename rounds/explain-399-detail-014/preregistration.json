@@ -1,5 +1,5 @@
 {
-  "state": "preregistered-awaiting-candidate-no-packets",
+  "state": "two-candidate-packets-frozen-not-executed",
   "previous_round": "rounds/explain-399-structure-013",
   "corpus": "rounds/explain-399-detail-014/corpus.json",
   "corpus_sha256": "7fccb7be280a6865ae807f36cfd3a029f067decb523feb062f73508c6b3df264",
@@ -20,5 +20,8 @@
     "issue": "https://github.com/akitanabe/tugite/issues/399",
     "summary": "User accepted visible round013 execution flow and requested better detail selection; parent proposed reducing repeated flow narration and peripheral detail, and user authorized continuation. This is prospective clarification, not a regrading of round013."
   },
-  "scope": "No candidate SHA connected, packets/snapshot frozen, or LLM evaluation launched. Wait for reviewed candidate SHA; exactly two fresh tasks belong to parent."
+  "scope": "Exactly two candidate/trial1 packets. Parent launches fresh tasks; preparation performs static restore/stage only, no LLM runs.",
+  "candidate_sha": "9b289d08e5d1e1459e2f30332f934c67beb88ab8",
+  "resolved_corpus": "rounds/explain-399-detail-014/resolved-corpus.json",
+  "resolved_corpus_sha256": "5f50b59dd1229cf427c4f9dfee570ef2d12a86f95119f1d86f9d55fe620418f7"
 }
