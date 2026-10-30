@@ -1,0 +1,18 @@
+{
+  "cells": [
+    {
+      "case_id": "explain-398-session-flow",
+      "input": "inputs/explain-398-session-flow--candidate--1/input.json",
+      "input_sha256": "75a83cd2a3618b86e77a64eb2d398e49d806ad856fad67894525822fd41a6beb",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-398-infrastructure",
+      "input": "inputs/explain-398-infrastructure--candidate--1/input.json",
+      "input_sha256": "79d38476407f2f6725863797d5825f856a90f4ad9b123449fd56b54caa339516",
+      "trial": 1,
+      "version": "candidate"
+    }
+  ]
+}
