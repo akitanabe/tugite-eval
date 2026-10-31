@@ -1,0 +1,46 @@
+{
+  "cells": [
+    {
+      "case_id": "explain-399-infrastructure",
+      "input": "inputs/explain-399-infrastructure--candidate--1/input.json",
+      "input_sha256": "1c5ecd61730d04436f4a894f97b7a13e42483afb25cc93160e0ca6f821c9f99f",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-399-unknown-connection",
+      "input": "inputs/explain-399-unknown-connection--candidate--1/input.json",
+      "input_sha256": "78db9ccdc05aea447ca61fcafee1d8ee6f63fc5daa80ffe0dda08c9d91ee6c67",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-this-normal",
+      "input": "inputs/explain-this-normal--candidate--1/input.json",
+      "input_sha256": "b363e8d9b31ee566dde52650bdbd374bf268bcf4b05c5a12eecd203b0b1bf7a7",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-this-boundary",
+      "input": "inputs/explain-this-boundary--candidate--1/input.json",
+      "input_sha256": "3aa9b91af740e1a66d5d00602bbfd7cd7142d9903e66c4ba87c571a20e89c593",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-this-failure",
+      "input": "inputs/explain-this-failure--candidate--1/input.json",
+      "input_sha256": "c247840383755f05dffe3ed26999cff64183d2301dccde73640a9cfd7a1bc7e2",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-this-ambiguous",
+      "input": "inputs/explain-this-ambiguous--candidate--1/input.json",
+      "input_sha256": "87300dc028a5fc78df751d4ccd909e4c127a2a5ca8fd6ca8843f609dad1ccfcf",
+      "trial": 1,
+      "version": "candidate"
+    }
+  ]
+}

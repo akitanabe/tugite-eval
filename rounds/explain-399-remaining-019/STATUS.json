@@ -1,0 +1,55 @@
+{
+  "state": "prepared-not-executed",
+  "completed_elsewhere_parent_report": {
+    "round": "rounds/explain-399-detail-018",
+    "cases": [
+      "explain-399-separated",
+      "explain-399-mixed"
+    ],
+    "status": "executed per parent, excluded from this round; no local result artifacts supplied/regraded"
+  },
+  "remaining": [
+    {
+      "case_id": "explain-399-infrastructure",
+      "trial": 1,
+      "state": "not-started",
+      "task_id": null,
+      "judgment": null
+    },
+    {
+      "case_id": "explain-399-unknown-connection",
+      "trial": 1,
+      "state": "not-started",
+      "task_id": null,
+      "judgment": null
+    },
+    {
+      "case_id": "explain-this-normal",
+      "trial": 1,
+      "state": "not-started",
+      "task_id": null,
+      "judgment": null
+    },
+    {
+      "case_id": "explain-this-boundary",
+      "trial": 1,
+      "state": "not-started",
+      "task_id": null,
+      "judgment": null
+    },
+    {
+      "case_id": "explain-this-failure",
+      "trial": 1,
+      "state": "not-started",
+      "task_id": null,
+      "judgment": null
+    },
+    {
+      "case_id": "explain-this-ambiguous",
+      "trial": 1,
+      "state": "not-started",
+      "task_id": null,
+      "judgment": null
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+Use $explain-this by reading /workspace/tugite-eval/.local/explain-399-remaining-019-public/round/distributions/candidate/plugins/codex/skills/explain-this/SKILL.md. Resolve its references against that distribution. Available custom agents are installed in .codex/agents. This is a fresh invocation. Work only inside the supplied disposable repository. No remote/network/push authority. Do not install dependencies.
+
+テストのない app.py の weight=5 と6の処理を説明してください。実行・変更は不要です。

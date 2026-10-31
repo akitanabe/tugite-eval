@@ -1,0 +1,53 @@
+{
+  "common_metrics": {
+    "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。",
+    "displayed-flow-readability": "表示された経路そのものから主要順序、必要な呼出し入れ子/同一関数内処理、復帰後の応答/終了への続きが追えること。事実の正しさとは独立。散在する短い断片と散文を読者が再構成する必要がある場合はFail。経路と説明の統合や適切な別layoutは許す。矢印/見出し/wordmatch/全call/長さで機械判定しない。",
+    "execution-faithfulness": "実際の入口から主要コードへの経路・順序・責務境界を追える。基盤を機械除去せず、inline処理を架空serviceに置換しない。意味上のまとめ方と実在の呼出しを区別する。",
+    "grounded-accuracy": "重要な条件・状態・副作用・順序・tx/失敗境界が実装に一致し、根拠へ辿れる。実装外の呼出し・理想責務・設計意図・観測成功を捏造しない。未確認の接続を保持する。",
+    "meaningful-granularity": "理解に必要な情報を適切な粒度で伝え、経路の連続性・重要条件/作用/境界を保つ。全内部呼出しや汎用機構の講義は不要。固定語数/行数/identifier-first-only/導入禁止/基盤省略/Reference文面一致は採点基準にしない。 表示経路が既に伝える手順を散文で逐一再説明せず、補足は意味・重要条件・作用・境界など理解を増す情報に用いる。重要なcode再利用拒否、commit/Cookie境界、認証した利用者への帰属、混在実装の実責務は保持する。周辺field、serialの欠番、主経路に関係しないrouteエラー等の偶発的詳細は出力必須ではなく、省略だけで不正確と判定しない。これは既知の全事実を出力するchecklistではない。",
+    "semantic-understanding": "目的・主要な意味処理の全体像と、各主要処理の意味/条件/作用が理解できる。識別子一覧だけ、一般論だけ、動作の逐語訳だけでは代替しない。"
+  },
+  "observations": [
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "コード上の事実、特定入力・環境で実行した観測、解釈・推定、未確認情報を区別する。一条件の実行を全条件へ一般化しない。",
+          "sha256": "857a6864172aa4413ab79628f6e6dbbbc1193422b1a3ad1a577d7bc1db27dd2f"
+        }
+      },
+      "expectation": "取得不能な外部処理を推測せず、分かる経路と未確認を分ける。",
+      "id": "responsibility",
+      "requirement_basis": {
+        "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31.",
+        "kind": "replacement-issue-and-current-acceptance",
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    },
+    {
+      "basis": {
+        "candidate": {
+          "path": "skills/explain-this/SKILL.md",
+          "quote": "いずれも、表示されたフローだけで主要な実行順序と呼び出し関係を追え、長い本文から経路を再構成する必要のない出力にする。",
+          "sha256": "857a6864172aa4413ab79628f6e6dbbbc1193422b1a3ad1a577d7bc1db27dd2f"
+        }
+      },
+      "expectation": "提供範囲で確認できる主要コード実行フロー自体から、実行順、必要な呼出し/同一関数内処理の帰属、呼出し後の重要な継続と終了・応答が追える。散在する断片を読者が組み直す形式では代替しない。単一関数なら内部の主要分岐を簡潔に表示してよく、架空の層・全call・固定layout/行数を要求しない。未提供依存や未確認接続は表示上も不明として止め、既知の別経路へ確認済みの線で結ばない。情報不足のケースでも既知部分の構造を評価し、未知内部の完全経路を要求しない。",
+      "id": "displayed-execution-structure",
+      "requirement_basis": {
+        "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31.",
+        "kind": "replacement-issue-and-current-acceptance",
+        "url": "https://github.com/akitanabe/tugite/issues/399"
+      },
+      "versions": [
+        "candidate"
+      ]
+    }
+  ],
+  "required_quality_observations": [
+    "displayed-execution-structure"
+  ]
+}

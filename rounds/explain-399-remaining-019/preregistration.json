@@ -1,5 +1,5 @@
 {
-  "state": "preregistered-remaining-coverage-awaiting-packets",
+  "state": "six-candidate-packets-frozen-not-executed",
   "candidate_sha": "4ffee85221ea0ff175be6a3b86a3de1bde9f47bb",
   "candidate_tree": "4955bfb2d7bb786096612bb0d7793051f32b7f43",
   "corpus": "rounds/explain-399-remaining-019/corpus.json",
@@ -26,5 +26,7 @@
     ],
     "status": "executed per parent, excluded from this round; no local result artifacts supplied/regraded"
   },
-  "scope": "Remaining explain-this coverage only; no other skills, baseline comparison, automatic repetitions, version/PR/release. No new LLM execution by preparation worker."
+  "scope": "Exactly six remaining candidate/trial1 packets; parent fresh-task creation required, no model execution/scoring by preparation worker.",
+  "resolved_corpus": "rounds/explain-399-remaining-019/resolved-corpus.json",
+  "resolved_corpus_sha256": "5cd3da4cd3388b5233bdb18849570debe731100bd8d951513f26d0066abf9de4"
 }
