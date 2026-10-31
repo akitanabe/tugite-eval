@@ -1,0 +1,22 @@
+{
+  "state": "preregistered-three-cases-awaiting-candidate-no-packets",
+  "previous_round": "rounds/explain-399-remaining-019",
+  "corpus": "rounds/explain-399-meaning-020/corpus.json",
+  "corpus_sha256": "892f781d95e7f8369be66c715e83acbf042833949939e9ebb0caf40a66c58944",
+  "selected_cases": [
+    "explain-this-normal",
+    "explain-399-unknown-connection",
+    "explain-399-infrastructure"
+  ],
+  "sample_count": 3,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "criterion_change": "Add grounded-processing-meaning as separate mandatory quality observation; existing observations, metrics, structural gate, fixtures, prompts and reporting retained for selected cases. No runner changes.",
+  "candidate_sha": null,
+  "candidate_tree": null,
+  "scope": "Wait for final reviewed source SHA. No executable packets/snapshot or LLM run before candidate. Parent starts three fresh trials only; no all-six repeats.",
+  "history": "Parent reports round019 independent structural/factual PASS followed by user semantic-style dissatisfaction. Preserve original judgments/results. Prospective semantic comparison is a new assessment, not rewritten original PASS."
+}

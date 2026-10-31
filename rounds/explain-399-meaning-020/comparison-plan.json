@@ -1,0 +1,43 @@
+{
+  "state": "awaiting-final-candidate-and-parent-held-actual-responses",
+  "predecessor_round": "rounds/explain-399-remaining-019",
+  "predecessor_candidate_sha": "4ffee85221ea0ff175be6a3b86a3de1bde9f47bb",
+  "candidate_sha": null,
+  "original_judgment_policy": "Keep original019 PASS records unchanged. Prospective semantic reading/comparison goes into a separate assessment. Parent-reported structural/factual PASS is provenance, not a reconstructed local judgment.",
+  "cases": [
+    {
+      "case_id": "explain-this-normal",
+      "predecessor_response_artifact": null,
+      "predecessor_response_sha256": null,
+      "candidate_response_artifact": null,
+      "candidate_response_sha256": null,
+      "structure_assessment": null,
+      "factual_assessment": null,
+      "grounded_processing_meaning_assessment": null,
+      "comparison": null
+    },
+    {
+      "case_id": "explain-399-unknown-connection",
+      "predecessor_response_artifact": null,
+      "predecessor_response_sha256": null,
+      "candidate_response_artifact": null,
+      "candidate_response_sha256": null,
+      "structure_assessment": null,
+      "factual_assessment": null,
+      "grounded_processing_meaning_assessment": null,
+      "comparison": null
+    },
+    {
+      "case_id": "explain-399-infrastructure",
+      "predecessor_response_artifact": null,
+      "predecessor_response_sha256": null,
+      "candidate_response_artifact": null,
+      "candidate_response_sha256": null,
+      "structure_assessment": null,
+      "factual_assessment": null,
+      "grounded_processing_meaning_assessment": null,
+      "comparison": null
+    }
+  ],
+  "limits": "No old/new responses supplied here. Do not fill missing artifacts with synthetic answers or report completed comparison."
+}
