@@ -1,5 +1,5 @@
 {
-  "state": "preregistered-audience-only-experiment-before-packets",
+  "state": "three-audience-only-packets-frozen-not-executed",
   "previous_round": "rounds/explain-399-meaning-021",
   "corpus": "rounds/explain-399-audience-022/corpus.json",
   "corpus_sha256": "0e4cb5ce69e659253870c0c9e61e4b846cdbb529afd16215345a4c646c61dd32",

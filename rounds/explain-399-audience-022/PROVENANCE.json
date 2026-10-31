@@ -1,0 +1,18 @@
+{
+  "candidate_sha": "3b51aea9116417018ad23366cb4e109e1233adac",
+  "candidate_tree": "fa269b9d06cd43a8cce871c1f187748a1873a78d",
+  "comparison_round": "rounds/explain-399-meaning-021",
+  "experiment_preregistration_commit": "2d92fd21dca90f4eadd704bebb162e3d2d2a5c25",
+  "criterion_change": "None. Exact021 rubric, metrics, both mandatory gates and calibration retained.",
+  "task_prompt_delta": {
+    "separator": "\n",
+    "sentence": "15歳くらいの人に伝わるように説明してください。"
+  },
+  "allowed_input_identity_changes": [
+    "prompt",
+    "round_id",
+    "attempt_id"
+  ],
+  "preserved": "Same source SHA, fixed_versions, distribution, fixture files/working_changes, agent config, requested model/effort, capabilities, reporting and all other task packet fields.",
+  "scope": "Exactly same3 cases trial1; parent starts fresh tasks, no LLM run/scoring by preparation worker."
+}

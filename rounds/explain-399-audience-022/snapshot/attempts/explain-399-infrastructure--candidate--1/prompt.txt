@@ -1,0 +1,4 @@
+Use $explain-this by reading /workspace/tugite-eval/.local/explain-399-audience-022-public/round/distributions/candidate/plugins/codex/skills/explain-this/SKILL.md. Resolve its references against that distribution. Available custom agents are installed in .codex/agents. This is a fresh invocation. Work only inside the supplied disposable repository. No remote/network/push authority. Do not install dependencies.
+
+説明対象は共通基盤そのものです。app.build、Dispatcher、SessionAuth、MemoryStore.transactionがroute選択・呼出し順・request受渡し・例外・状態確定をどうつないでいるか、対応コードと限界を説明してください。実行・変更は不要です。
+15歳くらいの人に伝わるように説明してください。

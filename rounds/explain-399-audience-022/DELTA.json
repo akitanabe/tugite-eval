@@ -1,0 +1,38 @@
+{
+  "comparison_round": "rounds/explain-399-meaning-021",
+  "cases": [
+    {
+      "case_id": "explain-this-normal",
+      "changed_packet_fields": [
+        "attempt_id",
+        "prompt",
+        "round_id"
+      ],
+      "prompt_append": "15歳くらいの人に伝わるように説明してください。",
+      "all_other_packet_fields_identical": true,
+      "rubric_byte_identical": true
+    },
+    {
+      "case_id": "explain-399-unknown-connection",
+      "changed_packet_fields": [
+        "attempt_id",
+        "prompt",
+        "round_id"
+      ],
+      "prompt_append": "15歳くらいの人に伝わるように説明してください。",
+      "all_other_packet_fields_identical": true,
+      "rubric_byte_identical": true
+    },
+    {
+      "case_id": "explain-399-infrastructure",
+      "changed_packet_fields": [
+        "attempt_id",
+        "prompt",
+        "round_id"
+      ],
+      "prompt_append": "15歳くらいの人に伝わるように説明してください。",
+      "all_other_packet_fields_identical": true,
+      "rubric_byte_identical": true
+    }
+  ]
+}

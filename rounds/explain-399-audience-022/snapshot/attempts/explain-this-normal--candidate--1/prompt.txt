@@ -1,0 +1,4 @@
+Use $explain-this by reading /workspace/tugite-eval/.local/explain-399-audience-022-public/round/distributions/candidate/plugins/codex/skills/explain-this/SKILL.md. Resolve its references against that distribution. Available custom agents are installed in .codex/agents. This is a fresh invocation. Work only inside the supplied disposable repository. No remote/network/push authority. Do not install dependencies.
+
+app.py の処理の全体像、分岐、状態と概念・コード位置の対応を説明してください。
+15歳くらいの人に伝わるように説明してください。

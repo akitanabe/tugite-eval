@@ -1,0 +1,43 @@
+{
+  "state": "awaiting-parent-held-round021-and-round022-actual-responses",
+  "predecessor_round": "rounds/explain-399-meaning-021",
+  "predecessor_candidate_sha": "3b51aea9116417018ad23366cb4e109e1233adac",
+  "candidate_sha": "3b51aea9116417018ad23366cb4e109e1233adac",
+  "original_judgment_policy": "Keep all old judgments unchanged. Same-source audience-prompt experiment; current021 criteria unchanged. Record actual response differences separately, not as source/model superiority.",
+  "cases": [
+    {
+      "case_id": "explain-this-normal",
+      "predecessor_response_artifact": null,
+      "predecessor_response_sha256": null,
+      "candidate_response_artifact": null,
+      "candidate_response_sha256": null,
+      "structure_assessment": null,
+      "factual_assessment": null,
+      "grounded_processing_meaning_assessment": null,
+      "comparison": null
+    },
+    {
+      "case_id": "explain-399-unknown-connection",
+      "predecessor_response_artifact": null,
+      "predecessor_response_sha256": null,
+      "candidate_response_artifact": null,
+      "candidate_response_sha256": null,
+      "structure_assessment": null,
+      "factual_assessment": null,
+      "grounded_processing_meaning_assessment": null,
+      "comparison": null
+    },
+    {
+      "case_id": "explain-399-infrastructure",
+      "predecessor_response_artifact": null,
+      "predecessor_response_sha256": null,
+      "candidate_response_artifact": null,
+      "candidate_response_sha256": null,
+      "structure_assessment": null,
+      "factual_assessment": null,
+      "grounded_processing_meaning_assessment": null,
+      "comparison": null
+    }
+  ],
+  "limits": "No old/new responses supplied here. Do not fill missing artifacts with synthetic answers or report completed comparison."
+}
