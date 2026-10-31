@@ -1,0 +1,30 @@
+{
+  "state": "preregistered-remaining-coverage-awaiting-packets",
+  "candidate_sha": "4ffee85221ea0ff175be6a3b86a3de1bde9f47bb",
+  "candidate_tree": "4955bfb2d7bb786096612bb0d7793051f32b7f43",
+  "corpus": "rounds/explain-399-remaining-019/corpus.json",
+  "corpus_sha256": "6f4430e695652f2f70261a5e4d8c64bafb06cb9f7aeb933318a7fc26a3813d3a",
+  "selected_cases": [
+    "explain-399-infrastructure",
+    "explain-399-unknown-connection",
+    "explain-this-normal",
+    "explain-this-boundary",
+    "explain-this-failure",
+    "explain-this-ambiguous"
+  ],
+  "sample_count": 6,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "already_completed_parent_report": {
+    "round": "rounds/explain-399-detail-018",
+    "cases": [
+      "explain-399-separated",
+      "explain-399-mixed"
+    ],
+    "status": "executed per parent, excluded from this round; no local result artifacts supplied/regraded"
+  },
+  "scope": "Remaining explain-this coverage only; no other skills, baseline comparison, automatic repetitions, version/PR/release. No new LLM execution by preparation worker."
+}
