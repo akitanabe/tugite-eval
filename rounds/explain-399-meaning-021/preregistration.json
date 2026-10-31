@@ -1,0 +1,23 @@
+{
+  "state": "preregistered-three-fixed-cases-awaiting-candidate-no-packets",
+  "previous_round": "rounds/explain-399-meaning-020",
+  "corpus": "rounds/explain-399-meaning-021/corpus.json",
+  "corpus_sha256": "892f781d95e7f8369be66c715e83acbf042833949939e9ebb0caf40a66c58944",
+  "selected_cases": [
+    "explain-this-normal",
+    "explain-399-unknown-connection",
+    "explain-399-infrastructure"
+  ],
+  "sample_count": 3,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "criterion_change": "None. Round020 corpus and judge-only calibration byte-identical, including both mandatory structure and grounded-processing-meaning gates.",
+  "candidate_sha": null,
+  "candidate_tree": null,
+  "scope": "Exactly same three fresh candidate/trial1 cases after final SHA. No packets/snapshot or LLM run before candidate. Parent starts trials; no all-six expansion.",
+  "history": "Parent reports round020: structure/facts all PASS; meaning normal PASS/improved, unknown-connection FAIL, infrastructure PASS/little improvement. Preserve original artifacts/judgments; this is parent-reported provenance only, not local regrading.",
+  "calibration_sha256": "910ff391c9c36918feb90ee3177fb09d9853fab5e0a95b22a3cfeb8246b9f45f"
+}
