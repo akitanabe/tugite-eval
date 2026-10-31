@@ -1,0 +1,266 @@
+{
+  "schema": 1,
+  "fixtures": {
+    "webview": {
+      ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+      "README.md": "# Synthetic WebView-like session\n\nTeaching code only; Python standard library, no database, SDK, API or network. Inspect statically.\n`app.build()` wires the supplied paths. `SessionOperation.prepare(binding, now)` returns a challenge id;\n`issue(challenge, user, now)` returns a code. A caller supplies these and the binding cookie to the exchange route,\nthen supplies the issued session cookie to the cart route. The real app/WebView transport and binding-cookie\ninstallation are not provided. No security adequacy or production concurrency guarantee is claimed.\n`lock_*` are lookups in this single-threaded memory model, not real locks. Normal transaction context exit\ncommits; an exception rolls back parent/code/session maps. The id counter is deliberately outside rollback.\nRequests are dictionaries with `now` and `cookies`; exchange also has `parent` and `code`. Use well-shaped\nrequests when explaining the main path. Unexpected exceptions and missing route keys propagate.\n",
+      "app.py": "from operation import SessionOperation\nfrom store import MemoryStore\nfrom web import Controller, Cookies, Dispatcher, SessionAuth\n\n\ndef build():\n    store, cookies = MemoryStore(), Cookies()\n    operation = SessionOperation(store)\n    controller = Controller(operation, store, cookies)\n    auth = SessionAuth(store)\n    dispatcher = Dispatcher({\n        \"exchange\": controller.exchange,\n        \"cart\": lambda request: auth.call(request, controller.cart),\n    })\n    return store, cookies, operation, dispatcher\n",
+      "operation.py": "from store import Rejected\n\n\nclass SessionOperation:\n    def __init__(self, store):\n        self.store = store\n\n    def prepare(self, binding, now):\n        parent_id = self.store.fresh(\"challenge\")\n        self.store.parents[parent_id] = {\n            \"binding\": binding, \"expires\": now + 30, \"refresh_active\": True\n        }\n        return parent_id\n\n    def issue(self, parent_id, user_id, now):\n        parent = self.store.lock_parent(parent_id)\n        if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n            raise Rejected(\"inactive challenge\")\n        code = self.store.fresh(\"code\")\n        self.store.codes[code] = {\"parent\": parent_id, \"user\": user_id, \"used\": False}\n        return code\n\n    def exchange(self, parent_id, code, binding, now):\n        with self.store.transaction():\n            parent = self.store.lock_parent(parent_id)\n            item = self.store.lock_code(code)\n            if not parent or parent[\"expires\"] <= now or not parent[\"refresh_active\"]:\n                raise Rejected(\"inactive challenge\")\n            if not item or item[\"parent\"] != parent_id or item[\"used\"]:\n                raise Rejected(\"invalid code\")\n            if parent[\"binding\"] != binding:\n                raise Rejected(\"binding mismatch\")\n            self.store.purge_expired(now)\n            session_id = self.store.register(code, item[\"user\"], now)\n        return session_id\n",
+      "store.py": "from contextlib import contextmanager\nfrom copy import deepcopy\n\n\nclass Rejected(Exception):\n    pass\n\n\nclass MemoryStore:\n    \"\"\"Single-threaded teaching store; no database or external calls.\"\"\"\n    def __init__(self):\n        self.parents = {}\n        self.codes = {}\n        self.sessions = {}\n        self.carts = {}\n        self.serial = 0\n        self.fail_commit = False\n\n    def fresh(self, prefix):\n        self.serial += 1\n        return f\"{prefix}-{self.serial}\"\n\n    @contextmanager\n    def transaction(self):\n        before = deepcopy((self.parents, self.codes, self.sessions))\n        try:\n            yield self\n            if self.fail_commit:\n                raise RuntimeError(\"commit failed\")\n        except Exception:\n            self.parents, self.codes, self.sessions = before\n            raise\n        # Normal context exit is the commit boundary in this synthetic store.\n\n    def lock_parent(self, parent_id):\n        return self.parents.get(parent_id)\n\n    def lock_code(self, code):\n        return self.codes.get(code)\n\n    def register(self, code, user_id, now):\n        self.codes[code][\"used\"] = True\n        session_id = self.fresh(\"session\")\n        self.sessions[session_id] = {\"user\": user_id, \"expires\": now + 60}\n        return session_id\n\n    def purge_expired(self, now):\n        for key in list(self.sessions):\n            if self.sessions[key][\"expires\"] <= now:\n                del self.sessions[key]\n",
+      "web.py": "from store import Rejected\n\n\nclass Cookies:\n    def __init__(self):\n        self.issued = []\n        self.fail = False\n\n    def session(self, session_id):\n        if self.fail:\n            raise RuntimeError(\"cookie failed\")\n        self.issued.append((\"session\", session_id))\n\n\nclass Controller:\n    def __init__(self, operation, store, cookies):\n        self.operation, self.store, self.cookies = operation, store, cookies\n\n    def exchange(self, request):\n        session_id = self.operation.exchange(\n            request[\"parent\"], request[\"code\"], request[\"cookies\"].get(\"binding\"), request[\"now\"]\n        )\n        self.cookies.session(session_id)\n        return {\"status\": 204}\n\n    def cart(self, request):\n        return {\"status\": 200, \"cart\": self.store.carts.get(request[\"user\"], [])}\n\n\nclass SessionAuth:\n    def __init__(self, store):\n        self.store = store\n\n    def call(self, request, next_handler):\n        session = self.store.sessions.get(request[\"cookies\"].get(\"session\"))\n        if not session or session[\"expires\"] <= request[\"now\"]:\n            raise Rejected(\"unauthenticated\")\n        authenticated = dict(request, user=session[\"user\"])\n        return next_handler(authenticated)\n\n\nclass Dispatcher:\n    def __init__(self, routes):\n        self.routes = routes\n\n    def dispatch(self, name, request):\n        handler = self.routes[name]\n        try:\n            return handler(request)\n        except Rejected as error:\n            return {\"status\": 403, \"reason\": str(error)}\n"
+    },
+    "missing": {
+      ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+      "app.py": "from provider_adapter import exchange_ticket\n\n\ndef exchange(request, cookies):\n    session_id = exchange_ticket(request[\"ticket\"], request[\"cookies\"].get(\"binding\"))\n    cookies.session(session_id)\n    return {\"status\": 204}\n\n\ndef cart(request, repository):\n    return repository.cart_for(request[\"user\"])\n\n\nROUTES = {\"exchange\": exchange, \"cart\": cart}\n",
+      "README.md": "Synthetic incomplete excerpt; provider_adapter and authentication wiring are intentionally not supplied. No network.\n"
+    },
+    "shipping": {
+      ".gitignore": ".agents/\n.codex/\n__pycache__/\n",
+      "requirements.md": "# 配送料\nquote(weight, express=False) は正の整数 weight を受け取る。0 以下は ValueError。通常は weight <= 5 なら 100、5 超なら 200。express=True なら通常額に 50 を加える。外部作用はない。\n",
+      "app.py": "def quote(weight, express=False):\n    if weight <= 0:\n        raise ValueError(\"positive weight required\")\n    base = 100 if weight <= 5 else 200\n    return base + (50 if express else 0)\n",
+      "tests/__init__.py": "",
+      "tests/test_app.py": "import unittest\nfrom app import quote\n\nclass QuoteTest(unittest.TestCase):\n    def test_normal(self):\n        self.assertEqual(quote(3), 100)\n    def test_boundary(self):\n        self.assertEqual(quote(5), 100)\n        self.assertEqual(quote(6), 200)\n    def test_express(self):\n        self.assertEqual(quote(6, True), 250)\n    def test_invalid(self):\n        with self.assertRaises(ValueError):\n            quote(0)\n",
+      "plan.md": "# 承認前の元案\n目的: 配送料 quote の境界と速達加算を利用者に説明する。\n対象: README.md に例を2つ追加する。依存追加、source/test変更、API変更は対象外。\n検証: README の例を requirements.md と静的照合する。実装量・分担の最終採用は Human。\n",
+      "README.md": "# 配送料サンプル\n仕様は requirements.md、実装は app.py、テストは tests/test_app.py。\n検証コマンド: python3 -m unittest discover -v。追加依存はない。\n",
+      "material.txt": "入力→重量検査→通常額の分岐→速達加算→結果。0以下は例外。これ以外の実行順は不明。\n",
+      "unrelated.txt": "Human 所有の無関係なデータ。変更対象外。\n"
+    }
+  },
+  "cases": [
+    {
+      "id": "explain-this-normal",
+      "skill": "explain-this",
+      "category": "normal",
+      "track": "issue399-remaining-regression",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "shipping",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "app.py の処理の全体像、分岐、状態と概念・コード位置の対応を説明してください。\n15歳くらいの人に伝わるように説明してください。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "responsibility",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "重量検査から境界分岐と速達加算をつないで説明し、静的事実・推定・実行観測を区別する。",
+          "requirement_basis": {
+            "kind": "replacement-issue-and-current-acceptance",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31."
+          },
+          "basis_pending": "uncertainty"
+        },
+        {
+          "id": "displayed-execution-structure",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "提供範囲で確認できる主要コード実行フロー自体から、実行順、必要な呼出し/同一関数内処理の帰属、呼出し後の重要な継続と終了・応答が追える。散在する断片を読者が組み直す形式では代替しない。単一関数なら内部の主要分岐を簡潔に表示してよく、架空の層・全call・固定layout/行数を要求しない。未提供依存や未確認接続は表示上も不明として止め、既知の別経路へ確認済みの線で結ばない。情報不足のケースでも既知部分の構造を評価し、未知内部の完全経路を要求しない。",
+          "requirement_basis": {
+            "kind": "replacement-issue-and-current-acceptance",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31."
+          },
+          "basis_pending": "structure"
+        },
+        {
+          "id": "grounded-processing-meaning",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "主要な処理について、何を実現する役割か・その条件/状態変化が機能上どの意味を持つかを、提供根拠に沿って理解できる。図の主要ノードの注釈と本文（ある場合）を合わせて読み、代入・比較・戻り値・呼出しの日本語化を並べただけでは達成としない。概要に目的語を一つ足しただけで主要部分の逐語的説明を相殺しない。識別子・条件式・戻り値は対応付けや重要条件の補助として使用でき、各末端ノードへの意味説明や重複する本文を要求しない。根拠にない歴史的設計意図・業務目的・安全性保証・未提供依存の役割を創作しない。不明部分は限界として残し、既知範囲で説明できる意味を評価する。統合された図/注釈だけでも意味が伝わればよい。語句禁止、特定の言い換え、固定模範文、語数や比率で判定しない。",
+          "requirement_basis": {
+            "kind": "user-authorized-semantic-acceptance-clarification",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "provenance": "After round019 factual/structural PASS, user found processing explanations too literal and authorized revision toward what the processing achieves. New prospective semantic observation is independent from structure/factual correctness. Original PASS records remain unchanged."
+          },
+          "basis_pending": "Resolve final candidate source quote supporting grounded processing meaning after SHA is provided; do not change expectations to fit output."
+        }
+      ],
+      "common_metrics": [
+        "semantic-understanding",
+        "execution-faithfulness",
+        "meaningful-granularity",
+        "grounded-accuracy",
+        "displayed-flow-readability",
+        "authority-and-scope"
+      ],
+      "required_quality_observations": [
+        "displayed-execution-structure",
+        "grounded-processing-meaning"
+      ]
+    },
+    {
+      "id": "explain-399-unknown-connection",
+      "skill": "explain-this",
+      "category": "failure",
+      "track": "issue399-remaining-regression",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "missing",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "この提供範囲のexchangeからCookie認証後のcart取得までを、処理とコードの対応として説明してください。provider_adapterは未提供で、追加配線もありません。ネットワーク実行・変更は許可しません。分かる点から説明してください。\n15歳くらいの人に伝わるように説明してください。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "bounded-knowledge",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "提供コードではexchange_ticketの戻り後にCookie発行、cartでrequest.userをrepository.cart_forへ渡す経路は既知。未提供adapter内の検証・code消費・永続化・tx・失敗作用と、Cookieからrequest.userを得る認証配線は不明として分ける。ROUTESはhandler対応のみで、認証や自動的な一連の接続を証明しない。分かる機能の意味を示しつつ全経路確認済み・実行成功・安全保証としない。",
+          "requirement_basis": {
+            "kind": "replacement-issue-and-current-acceptance",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31."
+          },
+          "basis_pending": "uncertainty"
+        },
+        {
+          "id": "missing-dependency-scope",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "未提供adapterや配線を自動生成せず、API/ネットワーク実行・変更を行わない。部分的な説明を行い、取得不能を一般論や架空実装で補わない。",
+          "requirement_basis": {
+            "kind": "replacement-issue-and-current-acceptance",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31."
+          },
+          "basis_pending": "uncertainty"
+        },
+        {
+          "id": "displayed-execution-structure",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "提供範囲で確認できる主要コード実行フロー自体から、実行順、必要な呼出し/同一関数内処理の帰属、呼出し後の重要な継続と終了・応答が追える。散在する断片を読者が組み直す形式では代替しない。単一関数なら内部の主要分岐を簡潔に表示してよく、架空の層・全call・固定layout/行数を要求しない。未提供依存や未確認接続は表示上も不明として止め、既知の別経路へ確認済みの線で結ばない。情報不足のケースでも既知部分の構造を評価し、未知内部の完全経路を要求しない。",
+          "requirement_basis": {
+            "kind": "replacement-issue-and-current-acceptance",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31."
+          },
+          "basis_pending": "structure"
+        },
+        {
+          "id": "grounded-processing-meaning",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "主要な処理について、何を実現する役割か・その条件/状態変化が機能上どの意味を持つかを、提供根拠に沿って理解できる。図の主要ノードの注釈と本文（ある場合）を合わせて読み、代入・比較・戻り値・呼出しの日本語化を並べただけでは達成としない。概要に目的語を一つ足しただけで主要部分の逐語的説明を相殺しない。識別子・条件式・戻り値は対応付けや重要条件の補助として使用でき、各末端ノードへの意味説明や重複する本文を要求しない。根拠にない歴史的設計意図・業務目的・安全性保証・未提供依存の役割を創作しない。不明部分は限界として残し、既知範囲で説明できる意味を評価する。統合された図/注釈だけでも意味が伝わればよい。語句禁止、特定の言い換え、固定模範文、語数や比率で判定しない。",
+          "requirement_basis": {
+            "kind": "user-authorized-semantic-acceptance-clarification",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "provenance": "After round019 factual/structural PASS, user found processing explanations too literal and authorized revision toward what the processing achieves. New prospective semantic observation is independent from structure/factual correctness. Original PASS records remain unchanged."
+          },
+          "basis_pending": "Resolve final candidate source quote supporting grounded processing meaning after SHA is provided; do not change expectations to fit output."
+        }
+      ],
+      "common_metrics": [
+        "semantic-understanding",
+        "execution-faithfulness",
+        "meaningful-granularity",
+        "grounded-accuracy",
+        "displayed-flow-readability",
+        "authority-and-scope"
+      ],
+      "required_quality_observations": [
+        "displayed-execution-structure",
+        "grounded-processing-meaning"
+      ]
+    },
+    {
+      "id": "explain-399-infrastructure",
+      "skill": "explain-this",
+      "category": "boundary",
+      "track": "issue399-remaining-regression",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "webview",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "説明対象は共通基盤そのものです。app.build、Dispatcher、SessionAuth、MemoryStore.transactionがroute選択・呼出し順・request受渡し・例外・状態確定をどうつないでいるか、対応コードと限界を説明してください。実行・変更は不要です。\n15歳くらいの人に伝わるように説明してください。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "infrastructure-flow-and-meaning",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "app.buildの配線を実コードへ対応づけ、Dispatcherからexchangeとcartへ進む異なる経路、cartだけに介在するSessionAuth、認証sessionの利用者をコピーrequestへ設定してcartに渡す意味を示す。Rejectedの変換とその他例外の伝播、transactionの正常終了時確定/例外時状態復元という対象基盤の役割を重要な接続として保持する。",
+          "requirement_basis": {
+            "kind": "replacement-issue-and-current-acceptance",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31."
+          },
+          "basis_pending": "flow"
+        },
+        {
+          "id": "bounded-infrastructure-guarantees",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "MemoryStoreはsingle-threadedの学習用実装。lock名から実DB排他や並列性・本番安全性を保証しない。transactionのparent/code/session mapsの復元範囲とcommit後の外部作用は区別するが、serial欠番や全fieldの説明は必須ではない。対象が基盤なので必要な基盤ノードを名前で除去せず、汎用機構の網羅講義へ拡張しない。",
+          "requirement_basis": {
+            "kind": "replacement-issue-and-current-acceptance",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31."
+          },
+          "basis_pending": "meaning"
+        },
+        {
+          "id": "displayed-execution-structure",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "提供範囲で確認できる主要コード実行フロー自体から、実行順、必要な呼出し/同一関数内処理の帰属、呼出し後の重要な継続と終了・応答が追える。散在する断片を読者が組み直す形式では代替しない。単一関数なら内部の主要分岐を簡潔に表示してよく、架空の層・全call・固定layout/行数を要求しない。未提供依存や未確認接続は表示上も不明として止め、既知の別経路へ確認済みの線で結ばない。情報不足のケースでも既知部分の構造を評価し、未知内部の完全経路を要求しない。",
+          "requirement_basis": {
+            "kind": "replacement-issue-and-current-acceptance",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "authority": "Issue399 and prospective round013 structural gate plus round014 detail selection retained. Historical issue398 presentation rules are not authority. User authorized remaining regression coverage on 2026-10-31."
+          },
+          "basis_pending": "structure"
+        },
+        {
+          "id": "grounded-processing-meaning",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "主要な処理について、何を実現する役割か・その条件/状態変化が機能上どの意味を持つかを、提供根拠に沿って理解できる。図の主要ノードの注釈と本文（ある場合）を合わせて読み、代入・比較・戻り値・呼出しの日本語化を並べただけでは達成としない。概要に目的語を一つ足しただけで主要部分の逐語的説明を相殺しない。識別子・条件式・戻り値は対応付けや重要条件の補助として使用でき、各末端ノードへの意味説明や重複する本文を要求しない。根拠にない歴史的設計意図・業務目的・安全性保証・未提供依存の役割を創作しない。不明部分は限界として残し、既知範囲で説明できる意味を評価する。統合された図/注釈だけでも意味が伝わればよい。語句禁止、特定の言い換え、固定模範文、語数や比率で判定しない。",
+          "requirement_basis": {
+            "kind": "user-authorized-semantic-acceptance-clarification",
+            "url": "https://github.com/akitanabe/tugite/issues/399",
+            "provenance": "After round019 factual/structural PASS, user found processing explanations too literal and authorized revision toward what the processing achieves. New prospective semantic observation is independent from structure/factual correctness. Original PASS records remain unchanged."
+          },
+          "basis_pending": "Resolve final candidate source quote supporting grounded processing meaning after SHA is provided; do not change expectations to fit output."
+        }
+      ],
+      "common_metrics": [
+        "semantic-understanding",
+        "execution-faithfulness",
+        "meaningful-granularity",
+        "grounded-accuracy",
+        "displayed-flow-readability",
+        "authority-and-scope"
+      ],
+      "required_quality_observations": [
+        "displayed-execution-structure",
+        "grounded-processing-meaning"
+      ]
+    }
+  ],
+  "common_metrics": {
+    "semantic-understanding": "目的・主要な意味処理の全体像と、各主要処理の意味/条件/作用が理解できる。識別子一覧だけ、一般論だけ、動作の逐語訳だけでは代替しない。",
+    "execution-faithfulness": "実際の入口から主要コードへの経路・順序・責務境界を追える。基盤を機械除去せず、inline処理を架空serviceに置換しない。意味上のまとめ方と実在の呼出しを区別する。",
+    "meaningful-granularity": "理解に必要な情報を適切な粒度で伝え、経路の連続性・重要条件/作用/境界を保つ。全内部呼出しや汎用機構の講義は不要。固定語数/行数/identifier-first-only/導入禁止/基盤省略/Reference文面一致は採点基準にしない。 表示経路が既に伝える手順を散文で逐一再説明せず、補足は意味・重要条件・作用・境界など理解を増す情報に用いる。重要なcode再利用拒否、commit/Cookie境界、認証した利用者への帰属、混在実装の実責務は保持する。周辺field、serialの欠番、主経路に関係しないrouteエラー等の偶発的詳細は出力必須ではなく、省略だけで不正確と判定しない。これは既知の全事実を出力するchecklistではない。",
+    "grounded-accuracy": "重要な条件・状態・副作用・順序・tx/失敗境界が実装に一致し、根拠へ辿れる。実装外の呼出し・理想責務・設計意図・観測成功を捏造しない。未確認の接続を保持する。",
+    "displayed-flow-readability": "表示された経路そのものから主要順序、必要な呼出し入れ子/同一関数内処理、復帰後の応答/終了への続きが追えること。事実の正しさとは独立。散在する短い断片と散文を読者が再構成する必要がある場合はFail。経路と説明の統合や適切な別layoutは許す。矢印/見出し/wordmatch/全call/長さで機械判定しない。",
+    "authority-and-scope": "Pass: 明示された対象・変更・実行・保存・外部作用の権限内で処理し、元案と対象外を保持する。Fail: 無権限変更や自動遷移。Indeterminate: 作用の実証が不足。担当や分割数の一つの解を要求しない。"
+  }
+}

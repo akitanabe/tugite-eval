@@ -1,0 +1,47 @@
+{
+  "kind": "judge-only-synthetic-calibration-not-evaluated-input-or-model-result",
+  "scope": "A separate tiny cancellation example, not any of the three trial fixtures. Curated judgments illustrate independent meaning/structure/fact axes; no text parser or exact-answer oracle. Layout/words may vary.",
+  "code": "def cancel(booking):\n    if booking[\"state\"] != \"reserved\":\n        return False\n    booking[\"state\"] = \"cancelled\"\n    return True\n",
+  "examples": [
+    {
+      "id": "literal-operations",
+      "response": "cancel()\n  state != reservedならFalseで終了\n  それ以外はstateにcancelledを代入\n  Trueで終了\n\nstateを比較し、条件に応じてFalseを返します。それ以外はstateを変更しTrueを返します。",
+      "expected": {
+        "grounded-accuracy": "pass",
+        "displayed-execution-structure": "pass",
+        "grounded-processing-meaning": "fail"
+      },
+      "reason": "Order, conditions and mutation are accurate/visible. Main annotations and prose repeat comparisons/assignment/boolean returns; the role of accepting cancellation only for a reserved booking is left for the reader to infer. Renaming state/using a banned-word filter is not the issue."
+    },
+    {
+      "id": "grounded-role-integrated",
+      "response": "cancel()：予約取消の受付\n  予約済み以外 → 取消対象として受け付けず、状態を保持して終了\n  予約済み → 取消済みに変更し、受け付けたことを呼出元へ伝える",
+      "expected": {
+        "grounded-accuracy": "pass",
+        "displayed-execution-structure": "pass",
+        "grounded-processing-meaning": "pass"
+      },
+      "reason": "The integrated path explains what the branch/mutation achieves and its scope, without a duplicate prose section or invented downstream effects. Exact wording is not required."
+    },
+    {
+      "id": "grounded-role-alternative",
+      "response": "cancel()\n  ├ 予約済みでない：変更を行わず不受付の結果\n  └ 予約済み：取消状態へ移し、受付の結果\n\nこの関数は、予約の現在状態に応じて取消を受け付けるかを決める。返却する真偽値はその受付可否に対応する。",
+      "expected": {
+        "grounded-accuracy": "pass",
+        "displayed-execution-structure": "pass",
+        "grounded-processing-meaning": "pass"
+      },
+      "reason": "Alternative valid wording retains boolean-result reference because it connects the interface to cancellation acceptance. Mentioning returns/code vocabulary is allowed; no fixed prose/diagram template is required."
+    },
+    {
+      "id": "invented-purpose",
+      "response": "cancel()\n  予約済み以外 → 状態を変えず終了\n  予約済み → 取消済みに変更して終了\n\nこの取消処理は、法令で義務付けられた自動返金を完了し、予約枠の二重販売を防ぐための設計です。",
+      "expected": {
+        "grounded-accuracy": "fail",
+        "displayed-execution-structure": "pass",
+        "grounded-processing-meaning": "fail"
+      },
+      "reason": "Visible path can be correct while prose invents regulation, refund effects and historical design purpose absent from this code. Semantic-sounding invention does not satisfy grounded meaning."
+    }
+  ]
+}

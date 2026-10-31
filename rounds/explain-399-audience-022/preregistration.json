@@ -1,0 +1,29 @@
+{
+  "state": "preregistered-audience-only-experiment-before-packets",
+  "previous_round": "rounds/explain-399-meaning-021",
+  "corpus": "rounds/explain-399-audience-022/corpus.json",
+  "corpus_sha256": "0e4cb5ce69e659253870c0c9e61e4b846cdbb529afd16215345a4c646c61dd32",
+  "selected_cases": [
+    "explain-this-normal",
+    "explain-399-unknown-connection",
+    "explain-399-infrastructure"
+  ],
+  "sample_count": 3,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "criterion_change": "None. All round021 observations/metrics/gates and judge calibration unchanged.",
+  "candidate_sha": "3b51aea9116417018ad23366cb4e109e1233adac",
+  "candidate_tree": "fa269b9d06cd43a8cce871c1f187748a1873a78d",
+  "scope": "Exactly three candidate/trial1 packets; append only the requested audience sentence to each original task prompt. No additional prompt constraints or source/model changes. Parent starts fresh tasks.",
+  "history": "User requested one trial set with audience approximately15 while retaining the current Skill. Round021 is the same-source comparison reference; no historical outputs/judgments changed.",
+  "calibration_sha256": "910ff391c9c36918feb90ee3177fb09d9853fab5e0a95b22a3cfeb8246b9f45f",
+  "resolved_corpus": "rounds/explain-399-audience-022/resolved-corpus.json",
+  "resolved_corpus_sha256": "86aae03ce2ebb611adbc780dc1a0b63b368a87213383d4104a0300a17fa2e691",
+  "prompt_append": {
+    "separator": "\n",
+    "sentence": "15歳くらいの人に伝わるように説明してください。"
+  }
+}
