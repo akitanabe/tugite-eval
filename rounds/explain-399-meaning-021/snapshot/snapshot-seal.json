@@ -1,0 +1,17 @@
+{
+  "attempts/explain-399-infrastructure--candidate--1/attempt.json": "0299866d0401af5e38ed538493773c241607b8adba56ca66378dadb1a6e0d8e7",
+  "attempts/explain-399-infrastructure--candidate--1/input-seal.json": "c7d77f4e260a05838f0bba293a97b35b6ff1a8c0cce54f8c3b59fbb338ba8fee",
+  "attempts/explain-399-infrastructure--candidate--1/prompt.txt": "e215a3eb1d7aa9ec348d76b0cdae6d22f3d5c3e1bc446fa09926ecbb190ead4d",
+  "attempts/explain-399-infrastructure--candidate--1/rubric.json": "a5f699f6d429a0e468297a19776094bc5343bed2eeb74085472cda0d06c8ff13",
+  "attempts/explain-399-unknown-connection--candidate--1/attempt.json": "06ab34928f981b0fee8ec7b62a63d92510af71fc94b6420ef77feddadaf5bfb8",
+  "attempts/explain-399-unknown-connection--candidate--1/input-seal.json": "a91983292851637b4f9a35203cb5483f96f45590d3920f27e60050309e472e16",
+  "attempts/explain-399-unknown-connection--candidate--1/prompt.txt": "3a66f493906c1210d686d666eeb891fa542997d6abc0592c866897fe7caf355c",
+  "attempts/explain-399-unknown-connection--candidate--1/rubric.json": "3fb2d7643f9c1736b955621e741d24ffbfe7422c1b3eec7a972effc7df89f97f",
+  "attempts/explain-this-normal--candidate--1/attempt.json": "b30cc044c0ee3b6ba2e520ab94e167a106857c8ecefc75c47a66b797ce68aede",
+  "attempts/explain-this-normal--candidate--1/input-seal.json": "b88078a2d05a41f993ee18c3c152b07851ce3b1bf1953cdd312c70d8aedf328f",
+  "attempts/explain-this-normal--candidate--1/prompt.txt": "a8898e56c1ac9d530dc03b1aec3edcf54e533079aad94c37873d098c7dd93d3f",
+  "attempts/explain-this-normal--candidate--1/rubric.json": "e306be0b8ec29e34f5a478484b959fded55b1c36a95e1d831ee405e06e861f77",
+  "runner.py": "60b5fb73288ff963a806792a9c1e52c64a4d6e518e3edb22887aaa44c1c2bfbd",
+  "seal.json": "cf0ff4c65f59fad8c8037207bb874f6156ad07384d74129b12eff043c4311d4c",
+  "spec.json": "61cbbf5739832a6ce13a07bb3928cd452165c758a8b7e2c5489e58585ea9bae2"
+}

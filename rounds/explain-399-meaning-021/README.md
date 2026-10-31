@@ -16,3 +16,5 @@ infrastructure PASSだが改善小。この報告は履歴のprovenanceで、準
 
 モデル要求gpt-6.1-sol / medium、各1fresh taskを親が起動する。全6件の再実行は行わない。
 Tugite本体・version・PR操作なし。実LLM評価はこの準備で起動しない。
+
+候補受領後、事前登録1e14186のcorpusを変更せず、指定候補で3packetのみfreeze。実応答の生成・比較は親側待ち。

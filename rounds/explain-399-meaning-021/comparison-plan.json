@@ -1,8 +1,8 @@
 {
-  "state": "awaiting-final-candidate-and-parent-held-actual-responses",
+  "state": "awaiting-parent-held-old-and-new-actual-responses",
   "predecessor_round": "rounds/explain-399-meaning-020",
   "predecessor_candidate_sha": "2085c0cfd43d3c65ddeced1e0cca5879b7c3c78a",
-  "candidate_sha": null,
+  "candidate_sha": "3b51aea9116417018ad23366cb4e109e1233adac",
   "original_judgment_policy": "Keep original020 and019 records unchanged. Use the same020 criteria for the next actual-response comparison; no criteria adjustment for failed outputs.",
   "cases": [
     {

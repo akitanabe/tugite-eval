@@ -1,0 +1,25 @@
+{
+  "cells": [
+    {
+      "case_id": "explain-this-normal",
+      "input": "inputs/explain-this-normal--candidate--1/input.json",
+      "input_sha256": "0ae7f0b764f7d27c77ee6b5a0ca3638d36388a7d25d9d91a18b5e19fdaf54498",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-399-unknown-connection",
+      "input": "inputs/explain-399-unknown-connection--candidate--1/input.json",
+      "input_sha256": "0ecb206c6342d4bc4fe23800bfa59908cfb49465991a996b44eae872e6673480",
+      "trial": 1,
+      "version": "candidate"
+    },
+    {
+      "case_id": "explain-399-infrastructure",
+      "input": "inputs/explain-399-infrastructure--candidate--1/input.json",
+      "input_sha256": "45bd6f83310d2f4e1dbc2d8e2b81fd92ebe460b9a3c91e271eafc9afbd65ef5d",
+      "trial": 1,
+      "version": "candidate"
+    }
+  ]
+}

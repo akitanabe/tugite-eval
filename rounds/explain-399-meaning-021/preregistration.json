@@ -1,5 +1,5 @@
 {
-  "state": "preregistered-three-fixed-cases-awaiting-candidate-no-packets",
+  "state": "three-candidate-packets-frozen-not-executed",
   "previous_round": "rounds/explain-399-meaning-020",
   "corpus": "rounds/explain-399-meaning-021/corpus.json",
   "corpus_sha256": "892f781d95e7f8369be66c715e83acbf042833949939e9ebb0caf40a66c58944",
@@ -15,9 +15,11 @@
     "effort": "medium"
   },
   "criterion_change": "None. Round020 corpus and judge-only calibration byte-identical, including both mandatory structure and grounded-processing-meaning gates.",
-  "candidate_sha": null,
-  "candidate_tree": null,
-  "scope": "Exactly same three fresh candidate/trial1 cases after final SHA. No packets/snapshot or LLM run before candidate. Parent starts trials; no all-six expansion.",
+  "candidate_sha": "3b51aea9116417018ad23366cb4e109e1233adac",
+  "candidate_tree": "fa269b9d06cd43a8cce871c1f187748a1873a78d",
+  "scope": "Exactly same three candidate/trial1 packets; no actual LLM runs by preparation worker, parent starts fresh tasks.",
   "history": "Parent reports round020: structure/facts all PASS; meaning normal PASS/improved, unknown-connection FAIL, infrastructure PASS/little improvement. Preserve original artifacts/judgments; this is parent-reported provenance only, not local regrading.",
-  "calibration_sha256": "910ff391c9c36918feb90ee3177fb09d9853fab5e0a95b22a3cfeb8246b9f45f"
+  "calibration_sha256": "910ff391c9c36918feb90ee3177fb09d9853fab5e0a95b22a3cfeb8246b9f45f",
+  "resolved_corpus": "rounds/explain-399-meaning-021/resolved-corpus.json",
+  "resolved_corpus_sha256": "dc624bd450137e650ceb88488331cf64f5e89cab0916308fa7248535e12b9569"
 }

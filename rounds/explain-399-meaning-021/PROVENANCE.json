@@ -1,0 +1,13 @@
+{
+  "candidate_sha": "3b51aea9116417018ad23366cb4e109e1233adac",
+  "candidate_tree": "fa269b9d06cd43a8cce871c1f187748a1873a78d",
+  "criteria_preregistration_commit": "3a3f1b0b77dbf787e5701b627644170175a9dbfd",
+  "preregistered_corpus_sha256": "892f781d95e7f8369be66c715e83acbf042833949939e9ebb0caf40a66c58944",
+  "resolved_corpus_sha256": "dc624bd450137e650ceb88488331cf64f5e89cab0916308fa7248535e12b9569",
+  "preserved": "Round020 full corpus, resolved source quotations and judge calibration byte-identical; same fixtures/prompts/observations/metrics/reporting and both mandatory gates.",
+  "criterion_change": "None. Only candidate/source-file hashes and necessary packet identities change.",
+  "history": "Parent reports round020: structure/facts all PASS; meaning normal PASS/improved, unknown-connection FAIL, infrastructure PASS/little improvement. Preserve original artifacts/judgments; this is parent-reported provenance only, not local regrading.",
+  "calibration": "Judge-only separate synthetic cancellation code, not trial fixture or real model output; curated meaning/fact/structure labels, no automatic language grader.",
+  "scope": "Exactly same three candidate/trial1 packets; no actual LLM runs by preparation worker, parent starts fresh tasks.",
+  "unchanged_round_preregistration_commit": "1e14186b9627afa81ce9fb37c44a565f66adf517"
+}
