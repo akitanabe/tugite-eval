@@ -1,8 +1,8 @@
 {
-  "state": "awaiting-final-candidate-and-parent-held-actual-responses",
+  "state": "awaiting-parent-held-old-and-new-actual-responses",
   "predecessor_round": "rounds/explain-399-remaining-019",
   "predecessor_candidate_sha": "4ffee85221ea0ff175be6a3b86a3de1bde9f47bb",
-  "candidate_sha": null,
+  "candidate_sha": "2085c0cfd43d3c65ddeced1e0cca5879b7c3c78a",
   "original_judgment_policy": "Keep original019 PASS records unchanged. Prospective semantic reading/comparison goes into a separate assessment. Parent-reported structural/factual PASS is provenance, not a reconstructed local judgment.",
   "cases": [
     {

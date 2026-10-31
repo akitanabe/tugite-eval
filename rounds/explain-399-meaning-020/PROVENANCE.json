@@ -1,0 +1,12 @@
+{
+  "candidate_sha": "2085c0cfd43d3c65ddeced1e0cca5879b7c3c78a",
+  "candidate_tree": "8f78e6a3785af53bbaf7443b24a4243ea0a44eea",
+  "criteria_preregistration_commit": "3a3f1b0b77dbf787e5701b627644170175a9dbfd",
+  "preregistered_corpus_sha256": "892f781d95e7f8369be66c715e83acbf042833949939e9ebb0caf40a66c58944",
+  "resolved_corpus_sha256": "dc624bd450137e650ceb88488331cf64f5e89cab0916308fa7248535e12b9569",
+  "preserved": "Selected three round019 fixtures, prompts, overrides, existing observations, common metrics, response_reporting and mandatory structural gate unchanged. No evaluated-prompt changes.",
+  "criterion_change": "Add grounded-processing-meaning as separate mandatory quality observation; existing observations, metrics, structural gate, fixtures, prompts and reporting retained for selected cases. No runner changes.",
+  "history": "019 original PASS/results unchanged. New semantic lens and actual-response comparison are prospective separate assessments. Parent holds old actual responses; none supplied here.",
+  "calibration": "Judge-only separate synthetic cancellation code, not trial fixture or real model output; curated meaning/fact/structure labels, no automatic language grader.",
+  "scope": "Exactly three fresh candidate/trial1 packets; parent starts tasks. No real LLM runs or actual-response comparison by preparation worker."
+}

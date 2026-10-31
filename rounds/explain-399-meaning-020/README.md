@@ -43,3 +43,5 @@ fixture・依頼prompt・override・既存観測・metrics・reportingは019か�
 候補SHA待ち。実行可能input/snapshotをfreezeせず、親が起動する3fresh taskのcase計画までを固定する。
 要求はgpt-6.1-sol / medium。全6件の追加反復はまだ行わない。実LLM起動は親。
 Tugite本体、version、PRへ変更しない。旧historyは保持する。
+
+事前登録commit 3a3f1b0 の基準を保持してsource引用のみ解決し、指定候補の3packetを固定した。実LLM評価・実応答比較は親側待ち。

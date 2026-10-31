@@ -1,5 +1,5 @@
 {
-  "state": "preregistered-three-cases-awaiting-candidate-no-packets",
+  "state": "three-candidate-packets-frozen-not-executed",
   "previous_round": "rounds/explain-399-remaining-019",
   "corpus": "rounds/explain-399-meaning-020/corpus.json",
   "corpus_sha256": "892f781d95e7f8369be66c715e83acbf042833949939e9ebb0caf40a66c58944",
@@ -15,8 +15,10 @@
     "effort": "medium"
   },
   "criterion_change": "Add grounded-processing-meaning as separate mandatory quality observation; existing observations, metrics, structural gate, fixtures, prompts and reporting retained for selected cases. No runner changes.",
-  "candidate_sha": null,
-  "candidate_tree": null,
-  "scope": "Wait for final reviewed source SHA. No executable packets/snapshot or LLM run before candidate. Parent starts three fresh trials only; no all-six repeats.",
-  "history": "Parent reports round019 independent structural/factual PASS followed by user semantic-style dissatisfaction. Preserve original judgments/results. Prospective semantic comparison is a new assessment, not rewritten original PASS."
+  "candidate_sha": "2085c0cfd43d3c65ddeced1e0cca5879b7c3c78a",
+  "candidate_tree": "8f78e6a3785af53bbaf7443b24a4243ea0a44eea",
+  "scope": "Exactly three fresh candidate/trial1 packets; parent starts tasks. No real LLM runs or actual-response comparison by preparation worker.",
+  "history": "Parent reports round019 independent structural/factual PASS followed by user semantic-style dissatisfaction. Preserve original judgments/results. Prospective semantic comparison is a new assessment, not rewritten original PASS.",
+  "resolved_corpus": "rounds/explain-399-meaning-020/resolved-corpus.json",
+  "resolved_corpus_sha256": "dc624bd450137e650ceb88488331cf64f5e89cab0916308fa7248535e12b9569"
 }

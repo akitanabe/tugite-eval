@@ -63,10 +63,21 @@ class MeaningCriterionTest(unittest.TestCase):
 
     def test_no_candidate_packet_or_fabricated_comparison(self):
         reg = r.read_json(ROUND / 'preregistration.json')
-        self.assertIsNone(reg['candidate_sha'])
-        self.assertIsNone(reg['candidate_tree'])
-        self.assertFalse((ROUND / 'inputs').exists())
-        self.assertFalse((ROUND / 'snapshot').exists())
+        if reg['candidate_sha'] is None:
+            self.assertIsNone(reg['candidate_tree'])
+            self.assertFalse((ROUND / 'inputs').exists())
+            self.assertFalse((ROUND / 'snapshot').exists())
+        else:
+            cells = r.read_json(ROUND / 'index.json')['cells']
+            self.assertEqual([c['case_id'] for c in cells], reg['selected_cases'])
+            self.assertEqual(len(cells), 3)
+            for cell in cells:
+                packet_path = ROUND / cell['input']
+                packet = r.read_json(packet_path)
+                self.assertEqual(hashlib.sha256(packet_path.read_bytes()).hexdigest(), cell['input_sha256'])
+                self.assertEqual(packet['repo_sha'], reg['candidate_sha'])
+                self.assertEqual((packet['version'], packet['trial']), ('candidate', 1))
+                self.assertFalse({'observations', 'rubric', 'common_metrics', 'required_quality_observations'} & packet.keys())
         comparison = r.read_json(ROUND / 'comparison-plan.json')
         self.assertEqual([c['case_id'] for c in comparison['cases']], reg['selected_cases'])
         for case in comparison['cases']:
