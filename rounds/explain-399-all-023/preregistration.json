@@ -1,5 +1,5 @@
 {
-  "state": "preregistered-eleven-prepared-inputs-awaiting-packets",
+  "state": "eleven-prepared-packets-not-executed",
   "candidate_sha": "5cc3e4cefe0d8c9a8b746c86f74cde30a9b732f7",
   "candidate_tree": "9bf27e5d683c5d9fd161f029a28849a69fd3ef89",
   "corpus": "rounds/explain-399-all-023/corpus.json",
@@ -85,5 +85,21 @@
     "Apply grounded-processing-meaning to all cases, retain existing structure/fact/effect expectations.",
     "Latest output order and meaning-unit detail observation mandatory. Replace old diagram-only semantic acceptance clause prospectively; exact headings/unit counts not forced."
   ],
-  "history": "Older task completion summaries do not constitute executions of this candidate. Existing rounds/results unchanged. No current real model output read or graded."
+  "history": "Older task completion summaries do not constitute executions of this candidate. Existing rounds/results unchanged. No current real model output read or graded.",
+  "resolved_corpus": "rounds/explain-399-all-023/resolved-corpus.json",
+  "resolved_corpus_sha256": "1d4bded0181dfc4320182b3919e6b8a231069544be62c765fb9b2f4a6492ed08",
+  "current_execution_batch": {
+    "scope": "8canonical cases launched directly by parent; no duplicate sealed trials",
+    "case_ids": [
+      "explain-399-separated",
+      "explain-399-mixed",
+      "explain-399-infrastructure",
+      "explain-399-unknown-connection",
+      "explain-this-normal",
+      "explain-this-boundary",
+      "explain-this-failure",
+      "explain-this-ambiguous"
+    ],
+    "audience_variants": "3prepared historical experiment variants retained but held outside this8case batch"
+  }
 }

@@ -1,0 +1,72 @@
+{
+  "candidate_sha": "5cc3e4cefe0d8c9a8b746c86f74cde30a9b732f7",
+  "candidate_tree": "9bf27e5d683c5d9fd161f029a28849a69fd3ef89",
+  "criteria_preregistration_commit": "a54acc7951340d2f003a67bcb42e4ad99c136756",
+  "preregistered_corpus_sha256": "a5b64469bba08eeba0597f7f0e954badf996284f3bbe24146ca35b876ff59a02",
+  "resolved_corpus_sha256": "1d4bded0181dfc4320182b3919e6b8a231069544be62c765fb9b2f4a6492ed08",
+  "case_sources": {
+    "explain-399-separated": {
+      "corpus": "rounds/explain-399-detail-018/corpus.json",
+      "case_id": "explain-399-separated",
+      "prompt_delta": null
+    },
+    "explain-399-mixed": {
+      "corpus": "rounds/explain-399-detail-018/corpus.json",
+      "case_id": "explain-399-mixed",
+      "prompt_delta": null
+    },
+    "explain-399-infrastructure": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-399-infrastructure",
+      "prompt_delta": null
+    },
+    "explain-399-unknown-connection": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-399-unknown-connection",
+      "prompt_delta": null
+    },
+    "explain-this-normal": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-this-normal",
+      "prompt_delta": null
+    },
+    "explain-this-boundary": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-this-boundary",
+      "prompt_delta": null
+    },
+    "explain-this-failure": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-this-failure",
+      "prompt_delta": null
+    },
+    "explain-this-ambiguous": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-this-ambiguous",
+      "prompt_delta": null
+    },
+    "explain-this-normal-audience-15": {
+      "corpus": "rounds/explain-399-audience-022/corpus.json",
+      "case_id": "explain-this-normal",
+      "prompt_delta": null
+    },
+    "explain-399-unknown-connection-audience-15": {
+      "corpus": "rounds/explain-399-audience-022/corpus.json",
+      "case_id": "explain-399-unknown-connection",
+      "prompt_delta": null
+    },
+    "explain-399-infrastructure-audience-15": {
+      "corpus": "rounds/explain-399-audience-022/corpus.json",
+      "case_id": "explain-399-infrastructure",
+      "prompt_delta": null
+    }
+  },
+  "authority": "Current #399 user requirements supplied2026-11-05 and fixed source. Older candidate outputs are not an oracle. All prepared distinct scenarios, not all historical candidate repetitions.",
+  "criterion_changes": [
+    "Apply grounded-processing-meaning to all cases, retain existing structure/fact/effect expectations.",
+    "Latest output order and meaning-unit detail observation mandatory. Replace old diagram-only semantic acceptance clause prospectively; exact headings/unit counts not forced."
+  ],
+  "limitations": "No fresh-cloud-task creation API exposed. Current actual model runs0. Do not claim explanation-quality verification from static checks or old runs. Parent must launch tasks and independent judging.",
+  "no_model_substitution": true,
+  "history": "All previous rounds/results unchanged. No old response reconstructed or retagged as new-candidate execution."
+}
