@@ -1,0 +1,94 @@
+{
+  "state": "blocked-awaiting-actual-responses",
+  "input_condition_reconciliation": "8expected case requests/fixtures/overrides statically agree with fixed17c18c2c source; actual runtime receipt remains unverified",
+  "quality_reviewed_count": 0,
+  "blocker": {
+    "action": "Independently assess8actual task responses and reconcile runtime conditions",
+    "target": "8thread IDs inDIRECT_TASKS.json",
+    "reason": "No response artifacts in checkout and no thread-read tool exposed. Thread IDs alone do not supply actual completion content.",
+    "status": "pending-actual-response-artifacts-not-denied",
+    "already_completed": "8expected prompt/fixture/override matches at17c18c2c; exact11versus8delta. No current content-quality judgments fabricated."
+  },
+  "review_axes": [
+    "overall explanation then actual code execution reference then detailed semantic units",
+    "meaningful processing units rather than mechanical function/class/node catalog",
+    "grounded processing meaning rather than translation of assignments/calls/returns",
+    "important conditions, effects, transaction/failure boundaries and actual path",
+    "unknown connections/intents remain unknown; no invented guarantees",
+    "redundancy and incidental details do not bury the explanation"
+  ],
+  "cases": [
+    {
+      "case_id": "explain-399-separated",
+      "thread_id": "01a1adc6-f753-73a6-9f70-86c8f2a1a029",
+      "actual_response_path": null,
+      "actual_response_sha256": null,
+      "conditions_verified": false,
+      "quality_result": null,
+      "findings": null
+    },
+    {
+      "case_id": "explain-399-mixed",
+      "thread_id": "01a1adc7-240b-77f1-bedc-d55f42345036",
+      "actual_response_path": null,
+      "actual_response_sha256": null,
+      "conditions_verified": false,
+      "quality_result": null,
+      "findings": null
+    },
+    {
+      "case_id": "explain-399-infrastructure",
+      "thread_id": "01a1adc7-4d9e-708f-93ce-98c783ff602c",
+      "actual_response_path": null,
+      "actual_response_sha256": null,
+      "conditions_verified": false,
+      "quality_result": null,
+      "findings": null
+    },
+    {
+      "case_id": "explain-399-unknown-connection",
+      "thread_id": "01a1adc7-7516-7286-8e0e-b6a874ca5010",
+      "actual_response_path": null,
+      "actual_response_sha256": null,
+      "conditions_verified": false,
+      "quality_result": null,
+      "findings": null
+    },
+    {
+      "case_id": "explain-this-normal",
+      "thread_id": "01a1adc7-9835-740b-866e-d48f823ab03e",
+      "actual_response_path": null,
+      "actual_response_sha256": null,
+      "conditions_verified": false,
+      "quality_result": null,
+      "findings": null
+    },
+    {
+      "case_id": "explain-this-boundary",
+      "thread_id": "01a1adc7-bc68-777e-8f91-ec8d73f9e036",
+      "actual_response_path": null,
+      "actual_response_sha256": null,
+      "conditions_verified": false,
+      "quality_result": null,
+      "findings": null
+    },
+    {
+      "case_id": "explain-this-failure",
+      "thread_id": "01a1adc7-e8c8-77a5-a8d2-33bf9b53302a",
+      "actual_response_path": null,
+      "actual_response_sha256": null,
+      "conditions_verified": false,
+      "quality_result": null,
+      "findings": null
+    },
+    {
+      "case_id": "explain-this-ambiguous",
+      "thread_id": "01a1adc8-137b-71e7-ab2d-88da23778029",
+      "actual_response_path": null,
+      "actual_response_sha256": null,
+      "conditions_verified": false,
+      "quality_result": null,
+      "findings": null
+    }
+  ]
+}

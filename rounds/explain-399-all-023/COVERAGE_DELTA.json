@@ -1,0 +1,40 @@
+{
+  "canonical_cases": 8,
+  "additional_audience_variants": 3,
+  "prepared_packets": 11,
+  "trials_per_case": 1,
+  "additional_repetitions": 0,
+  "variant_pairs": [
+    {
+      "canonical_case": "explain-this-normal",
+      "additional_packet": "explain-this-normal-audience-15",
+      "changed_case_fields": [
+        "id",
+        "prompt"
+      ],
+      "exact_added_sentence": "15歳くらいの人に伝わるように説明してください。",
+      "same_fixture_override_model_source_observations_metrics": true
+    },
+    {
+      "canonical_case": "explain-399-unknown-connection",
+      "additional_packet": "explain-399-unknown-connection-audience-15",
+      "changed_case_fields": [
+        "id",
+        "prompt"
+      ],
+      "exact_added_sentence": "15歳くらいの人に伝わるように説明してください。",
+      "same_fixture_override_model_source_observations_metrics": true
+    },
+    {
+      "canonical_case": "explain-399-infrastructure",
+      "additional_packet": "explain-399-infrastructure-audience-15",
+      "changed_case_fields": [
+        "id",
+        "prompt"
+      ],
+      "exact_added_sentence": "15歳くらいの人に伝わるように説明してください。",
+      "same_fixture_override_model_source_observations_metrics": true
+    }
+  ],
+  "conclusion": "8covers every canonical prepared functional/boundary/missing/intent scenario once. It does not cover the3audience-prompt variants, so it is not execution of all11 prepared inputs. Historical source iterations are not extra scenarios."
+}

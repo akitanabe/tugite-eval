@@ -1,0 +1,192 @@
+{
+  "evidence_kind": "independent-static-input-reconciliation-not-direct-runtime-receipt",
+  "candidate_sha": "5cc3e4cefe0d8c9a8b746c86f74cde30a9b732f7",
+  "checks": [
+    {
+      "case_id": "explain-399-separated",
+      "thread_id": "01a1adc6-f753-73a6-9f70-86c8f2a1a029",
+      "fixed_fixture_repo": "17c18c2cce4f7632c1bd13f4d3be10ec13bcdea9",
+      "original_case_source": {
+        "corpus": "rounds/explain-399-detail-018/corpus.json",
+        "case_id": "explain-399-separated",
+        "prompt_delta": null
+      },
+      "expected_prompt": "この合成WebView風セッション機能を説明してください。実行・変更は不要です。",
+      "expected_working_changes": {},
+      "expected_file_sha256": {
+        ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+        "README.md": "f8ba0f43ea5db9b048668ba09909331baa9450c16d8e56f8b63d27587acc6129",
+        "app.py": "acb62e237e49c3fd4a2337f21783853f2447cc85b235dbe4d6790874df5cbc1d",
+        "operation.py": "65787211444a598577b809a05da6ef8c9f72a30516b8128681e5b466b21e327a",
+        "store.py": "870953b489a7a2b2153539769d18c87579eef0aebb1196833f7e81c117cffbdb",
+        "web.py": "c31b2d50c2a358feed20bc9407b06192ef1f9d292b0a249cc67c57827488dd62"
+      },
+      "prepared_packet_matches_original_case": true,
+      "actual_direct_task_conditions_verified": false
+    },
+    {
+      "case_id": "explain-399-mixed",
+      "thread_id": "01a1adc7-240b-77f1-bedc-d55f42345036",
+      "fixed_fixture_repo": "17c18c2cce4f7632c1bd13f4d3be10ec13bcdea9",
+      "original_case_source": {
+        "corpus": "rounds/explain-399-detail-018/corpus.json",
+        "case_id": "explain-399-mixed",
+        "prompt_delta": null
+      },
+      "expected_prompt": "この合成WebView風セッション機能を説明してください。実行・変更は不要です。",
+      "expected_working_changes": {},
+      "expected_file_sha256": {
+        ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+        "README.md": "052d68a2f9c1b92c655858ef75c985683d274b4e408716412213f09982acf5e4",
+        "app.py": "acb62e237e49c3fd4a2337f21783853f2447cc85b235dbe4d6790874df5cbc1d",
+        "operation.py": "d781866de23f9e0f94ec40c214a53daee4116c94b1aa19145afecb6fcf9c790f",
+        "store.py": "870953b489a7a2b2153539769d18c87579eef0aebb1196833f7e81c117cffbdb",
+        "web.py": "bd341ad1f1f5ebf5d608e17736e43a36fee9d6987c15efcdc99c834ef98af56b"
+      },
+      "prepared_packet_matches_original_case": true,
+      "actual_direct_task_conditions_verified": false
+    },
+    {
+      "case_id": "explain-399-infrastructure",
+      "thread_id": "01a1adc7-4d9e-708f-93ce-98c783ff602c",
+      "fixed_fixture_repo": "17c18c2cce4f7632c1bd13f4d3be10ec13bcdea9",
+      "original_case_source": {
+        "corpus": "rounds/explain-399-remaining-019/corpus.json",
+        "case_id": "explain-399-infrastructure",
+        "prompt_delta": null
+      },
+      "expected_prompt": "説明対象は共通基盤そのものです。app.build、Dispatcher、SessionAuth、MemoryStore.transactionがroute選択・呼出し順・request受渡し・例外・状態確定をどうつないでいるか、対応コードと限界を説明してください。実行・変更は不要です。",
+      "expected_working_changes": {},
+      "expected_file_sha256": {
+        ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+        "README.md": "f8ba0f43ea5db9b048668ba09909331baa9450c16d8e56f8b63d27587acc6129",
+        "app.py": "acb62e237e49c3fd4a2337f21783853f2447cc85b235dbe4d6790874df5cbc1d",
+        "operation.py": "65787211444a598577b809a05da6ef8c9f72a30516b8128681e5b466b21e327a",
+        "store.py": "870953b489a7a2b2153539769d18c87579eef0aebb1196833f7e81c117cffbdb",
+        "web.py": "c31b2d50c2a358feed20bc9407b06192ef1f9d292b0a249cc67c57827488dd62"
+      },
+      "prepared_packet_matches_original_case": true,
+      "actual_direct_task_conditions_verified": false
+    },
+    {
+      "case_id": "explain-399-unknown-connection",
+      "thread_id": "01a1adc7-7516-7286-8e0e-b6a874ca5010",
+      "fixed_fixture_repo": "17c18c2cce4f7632c1bd13f4d3be10ec13bcdea9",
+      "original_case_source": {
+        "corpus": "rounds/explain-399-remaining-019/corpus.json",
+        "case_id": "explain-399-unknown-connection",
+        "prompt_delta": null
+      },
+      "expected_prompt": "この提供範囲のexchangeからCookie認証後のcart取得までを、処理とコードの対応として説明してください。provider_adapterは未提供で、追加配線もありません。ネットワーク実行・変更は許可しません。分かる点から説明してください。",
+      "expected_working_changes": {},
+      "expected_file_sha256": {
+        ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+        "README.md": "770048b10a77eb4fda1f5dc2911e99d0d49b1a3a2b49ddac54b5237004a500b2",
+        "app.py": "5cfc2f1954dad291f7e34af3434bdfee3eadfc7f46def997033fa93b0f6cc360"
+      },
+      "prepared_packet_matches_original_case": true,
+      "actual_direct_task_conditions_verified": false
+    },
+    {
+      "case_id": "explain-this-normal",
+      "thread_id": "01a1adc7-9835-740b-866e-d48f823ab03e",
+      "fixed_fixture_repo": "17c18c2cce4f7632c1bd13f4d3be10ec13bcdea9",
+      "original_case_source": {
+        "corpus": "rounds/explain-399-remaining-019/corpus.json",
+        "case_id": "explain-this-normal",
+        "prompt_delta": null
+      },
+      "expected_prompt": "app.py の処理の全体像、分岐、状態と概念・コード位置の対応を説明してください。",
+      "expected_working_changes": {},
+      "expected_file_sha256": {
+        ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+        "README.md": "68eb84a2ac0e5ffbaacb2401ef7b96650b9a6decc99c5f232cb7b7a58f68a6c8",
+        "app.py": "06815b37212e5c2a0f9b2b9cdf943682e61576d7cb3f1c365d99fe9efb86d666",
+        "material.txt": "c516c435f0cdd1bcd9f27a5ed5c3b39fd1f48b41d961e00563f095741edd65ac",
+        "plan.md": "afe7d1d597e5a93c26522a285990252e9d4c01a54355003bff89fb27873cd2c4",
+        "requirements.md": "844e7091cbfcb8385830890243f5d7c5848ebf92a8975b910b1140e7c2503aa5",
+        "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests/test_app.py": "e8e64ce1867c895e67d2562b458660163e724dd9fcce8b172a793ed4fafeec6a",
+        "unrelated.txt": "918e339f110b004e37668ab84f283788cdb18aa80f09479b9d62e81b89eddd38"
+      },
+      "prepared_packet_matches_original_case": true,
+      "actual_direct_task_conditions_verified": false
+    },
+    {
+      "case_id": "explain-this-boundary",
+      "thread_id": "01a1adc7-bc68-777e-8f91-ec8d73f9e036",
+      "fixed_fixture_repo": "17c18c2cce4f7632c1bd13f4d3be10ec13bcdea9",
+      "original_case_source": {
+        "corpus": "rounds/explain-399-remaining-019/corpus.json",
+        "case_id": "explain-this-boundary",
+        "prompt_delta": null
+      },
+      "expected_prompt": "テストのない app.py の weight=5 と6の処理を説明してください。実行・変更は不要です。",
+      "expected_working_changes": {},
+      "expected_file_sha256": {
+        ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+        "README.md": "68eb84a2ac0e5ffbaacb2401ef7b96650b9a6decc99c5f232cb7b7a58f68a6c8",
+        "app.py": "06815b37212e5c2a0f9b2b9cdf943682e61576d7cb3f1c365d99fe9efb86d666",
+        "material.txt": "c516c435f0cdd1bcd9f27a5ed5c3b39fd1f48b41d961e00563f095741edd65ac",
+        "plan.md": "afe7d1d597e5a93c26522a285990252e9d4c01a54355003bff89fb27873cd2c4",
+        "requirements.md": "844e7091cbfcb8385830890243f5d7c5848ebf92a8975b910b1140e7c2503aa5",
+        "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests/test_app.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "unrelated.txt": "918e339f110b004e37668ab84f283788cdb18aa80f09479b9d62e81b89eddd38"
+      },
+      "prepared_packet_matches_original_case": true,
+      "actual_direct_task_conditions_verified": false
+    },
+    {
+      "case_id": "explain-this-failure",
+      "thread_id": "01a1adc7-e8c8-77a5-a8d2-33bf9b53302a",
+      "fixed_fixture_repo": "17c18c2cce4f7632c1bd13f4d3be10ec13bcdea9",
+      "original_case_source": {
+        "corpus": "rounds/explain-399-remaining-019/corpus.json",
+        "case_id": "explain-this-failure",
+        "prompt_delta": null
+      },
+      "expected_prompt": "app.py を説明してください。import 先の carrier.py は提供されていません。API/ネットワーク実行は許可しません。",
+      "expected_working_changes": {},
+      "expected_file_sha256": {
+        ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+        "README.md": "68eb84a2ac0e5ffbaacb2401ef7b96650b9a6decc99c5f232cb7b7a58f68a6c8",
+        "app.py": "04d3da90a3e967df7e01a26d91ba4951f34d543d4522669e38be07163a550b1b",
+        "material.txt": "c516c435f0cdd1bcd9f27a5ed5c3b39fd1f48b41d961e00563f095741edd65ac",
+        "plan.md": "afe7d1d597e5a93c26522a285990252e9d4c01a54355003bff89fb27873cd2c4",
+        "requirements.md": "844e7091cbfcb8385830890243f5d7c5848ebf92a8975b910b1140e7c2503aa5",
+        "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests/test_app.py": "e8e64ce1867c895e67d2562b458660163e724dd9fcce8b172a793ed4fafeec6a",
+        "unrelated.txt": "918e339f110b004e37668ab84f283788cdb18aa80f09479b9d62e81b89eddd38"
+      },
+      "prepared_packet_matches_original_case": true,
+      "actual_direct_task_conditions_verified": false
+    },
+    {
+      "case_id": "explain-this-ambiguous",
+      "thread_id": "01a1adc8-137b-71e7-ab2d-88da23778029",
+      "fixed_fixture_repo": "17c18c2cce4f7632c1bd13f4d3be10ec13bcdea9",
+      "original_case_source": {
+        "corpus": "rounds/explain-399-remaining-019/corpus.json",
+        "case_id": "explain-this-ambiguous",
+        "prompt_delta": null
+      },
+      "expected_prompt": "app.py が Human の意図どおりかを説明してください。意図は共有されていません。実装から分かる点をまず教えてください。",
+      "expected_working_changes": {},
+      "expected_file_sha256": {
+        ".gitignore": "6d81850bde6185f7625e3eaa6183acfc12f1fd4ad6a4527c328df89fc34369ae",
+        "README.md": "68eb84a2ac0e5ffbaacb2401ef7b96650b9a6decc99c5f232cb7b7a58f68a6c8",
+        "app.py": "06815b37212e5c2a0f9b2b9cdf943682e61576d7cb3f1c365d99fe9efb86d666",
+        "material.txt": "c516c435f0cdd1bcd9f27a5ed5c3b39fd1f48b41d961e00563f095741edd65ac",
+        "plan.md": "afe7d1d597e5a93c26522a285990252e9d4c01a54355003bff89fb27873cd2c4",
+        "requirements.md": "844e7091cbfcb8385830890243f5d7c5848ebf92a8975b910b1140e7c2503aa5",
+        "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests/test_app.py": "e8e64ce1867c895e67d2562b458660163e724dd9fcce8b172a793ed4fafeec6a",
+        "unrelated.txt": "918e339f110b004e37668ab84f283788cdb18aa80f09479b9d62e81b89eddd38"
+      },
+      "prepared_packet_matches_original_case": true,
+      "actual_direct_task_conditions_verified": false
+    }
+  ],
+  "limits": "All8 expected prompts, overrides and file bytes agree with original cases at parent-reported fixture revision. Actual read/runtime/output evidence not supplied; no assertion that direct tasks used prepared packets."
+}

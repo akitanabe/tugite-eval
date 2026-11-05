@@ -6,7 +6,7 @@
     {
       "case_id": "explain-399-separated",
       "thread_id": "01a1adc6-f753-73a6-9f70-86c8f2a1a029",
-      "state": "launched-per-parent-report",
+      "state": "completed-per-parent-report-unreviewed",
       "actual_response": null,
       "response_sha256": null,
       "actual_conditions": null,
@@ -15,7 +15,7 @@
     {
       "case_id": "explain-399-mixed",
       "thread_id": "01a1adc7-240b-77f1-bedc-d55f42345036",
-      "state": "launched-per-parent-report",
+      "state": "completed-per-parent-report-unreviewed",
       "actual_response": null,
       "response_sha256": null,
       "actual_conditions": null,
@@ -24,7 +24,7 @@
     {
       "case_id": "explain-399-infrastructure",
       "thread_id": "01a1adc7-4d9e-708f-93ce-98c783ff602c",
-      "state": "launched-per-parent-report",
+      "state": "completed-per-parent-report-unreviewed",
       "actual_response": null,
       "response_sha256": null,
       "actual_conditions": null,
@@ -33,7 +33,7 @@
     {
       "case_id": "explain-399-unknown-connection",
       "thread_id": "01a1adc7-7516-7286-8e0e-b6a874ca5010",
-      "state": "launched-per-parent-report",
+      "state": "completed-per-parent-report-unreviewed",
       "actual_response": null,
       "response_sha256": null,
       "actual_conditions": null,
@@ -42,7 +42,7 @@
     {
       "case_id": "explain-this-normal",
       "thread_id": "01a1adc7-9835-740b-866e-d48f823ab03e",
-      "state": "launched-per-parent-report",
+      "state": "completed-per-parent-report-unreviewed",
       "actual_response": null,
       "response_sha256": null,
       "actual_conditions": null,
@@ -51,7 +51,7 @@
     {
       "case_id": "explain-this-boundary",
       "thread_id": "01a1adc7-bc68-777e-8f91-ec8d73f9e036",
-      "state": "launched-per-parent-report",
+      "state": "completed-per-parent-report-unreviewed",
       "actual_response": null,
       "response_sha256": null,
       "actual_conditions": null,
@@ -60,7 +60,7 @@
     {
       "case_id": "explain-this-failure",
       "thread_id": "01a1adc7-e8c8-77a5-a8d2-33bf9b53302a",
-      "state": "launched-per-parent-report",
+      "state": "completed-per-parent-report-unreviewed",
       "actual_response": null,
       "response_sha256": null,
       "actual_conditions": null,
@@ -69,7 +69,7 @@
     {
       "case_id": "explain-this-ambiguous",
       "thread_id": "01a1adc8-137b-71e7-ab2d-88da23778029",
-      "state": "launched-per-parent-report",
+      "state": "completed-per-parent-report-unreviewed",
       "actual_response": null,
       "response_sha256": null,
       "actual_conditions": null,
@@ -82,5 +82,6 @@
     "effort": "medium"
   },
   "requested_confirmed_from_task_creation": null,
-  "effective_model": null
+  "effective_model": null,
+  "completion_status": "All8 completed per parent report; completion text/artifacts not supplied here."
 }
