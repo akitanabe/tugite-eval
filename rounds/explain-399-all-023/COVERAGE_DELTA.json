@@ -36,5 +36,8 @@
       "same_fixture_override_model_source_observations_metrics": true
     }
   ],
-  "conclusion": "8covers every canonical prepared functional/boundary/missing/intent scenario once. It does not cover the3audience-prompt variants, so it is not execution of all11 prepared inputs. Historical source iterations are not extra scenarios."
+  "conclusion": "Current normal scope is8canonical cases. The3audience variants are retired, not outstanding evaluation work; no further repetitions required.",
+  "historical_conclusion": "8covers every canonical prepared functional/boundary/missing/intent scenario once. It does not cover the3audience-prompt variants, so it is not execution of all11 prepared inputs. Historical source iterations are not extra scenarios.",
+  "status": "historical-comparison-superseded-by-retirement",
+  "current_normal_case_count": 8
 }

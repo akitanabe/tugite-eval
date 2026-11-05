@@ -1,5 +1,7 @@
 # Tugite behavior evaluation
 
+#399の通常対象は[現行8case](../cases/explain-399/README.md)。入力一覧・固定候補・モデル条件は[current.json](../cases/explain-399/current.json)を参照し、archiveの追加packetを残件として扱わない。以下の#397比較手順はその履歴/別評価の説明。
+
 [Tugite Issue #397](https://github.com/akitanabe/tugite/issues/397) の振る舞い評価を、独立した `akitanabe/tugite-eval` repository で管理する。
 評価対象は配布済み `plugins/codex` 全体。source の静的 lint、契約検査と LLM の振る舞い評価は別の証拠である。
 初回cloud pilotは親から実行成功が報告されたが、pre receiptと完全transcriptがなくreference-onlyである。

@@ -1,3 +1,5 @@
+> **履歴・廃止案内:** 読者指定実験はUser指示で廃止済みです。追加3件は残件ではありません。通常評価は[現行の基本8ケース](../../cases/explain-399/README.md)のみ。固定入力は履歴として保持します。
+
 # Round023 eleven inputs
 
 - `rounds/explain-399-all-023/inputs/explain-399-separated--candidate--1/input.json`

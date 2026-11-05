@@ -1,20 +1,13 @@
-# Round022 — audience-only experiment
+# Round022 — 廃止済みの読者指定実験
 
-Userが現Skillのまま15歳くらいを対象に説明する実験を依頼したため、021と同じ3case各1回を別roundへ固定する。
-候補commit/tree、配布Skill、fixture、モデル要求gpt-6.1-sol / medium、reporting、全観測/metrics/必須gateを変更しない。
+Userはこの指定に効果がなく不要と判断し、evalからも除くことを指示した。
+このroundは実験履歴であり、通常実行の対象ではない。
+現在の通常評価は[基本8ケース](../../cases/explain-399/README.md)と[現行設定](../../cases/explain-399/current.json)を使用する。
 
-各caseの元promptの末尾へ改行と、次の一文だけを追加する:
+履歴上は同じ候補3b51aea9116417018ad23366cb4e109e1233adacのnormal/unknown-connection/infrastructureに、
+「15歳くらいの人に伝わるように説明してください。」という一文だけを加えた比較入力を準備した。
+そのfixture・prompt・corpus・packet・index・quality-protocol・snapshot/sealと比較計画は不変で残す。
+元の実行案内はGit履歴に残るが再実行の指示ではない。RETIREMENT.json参照。
 
-> 15歳くらいの人に伝わるように説明してください。
-
-比喩の指定、コード禁止、初心者の断定、追加の短文化規則、回答例や他の指示を加えない。
-corpusとresolved-corpusの変更は各promptへのこの一文追加だけ。judge-only校正は021とbyte一致。
-新しい「15歳向け」合否基準を作らず、現在の構造/意味/正確性/粒度の基準を維持し、読者指定による表現の変化を観察する。
-
-比較対象は同じ候補の021 normal / unknown-connection / infrastructure。
-親が両roundの同じcaseの実応答を対応づけ、用語・意味の伝達・経路の明瞭さ・重要条件/限界の保持などを同じ基準で読む。
-旧応答が未取得なら比較未完了とし、旧判断を変更したり記憶から応答を再構成しない。
-単回の小標本なので、観測された差を年齢指定の安定した因果効果やモデル優越として断定しない。
-
-親が3fresh trialを起動する。準備workerはLLM起動/採点をしない。
-Tugite本体、version、PRの変更なし。旧round/履歴を保持する。
+追加3件は通常評価の残件・反復条件・不足として扱わず、今後自動的に対象へ復元しない。
+元の結果のPASSへの読み替え、実応答の捏造、他の評価基準の変更は行わない。

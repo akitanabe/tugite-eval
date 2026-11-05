@@ -1,5 +1,7 @@
 # Fresh cloud task adapter
 
+#399のcase選択は[現行8件一覧](../cases/explain-399/inputs.json)のみ。固定入力の参照元がarchiveでも、そのdirectory全件を起動しない。[設定と対象](../cases/explain-399/README.md)を優先する。
+
 出力・成果物の品質比較は [output-quality-v1](../rounds/cloud-normal-002/QUALITY_HANDOFF.md) が標準。
 setup/pre-receipt/runの二段階や完全transcriptは品質経路の必須条件ではない。
 以下の親baseline receipt制約は任意のstrict監査経路に適用する。

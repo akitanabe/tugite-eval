@@ -1,0 +1,33 @@
+{
+  "status": "active-canonical-eight-only",
+  "corpus": "cases/explain-399/current-corpus.json",
+  "corpus_sha256": "2123aa53fe1faf2ffee482cca799e375aaa93b408a8dbd2eb198b99bf030d1ab",
+  "input_index": "cases/explain-399/inputs.json",
+  "input_index_sha256": "ecf9d08780b890b2f9cce537a7abaec9369febaf4dab4cba033460c650cb6b88",
+  "candidate_sha": "5cc3e4cefe0d8c9a8b746c86f74cde30a9b732f7",
+  "candidate_tree": "9bf27e5d683c5d9fd161f029a28849a69fd3ef89",
+  "selected_cases": [
+    "explain-399-separated",
+    "explain-399-mixed",
+    "explain-399-infrastructure",
+    "explain-399-unknown-connection",
+    "explain-this-normal",
+    "explain-this-boundary",
+    "explain-this-failure",
+    "explain-this-ambiguous"
+  ],
+  "sample_count": 8,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "required_quality_observations": [
+    "displayed-execution-structure",
+    "grounded-processing-meaning",
+    "ordered-semantic-detail"
+  ],
+  "reporting": "task-response-only",
+  "prepared_input_policy": "Reuse unchanged canonical8 sealed packets via input_index. Do not enumerate archived round directories or require other historical packets. No new trial is requested by this cleanup.",
+  "history_policy": "Initial case preregistration and retired presentation experiments remain historical, not current execution scope."
+}

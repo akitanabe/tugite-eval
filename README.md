@@ -1,5 +1,7 @@
 # Tugite Eval
 
+#399の通常評価は[基本8ケース](cases/explain-399/README.md)と[現行設定](cases/explain-399/current.json)を使用します。過去roundを全件列挙して対象を増やさないでください。
+
 [Tugite](https://github.com/akitanabe/tugite) の固定版 Skill を評価するコーパスと証拠・独立判定の基盤です。
 32ケース・64版別セルを持ち、継続4 Skillの3版比較と、v7.5.0追加4 Skillの達成評価を分けます。
 

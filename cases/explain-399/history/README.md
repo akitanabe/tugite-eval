@@ -1,0 +1,9 @@
+# Historical #399 preparation records
+
+親directoryの元corpus.jsonとinitial-README.mdは最初の2case事前登録の履歴。元corpusのbytesは変更していない。
+初期round012/013の回帰検査は引き続き元corpusを参照する。現在の通常評価は親directoryの8case corpus/current.json。
+
+Userは読者を15歳くらいとする指定は効果がなく不要と判断し、evalからも除くことを指示した。
+round022の読者指定比較、およびround023内の追加3packetは廃止済み実験で、通常評価の残件ではない。
+固定済みの入力・hash・snapshotは改ざんせず、各roundのRETIREMENT.jsonとARCHIVED案内で区分する。
+元の結果や未取得の実応答を削除/捏造/再採点しない。現在は基本8caseで通常対象が完結する。

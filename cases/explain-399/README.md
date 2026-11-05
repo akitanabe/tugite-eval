@@ -1,42 +1,51 @@
-# #399: semantic flow and actual execution
+# #399 current evaluation — 基本8ケース
 
-正本は [Issue399](https://github.com/akitanabe/tugite/issues/399) 全文（2026-10-30確認、コメント0件）。
-#398を置換した再設計であり、旧roundの結果や一時的な出力方針から評価目的を継承しない。
+通常評価の正本は[current.json](current.json)、[current-corpus.json](current-corpus.json)、[8件の入力一覧](inputs.json)。
+対象候補・モデル要求・fixture・元依頼・override・観測基準は既存基本8ケースから変更していない。
+既に実行した8件をこの整理のために再実行する必要はない。
 
-## 要求と旧基準の置換
+| Case | 内容 |
+|---|---|
+| explain-399-separated | 分離したSession機能の意味と実経路 |
+| explain-399-mixed | 同一Controller内の処理と意味単位の区別 |
+| explain-399-infrastructure | 配線・認証・例外・状態確定の基盤 |
+| explain-399-unknown-connection | 未提供adapterと未確認接続 |
+| explain-this-normal | 配送料の主要処理 |
+| explain-this-boundary | テストなしの境界説明 |
+| explain-this-failure | 欠落した外部依存 |
+| explain-this-ambiguous | 未共有のHuman意図と実装事実の区別 |
 
-- 機能の目的・全体像・主要な意味処理を示す。旧「導入不要」「短い寄与行だけ」は適用しない。
-- 実際の入口・呼出し関係・順序を追えるコード実行フローを示す。意味上の流れとコード経路を取り違えない。
-- 主要処理の意味・条件・分岐・状態変化・副作用をコードへ対応づけ、重要な順序・tx/失敗境界を残す。
-- Dispatcher等の基盤は、必要な経路の連続性を保つために残す。汎用内部機構の講義は不要だが、名前で一律削除しない。
-- 意味上の処理単位と実装上の責務を区別する。inline処理を架空のServiceへ置換せず、混在を自動的に設計問題としない。
-- 全体像→経路と処理の説明を評価する。経路と説明の一体化は許す。固定の見出し・語数・行数・identifier-first-only・Reference文面一致は要求しない。
+全体説明→コード実行経路→意味上の処理単位ごとの詳細という順序を評価する。
+コードとの対応、主要条件・副作用・確定/失敗境界、不明を保持する。機械的な関数/class全件一覧、操作の逐語訳、
+根拠のない意図/保証で代替しない。構造・意味・順序/単位の3必須観測、その他の既存品質基準は不変。
+モデル要求gpt-6.1-sol / medium、通常は各1fresh task。未観測の実効設定はunknownのままにする。
 
-旧#398のbrevity/identifier-first-only/omit-framework、固定の短い役割行、戻り値を一律省略する方針は新基準の根拠ではない。
-必要な意味・条件・効果・接続に応じて情報を選ぶ。実コードから確認できない意図や接続は引き続き捏造しない。
-コード品質判定、refactoring提案、理想的な責務分割、追加の説明agentは求めない。深い内部調査は維持し、調査量を出力量に直結させない。
+## 通常の入力受渡し
 
-## 再利用と2ケース
+inputs.jsonのpathsはrepository root基準。既存8packetとhashをそのまま参照し、親が必要な試行だけを起動する。
+ファイル参照元round023は歴史上11packetを含むarchiveなので、directory全件を列挙せず、この8件一覧だけを使う。
+[cloud手順](../../evals/cloud-tasks.md)のstage→固定Skill→collect --qualityを使い、本文と運用証跡を分ける。
+親による直接実行はsealed harness実行と区別して記録し、実応答から独立判定する。
 
-| Case | Fixture | 評価する差 |
-|---|---|---|
-| explain-399-separated | 既存の合成Session fixtureをbyte保持 | ControllerからOperationへ委譲される交換処理と、認証/状態取得の分離した経路を忠実に示す。 |
-| explain-399-mixed | 同じSessionの最小variant | exchangeの要求取得・検証・状態操作・Cookie発行を同じController関数に置く。意味では区切れても実経路を分割しない。 |
+将来、候補を更新して新たにfreezeするときも現行corpusを明示する（SHAはcurrent.jsonと整合させる）:
 
-mixedではSessionOperation.exchangeを削除し、Controller.exchangeへ処理を直接置いた。他のstore/auth/Dispatcherと意味上の挙動は保持する。
-両方とも学習用memory transactionが明示されている。混在だからtx不在/設計不良とは推論しない。
-実DB lock/並列性は提供しない。WebView搬送とbinding Cookie設定も未提供なので、確認できない橋渡しを創作しない。
+```bash
+python3 evals/prepare_398.py candidate 5cc3e4cefe0d8c9a8b746c86f74cde30a9b732f7 .local/NEW_ROUND --corpus cases/explain-399/current-corpus.json
+```
 
-case promptは同一の中立な機能説明依頼。期待する経路やReference Outputをpromptに埋め込まない。
-fixture READMEは学習用前提であり、模範回答ではない。Issueの注文API例を複写せず、同じ構造的要件を別の合成機能で見る。
+prepare_398.pyは既存transport helperの歴史的名称。defaultの旧corpusは使わない。
+retired実験を通常対象へ自動復元しない。[履歴区分](history/README.md)は現在の実行指示ではない。
 
-輸送は既存の固定SHA→stage→固定Skill→collect --quality、fresh task、独立品質観測を再利用できる。
-`task-response-only`は操作一覧を説明本文へ混ぜない機構上の指定で、全体像や必要な経路/条件を削る指定ではない。
-prepare_398.pyは歴史的な名前のtransport helperとしてのみ再利用する。新corpusを必ず明示し、旧corpus/旧候補を使わない。
+元のcorpus.jsonは初期2caseの凍結済み事前登録資料として不変で残す。現在の実行入口はcurrent.jsonが指すcurrent-corpus.json。
 
-## 事前固定と実行待機
+## 関連チェック
 
-candidate sourceのbasisは意図的に未解決。新#399 SHAが来てから新定義内の根拠引用を確認し、provenanceだけを補う。
-旧#398 source引用を適用根拠として流用しない。期待観測を候補出力へ合わせない。
-新2ケース各1回のみ。親が実LLM taskを起動する。本準備ではpacket/snapshotもLLM評価も作らない。
-旧入力・rubric・結果は保持し、旧失敗を新基準で合格へ読み替えない。公開は合成codeと要件要約のみ。
+```bash
+python3 tests/explain-399-current-test.py
+python3 tests/explain-399-test.py
+python3 tests/explain-399-meaning-test.py
+python3 tests/explain-399-structure-test.py
+```
+
+現行選択の8件固定、既存packet/hash/モデル条件の保持、archiveのseal/index-protocol hash、初期fixtureと既存意味/構造gateを検査する。
+この整理は実LLM試行や過去結果の再採点ではない。

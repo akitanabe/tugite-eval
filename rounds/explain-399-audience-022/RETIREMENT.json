@@ -1,0 +1,13 @@
+{
+  "status": "retired-experiment",
+  "retired_cases": [
+    "explain-this-normal",
+    "explain-399-unknown-connection",
+    "explain-399-infrastructure"
+  ],
+  "reason": "User judged the reader-age instruction ineffective and requested its removal from evaluation. These experiments are not remaining normal-evaluation work.",
+  "current_plan": "cases/explain-399/current.json",
+  "current_input_index": "cases/explain-399/inputs.json",
+  "current_normal_case_count": 8,
+  "history_policy": "Frozen corpus, input packets, index, quality-protocol and snapshot/seals unchanged. Prior judgments/evidence are not rewritten."
+}
