@@ -1,0 +1,89 @@
+{
+  "state": "preregistered-eleven-prepared-inputs-awaiting-packets",
+  "candidate_sha": "5cc3e4cefe0d8c9a8b746c86f74cde30a9b732f7",
+  "candidate_tree": "9bf27e5d683c5d9fd161f029a28849a69fd3ef89",
+  "corpus": "rounds/explain-399-all-023/corpus.json",
+  "corpus_sha256": "a5b64469bba08eeba0597f7f0e954badf996284f3bbe24146ca35b876ff59a02",
+  "selected_cases": [
+    "explain-399-separated",
+    "explain-399-mixed",
+    "explain-399-infrastructure",
+    "explain-399-unknown-connection",
+    "explain-this-normal",
+    "explain-this-boundary",
+    "explain-this-failure",
+    "explain-this-ambiguous",
+    "explain-this-normal-audience-15",
+    "explain-399-unknown-connection-audience-15",
+    "explain-399-infrastructure-audience-15"
+  ],
+  "sample_count": 11,
+  "trials_per_case": 1,
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "case_sources": {
+    "explain-399-separated": {
+      "corpus": "rounds/explain-399-detail-018/corpus.json",
+      "case_id": "explain-399-separated",
+      "prompt_delta": null
+    },
+    "explain-399-mixed": {
+      "corpus": "rounds/explain-399-detail-018/corpus.json",
+      "case_id": "explain-399-mixed",
+      "prompt_delta": null
+    },
+    "explain-399-infrastructure": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-399-infrastructure",
+      "prompt_delta": null
+    },
+    "explain-399-unknown-connection": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-399-unknown-connection",
+      "prompt_delta": null
+    },
+    "explain-this-normal": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-this-normal",
+      "prompt_delta": null
+    },
+    "explain-this-boundary": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-this-boundary",
+      "prompt_delta": null
+    },
+    "explain-this-failure": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-this-failure",
+      "prompt_delta": null
+    },
+    "explain-this-ambiguous": {
+      "corpus": "rounds/explain-399-remaining-019/corpus.json",
+      "case_id": "explain-this-ambiguous",
+      "prompt_delta": null
+    },
+    "explain-this-normal-audience-15": {
+      "corpus": "rounds/explain-399-audience-022/corpus.json",
+      "case_id": "explain-this-normal",
+      "prompt_delta": null
+    },
+    "explain-399-unknown-connection-audience-15": {
+      "corpus": "rounds/explain-399-audience-022/corpus.json",
+      "case_id": "explain-399-unknown-connection",
+      "prompt_delta": null
+    },
+    "explain-399-infrastructure-audience-15": {
+      "corpus": "rounds/explain-399-audience-022/corpus.json",
+      "case_id": "explain-399-infrastructure",
+      "prompt_delta": null
+    }
+  },
+  "scope": "All prepared #399 scenarios once at latest fixed candidate: 8canonical +3audience. Historical candidate repetitions/expired398 presentation experiments and unrelated397 skills excluded, not erased. Parent must create fresh cloud tasks; no nestedCLI retry or model substitution.",
+  "criterion_changes": [
+    "Apply grounded-processing-meaning to all cases, retain existing structure/fact/effect expectations.",
+    "Latest output order and meaning-unit detail observation mandatory. Replace old diagram-only semantic acceptance clause prospectively; exact headings/unit counts not forced."
+  ],
+  "history": "Older task completion summaries do not constitute executions of this candidate. Existing rounds/results unchanged. No current real model output read or graded."
+}
