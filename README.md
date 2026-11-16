@@ -25,3 +25,5 @@ Python 3.12+ / Git / Bashが必要です。固定版は別のTugite repository�
 
 出典と移植前の対応SHAは [PROVENANCE.md](PROVENANCE.md)、利用条件は [MIT License](LICENSE) を参照してください。
 生成round、実行ログ、credential、Tugite本体のGit履歴はこのrepositoryに保存しません。
+
+#403 の追加評価は [walkthrough / code-explain の新規10ケース](cases/walkthrough-403/README.md)。現在は未コミット候補向けの開発段階で、実モデル試行・移送は未実施です。#399 の通常対象は変更しません。

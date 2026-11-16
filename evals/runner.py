@@ -31,6 +31,7 @@ VERSIONS = {
 }
 CONTINUING = {"impl-lead", "test-report", "test-verify", "visualize-that"}
 NEW = {"explain-this", "review-propose", "impl-plan", "impl-review"}
+EXPLICIT_VERSION_SKILLS = {"code-explain", "walkthrough-assist"}
 RESULTS = {"pass", "fail", "indeterminate"}
 
 
@@ -117,7 +118,8 @@ def validate_case(case: dict, distributions: Path, versions: dict | None = None)
     if versions is not None:
         expected_versions = list(versions)
     valid_versions = case["versions"] == expected_versions if versions is None else (bool(case["versions"]) and set(case["versions"]) <= set(expected_versions))
-    if skill not in CONTINUING | NEW or not valid_versions:
+    allowed_skills = CONTINUING | NEW | (EXPLICIT_VERSION_SKILLS if versions is not None else set())
+    if skill not in allowed_skills or not valid_versions:
         raise ValueError(f"invalid track/versions: {case['id']}")
     if case["category"] not in {"normal", "boundary", "failure", "ambiguous"}:
         raise ValueError("invalid category")

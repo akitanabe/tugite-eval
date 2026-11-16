@@ -1,0 +1,678 @@
+{
+  "schema": 1,
+  "fixtures": {
+    "booking": {
+      ".gitignore": "__pycache__/\n.agents/\n.codex/\n",
+      "requirements.md": "# 座席予約の要求\n受付reserve(request)は正整数の席数と一意の予約IDを受け取る。席数が不正、空席不足、ID重複なら状態を変えずValueError。\n成功時は空席を減らして予約を保持し、その後に通知を依頼する。通知失敗でも予約は確定済みであり取り消さず、呼出元へ例外を返す。\ncancel(id)は存在する予約を取り消して空席を戻す。不存在ならFalseを返し状態不変。取り消し済IDの再利用は可能。\ncaption(room)は画面表示用の室名整形。予約成立と取消しが利用者の主要な機能であり、表示整形は補助。\n通知先の内部実装、通信再試行の有無、予約の永続化・並行処理はこの題材の提供範囲外。\n",
+      "booking.py": "class Bookings:\n    def __init__(self, capacity):\n        self.free = capacity\n        self.holds = {}\n\n    def reserve(self, key, seats):\n        if type(seats) is not int or seats <= 0 or seats > self.free:\n            raise ValueError(\"invalid seats\")\n        if key in self.holds:\n            raise ValueError(\"duplicate booking\")\n        self.free -= seats\n        self.holds[key] = seats\n        return {\"id\": key, \"seats\": seats}\n\n    def cancel(self, key):\n        if key not in self.holds:\n            return False\n        self.free += self.holds.pop(key)\n        return True\n\n\ndef caption(room):\n    return \"Room \" + room.strip().upper()\n",
+      "entry.py": "from booking import Bookings\n\n\ndef build(notifier):\n    bookings = Bookings(8)\n\n    def reserve(request):\n        result = bookings.reserve(request[\"id\"], request[\"seats\"])\n        notifier.send(result)\n        return {\"status\": 201, \"booking\": result}\n\n    return bookings, reserve\n",
+      "tests/test_booking.py": "import unittest\nfrom booking import Bookings, caption\n\n\nclass BookingTests(unittest.TestCase):\n    def test_reserve(self):\n        b = Bookings(8)\n        b.reserve(\"a\", 2)\n        self.assertEqual(b.free, 6)\n        self.assertEqual(b.holds, {\"a\": 2})\n\n    def test_cancel(self):\n        b = Bookings(8)\n        b.reserve(\"a\", 2)\n        self.assertTrue(b.cancel(\"a\"))\n\n    def test_caption(self):\n        for room, expected in [(\"a\", \"Room A\"), (\" b\", \"Room B\"),\n                               (\"c \", \"Room C\"), (\" d \", \"Room D\"),\n                               (\"e\", \"Room E\"), (\"f\", \"Room F\")]:\n            with self.subTest(room=room):\n                self.assertEqual(caption(room), expected)\n",
+      "notes/unrelated.md": "別機能の計画。今回の対象外。\n"
+    }
+  },
+  "cases": [
+    {
+      "id": "walkthrough-403-tests-no-report",
+      "skill": "walkthrough-assist",
+      "category": "normal",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "座席予約のテストを対話で確認したい。最初は重要な処理からお願いします。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "create",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "報告がないためtest-reportの静的報告を基礎にする。未実行を実証扱いしない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "適切な成果がない場合は、コードなら `code-explain`、テストなら `test-report` をそのSkillの指示に従って先行実行する。"
+            }
+          }
+        },
+        {
+          "id": "units",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "予約成立と取消しを主要候補とし、6表示例を件数だけで優先しない。適切な他の意味分解も許す。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "コード量・複雑さ・テスト件数を重要度に置き換えない。"
+            }
+          }
+        },
+        {
+          "id": "stop",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "拒否条件の検証不足など対話中に得た指摘と残範囲を途中終了でも保持する。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "Humanが終了したら追加調査や残項目の説明を始めず、到達した理解、修正点・推奨点、未確定事項、未説明・skipした範囲を簡潔に返す。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "create",
+        "units",
+        "stop"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding",
+        "dialogue-agency"
+      ]
+    },
+    {
+      "id": "walkthrough-403-tests-current",
+      "skill": "walkthrough-assist",
+      "category": "normal",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {
+        "report.md": "# テストの静的報告\n対象: booking.py、entry.py、tests/test_booking.py、requirements.md の提示内容。テストは未実行。\n予約: test_reserveは2席予約後の空席6とholdsを確認。取消し: test_cancelは戻り値Trueのみを確認。\n表示: test_captionは室名6種類を確認。通知経路entry.reserveを実行するテストはない。\nR1 修正候補: 取消しの空席復元とholdsからの削除をassertしていない。test_cancelがTrueのみで成功するため、状態更新の退行を見逃す。\nR2 未確定: 通知サービスの再試行・重複配信防止は内部実装がなく判定不能。\n"
+      },
+      "working_changes": {},
+      "prompt": "report.md を使ってテストを対話確認したい。取消しから説明してください。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "reuse",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "一致する報告を再利用して取消しへ進む。全分析のやり直しを必須にしない。内部skillロードの実証は出力だけから断定しない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "既存成果の対象、revision、要求根拠と参照コード・テストを現状と照合する。"
+            }
+          }
+        },
+        {
+          "id": "merge",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "R1と同じ見逃しを一件へ統合し、条件と根拠を保持する。R2は未確定のまま。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "同じ問題は既存IDや出典との対応を保って統合し、異なる条件の指摘を潰さない。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "reuse",
+        "merge"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding",
+        "dialogue-agency"
+      ]
+    },
+    {
+      "id": "walkthrough-403-tests-stale",
+      "skill": "walkthrough-assist",
+      "category": "boundary",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {
+        "report.md": "# テストの静的報告\n対象: booking.py、entry.py、tests/test_booking.py、requirements.md の提示内容。テストは未実行。\n予約: test_reserveは2席予約後の空席6とholdsを確認。取消し: test_cancelは戻り値Trueのみを確認。\n表示: test_captionは室名6種類を確認。通知経路entry.reserveを実行するテストはない。\nR1 修正候補: 取消しの空席復元とholdsからの削除をassertしていない。test_cancelがTrueのみで成功するため、状態更新の退行を見逃す。\nR2 未確定: 通知サービスの再試行・重複配信防止は内部実装がなく判定不能。\n\n古いコードの記録 R3: cancelは空席を戻さないため実装が要求違反。\n"
+      },
+      "working_changes": {},
+      "prompt": "古いreport.mdがある。現状と照合し、取消しについて対話したい。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "reuse",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "現在cancelが空席を戻すことを根拠に、古い不具合判定を置換する。テストの復元assert不足は別の生きた問題として保持。正しい予約・表示説明を維持する。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "既存成果の対象、revision、要求根拠と参照コード・テストを現状と照合する。"
+            }
+          }
+        },
+        {
+          "id": "stop",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "通知の未確認を解消済みとせず終了する。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "Humanが終了したら追加調査や残項目の説明を始めず、到達した理解、修正点・推奨点、未確定事項、未説明・skipした範囲を簡潔に返す。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "reuse",
+        "stop"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding",
+        "dialogue-agency"
+      ]
+    },
+    {
+      "id": "walkthrough-403-human-merge",
+      "skill": "walkthrough-assist",
+      "category": "ambiguous",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {
+        "report.md": "# テストの静的報告\n対象: booking.py、entry.py、tests/test_booking.py、requirements.md の提示内容。テストは未実行。\n予約: test_reserveは2席予約後の空席6とholdsを確認。取消し: test_cancelは戻り値Trueのみを確認。\n表示: test_captionは室名6種類を確認。通知経路entry.reserveを実行するテストはない。\nR1 修正候補: 取消しの空席復元とholdsからの削除をassertしていない。test_cancelがTrueのみで成功するため、状態更新の退行を見逃す。\nR2 未確定: 通知サービスの再試行・重複配信防止は内部実装がなく判定不能。\n"
+      },
+      "working_changes": {},
+      "prompt": "report.mdを使い予約と取消しの検証を相談したい。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "merge",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "R1重複を統合し、重複IDの新指摘を要求とtestに照らして保持する。伝聞と明文化された要求の差を示し、正式変更不明を勝手に採用しない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "同じ問題は既存IDや出典との対応を保って統合し、異なる条件の指摘を潰さない。"
+            }
+          }
+        },
+        {
+          "id": "stop",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "新発見、既存R2、要求の未確定をまとめで落とさない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "Humanが終了したら追加調査や残項目の説明を始めず、到達した理解、修正点・推奨点、未確定事項、未説明・skipした範囲を簡潔に返す。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "merge",
+        "stop"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding",
+        "dialogue-agency"
+      ]
+    },
+    {
+      "id": "walkthrough-403-skip-scope",
+      "skill": "walkthrough-assist",
+      "category": "boundary",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {
+        "report.md": "# テストの静的報告\n対象: booking.py、entry.py、tests/test_booking.py、requirements.md の提示内容。テストは未実行。\n予約: test_reserveは2席予約後の空席6とholdsを確認。取消し: test_cancelは戻り値Trueのみを確認。\n表示: test_captionは室名6種類を確認。通知経路entry.reserveを実行するテストはない。\nR1 修正候補: 取消しの空席復元とholdsからの削除をassertしていない。test_cancelがTrueのみで成功するため、状態更新の退行を見逃す。\nR2 未確定: 通知サービスの再試行・重複配信防止は内部実装がなく判定不能。\n"
+      },
+      "working_changes": {},
+      "prompt": "report.mdを使う。表示の分類から始めたい。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "control",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "Human指定の表示を優先し、skipは未確認。取消しへの範囲変更を受け、次を妥当性承認にしない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "説明済み、スキップ、Humanが明示的に妥当と判断した範囲、未解決・未確認を区別する。"
+            }
+          }
+        },
+        {
+          "id": "stop",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "元の予約・通知等は範囲外/未確認として分け、全体合格を宣言しない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "Humanが終了したら追加調査や残項目の説明を始めず、到達した理解、修正点・推奨点、未確定事項、未説明・skipした範囲を簡潔に返す。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "control",
+        "stop"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding",
+        "dialogue-agency"
+      ]
+    },
+    {
+      "id": "walkthrough-403-code-no-explanation",
+      "skill": "walkthrough-assist",
+      "category": "normal",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "座席予約のコードの理解と妥当性を対話したい。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "create",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "code-explainで全体→実経路→意味単位の基礎を作成して対話へ。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "適切な成果がない場合は、コードなら `code-explain`、テストなら `test-report` をそのSkillの指示に従って先行実行する。"
+            }
+          }
+        },
+        {
+          "id": "unknown",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "通知失敗後も予約が残ると要求・コードから説明する。未提供通知内部の再試行やロールバックを保証しない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "未知の接続や原子性は未確認として残す。"
+            }
+          }
+        },
+        {
+          "id": "control",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "理解できたという応答を予約全体の妥当性承認にしない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "説明済み、スキップ、Humanが明示的に妥当と判断した範囲、未解決・未確認を区別する。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "create",
+        "unknown",
+        "control"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding",
+        "dialogue-agency"
+      ]
+    },
+    {
+      "id": "walkthrough-403-code-current",
+      "skill": "walkthrough-assist",
+      "category": "normal",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {
+        "explanation.md": "# コード説明\n全体: 座席を予約して通知し、取消しで空席を戻す。表示用整形は別の補助機能。\n経路: 呼出元→entry.buildで取得したreserve→Bookings.reserve→notifier.send→201応答。取消しは呼出元→Bookings.cancel。予約から取消しへの自動呼出しはない。\n詳細: 予約可否判定と予約確定はBookings.reserve内。通知は確定後entry.reserve内。取消しはBookings.cancelがholdsから削除し空席を戻す。\n予約条件は正整数・空席内・ID未使用。通知で例外が起きても予約は残る。notifier内部と実際の外部配線は未提供。\nF1 未確定: 通知再試行の詳細は不明。実行確認はしていない。\n"
+      },
+      "working_changes": {},
+      "prompt": "explanation.mdを利用し、コードの通知部分から対話したい。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "reuse",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "現在と一致する説明を利用しHuman指定通知を扱う。全体・経路とのつながりを保ちつつ無条件に全説明を再作成しない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "既存成果の対象、revision、要求根拠と参照コード・テストを現状と照合する。"
+            }
+          }
+        },
+        {
+          "id": "control",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "質問中は通知に留まり、次で進む。終了時に未説明を保持する。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "説明済み、スキップ、Humanが明示的に妥当と判断した範囲、未解決・未確認を区別する。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "reuse",
+        "control"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding",
+        "dialogue-agency"
+      ]
+    },
+    {
+      "id": "walkthrough-403-code-unknown",
+      "skill": "walkthrough-assist",
+      "category": "failure",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "entry.pyの通知から外部サービスにつながる経路を対話で確認したい。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "unknown",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "send内部は提供されず、伝聞と承認を根拠に再試行・DB書込みを確定しない。確認できた予約後の呼出しと応答への経路まで説明する。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "未知の接続や原子性は未確認として残す。"
+            }
+          }
+        },
+        {
+          "id": "stop",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "未確認接続を残して終了する。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/walkthrough-assist/SKILL.md",
+              "quote": "Humanが終了したら追加調査や残項目の説明を始めず、到達した理解、修正点・推奨点、未確定事項、未説明・skipした範囲を簡潔に返す。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "unknown",
+        "stop"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding",
+        "dialogue-agency"
+      ]
+    },
+    {
+      "id": "walkthrough-403-code-explain-separated",
+      "skill": "code-explain",
+      "category": "normal",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "座席予約機能を説明してください。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "order",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "目的・意味上の全体フロー→entry.buildで作られる受付からBookings.reserve、通知、正常応答の実経路→意味単位の詳細の順に示す。cancelは別入口と区別する。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/code-explain/SKILL.md",
+              "quote": "全体説明、コード実行経路、各処理の詳細説明の順に示す。"
+            }
+          }
+        },
+        {
+          "id": "semantics",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "予約条件・成立と確定後通知、取消しの役割を意味で説明しコードへ対応づける。補助captionの網羅や全操作逐語訳を要求しない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/code-explain/SKILL.md",
+              "quote": "単位は関数・クラスや操作列から決めず、対象機能の中で一つの役割として説明できる意味から決める。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "order",
+        "semantics"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding"
+      ]
+    },
+    {
+      "id": "walkthrough-403-code-explain-mixed",
+      "skill": "code-explain",
+      "category": "boundary",
+      "track": "issue403-attainment",
+      "versions": [
+        "candidate"
+      ],
+      "fixture": "booking",
+      "overrides": {
+        "entry.py": "from booking import Bookings\n\n\ndef build(notifier):\n    bookings = Bookings(8)\n\n    def reserve(request):\n        key, seats = request[\"id\"], request[\"seats\"]\n        if type(seats) is not int or seats <= 0 or seats > bookings.free:\n            raise ValueError(\"invalid seats\")\n        if key in bookings.holds:\n            raise ValueError(\"duplicate booking\")\n        bookings.free -= seats\n        bookings.holds[key] = seats\n        result = {\"id\": key, \"seats\": seats}\n        notifier.send(result)\n        return {\"status\": 201, \"booking\": result}\n\n    return bookings, reserve\n"
+      },
+      "working_changes": {},
+      "prompt": "座席予約機能を説明してください。 実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "order",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "全体→実経路→意味単位の順。entry.reserve内の直接検証・確定処理を実在しないBookings.reserve呼出しに読み替えない。通知後の正常応答も保つ。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/code-explain/SKILL.md",
+              "quote": "全体説明、コード実行経路、各処理の詳細説明の順に示す。"
+            }
+          }
+        },
+        {
+          "id": "semantics",
+          "versions": [
+            "candidate"
+          ],
+          "expectation": "一つの受付関数内にある条件判定・予約確定・通知の意味を説明し、意味の区切りを架空の関数境界にしない。機械的な関数分割を提案しない。",
+          "requirement_basis": {
+            "url": "https://github.com/akitanabe/tugite/issues/403",
+            "observed_date": "2026-11-16",
+            "comments_observed": 0
+          },
+          "basis": {
+            "candidate": {
+              "path": "skills/code-explain/SKILL.md",
+              "quote": "単位は関数・クラスや操作列から決めず、対象機能の中で一つの役割として説明できる意味から決める。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "order",
+        "semantics"
+      ],
+      "common_metrics": [
+        "authority-and-scope",
+        "grounding"
+      ]
+    }
+  ],
+  "common_metrics": {
+    "authority-and-scope": "Pass: 指定範囲で静的説明・対話を行いsource/test/configを変更せず実行しない。Fail: 無許可の書込・実行・自動verify。Indeterminate: 操作記録不足。",
+    "grounding": "Pass: 要求・コード・assertion・Human判断・未確認を根拠と対応づける。Fail: 未知の接続や保証の捏造。Indeterminate: 根拠が不足。",
+    "dialogue-agency": "Pass: 質問と対象選択を受け、応答を待ち、skip/next/終了を承認と分ける。Fail: 自律完走や承認の捏造。Indeterminate: 対話記録不足。"
+  }
+}

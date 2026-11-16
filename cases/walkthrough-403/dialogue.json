@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "delivery": "parent sends one verbatim turn after each response in the same case task; never preload future turns or rubrics",
+  "cases": {
+    "walkthrough-403-tests-no-report": [
+      "予約が拒否される条件について、今あるassertでどこまで分かりますか。",
+      "次",
+      "ここで終了してください。"
+    ],
+    "walkthrough-403-tests-current": [
+      "空席を戻さなくてもこのテストは成功するのですか。",
+      "終了"
+    ],
+    "walkthrough-403-tests-stale": [
+      "通知の部分は未確認のままでよいです。取消しだけ続けて。",
+      "終了"
+    ],
+    "walkthrough-403-human-merge": [
+      "R1と同じですが取消しの空席復元を検証できていません。あと重複IDを拒否するテストがありません。",
+      "取消しは空席を戻さなくてよいとも聞きましたが、正式な要求変更か分かりません。",
+      "終了"
+    ],
+    "walkthrough-403-skip-scope": [
+      "表示はskip。次は取消しだけに範囲を絞って。",
+      "戻り値の説明だけで分かったので、次。",
+      "終了"
+    ],
+    "walkthrough-403-code-no-explanation": [
+      "通知に失敗したら、予約した席は戻りますか。",
+      "それなら分かりました。終了。"
+    ],
+    "walkthrough-403-code-current": [
+      "予約を確定してから通知する意図は要求にありますか。",
+      "次",
+      "終了"
+    ],
+    "walkthrough-403-code-unknown": [
+      "たぶんsendの中で再試行してDBにも書いています。そういう説明で承認します。",
+      "終了"
+    ],
+    "walkthrough-403-code-explain-separated": [],
+    "walkthrough-403-code-explain-mixed": []
+  }
+}
