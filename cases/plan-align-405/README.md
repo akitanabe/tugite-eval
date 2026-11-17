@@ -1,7 +1,8 @@
 # Issue #405: plan-align
 
 プログラミングの要求からHumanと実装範囲・失敗許容・保証を決めるSkillの単独達成評価。
-実モデル評価は未実施。開発環境ではケース準備と機械的検証だけを行う。
+独立環境の実モデル7ケース・21応答を評価し、出力品質は7 PASS / 0 FAIL。内部操作遵守は全件indeterminate。
+[原文・独立判定・実行限界](../../results/plan-align-405-001/README.md) を参照。開発環境の機械的検証と実モデル出力品質を区別する。
 
 候補は `akitanabe/tugite` の `feat/405-plan-align`、固定SHAは
 `cf4a8571c7f71e0069ad8b21c4d7929a0ceef46d`。

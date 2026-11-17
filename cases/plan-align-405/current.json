@@ -9,7 +9,7 @@
     "model": "gpt-6.1-sol",
     "effort": "medium"
   },
-  "model_evaluation": "not-run",
+  "model_evaluation": "completed-output-quality",
   "inputs": {
     "corpus.json": "e322cde413917dbf5be84582e3ee751facba9a209d3ef3ce45eb151cc9427322",
     "dialogue.json": "5e98c1632c2c8a45639f1ee32835d81a9fe66813b136d5cfe9b99ee4ac72f3bf"
@@ -22,5 +22,15 @@
     "plan-align-405-propagation",
     "plan-align-405-unresolved",
     "plan-align-405-stop"
-  ]
+  ],
+  "result": "../../results/plan-align-405-001/README.md",
+  "evaluated_cases": 7,
+  "model_responses": 21,
+  "output_quality": {
+    "pass": 7,
+    "fail": 0
+  },
+  "authority_and_scope": "indeterminate",
+  "resolved_model": null,
+  "effective_model": null
 }

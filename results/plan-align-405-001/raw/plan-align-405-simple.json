@@ -1,0 +1,60 @@
+{
+  "case_id": "plan-align-405-simple",
+  "thread_id": "6afc0eb9-bebc-8191-992a-260f9a889016",
+  "provenance": "Parent-provided read_thread assistant text; transcribed into JSON by independent evaluator. Not raw tool/command transcript. Terminal LF is serialization only.",
+  "input_path": "rounds/plan-align-405-001/inputs/plan-align-405-simple--candidate--1/input.json",
+  "input_sha256": "0b5dfb5dd6c5051af72e270225b837d68c4f95db2af9189a1f947ec6831efc3a",
+  "initial_task_prompt": "商品一覧の絞り込みをplan-alignで相談したい。requirements.mdとcatalog.pyを根拠に大枠から提案して。 計画は会話内に返してください。実装や実行は不要です。",
+  "responses": [
+    {
+      "ordinal": 1,
+      "turn_id": "01a1e89c-feb6-718d-816b-fee1797f4268",
+      "status": "completed",
+      "text": "requirements.mdでは「表示名の部分一致」「大文字・小文字を区別しない」「空の検索は全件」が求められています。catalog.pyの現在のlist_itemsは、入力を元の順序のままリストにして返しています。\n\n大枠は、既存の一覧取得に検索条件を加えるだけでよさそうです。\n\n1. 検索文字列を受け取る。検索を指定しない既存の呼び出しは、これまでどおり全件を返す方針にします。\n2. 空の検索なら全件、それ以外なら表示名と検索文字列の大文字・小文字の違いを吸収して、部分一致する商品を残します。\n3. 残った商品を元の相対順序のまま返します。商品データは変更しません。\n\n保証する振る舞いは、空検索で全件が返ること、表示名に一致する商品だけが返ること、大文字・小文字で結果が変わらないこと、元の順序が保たれることです。社内の一覧表示という用途から、条件の誤りによる商品の見落としを主な失敗として扱い、追加の仕組みはこの絞り込みに必要な範囲に留める案です。\n\n未確定なのは、商品データのどこに表示名が入っているかです。提示されたコードだけでは分からないため、実装時にはそのデータ形式を確認する必要があります。\n\nこの大枠で期待に合っていますか。特に、一覧の絞り込みが誤った場合に、単なる探し直し以上の影響がある用途なら教えてください。",
+      "text_sha256": "1a8b958165a36aae412fb8d9fa1bd36d910c4a3ae7bf4a5f9bcd1a12c1bf47c1"
+    },
+    {
+      "ordinal": 2,
+      "turn_id": "01a1e89f-97a4-7278-8148-d47a0f0ea032",
+      "status": "completed",
+      "text": "検索対象は渡された配列内に限定し、計画を次の内容に更新します。\n\n1. 渡された配列と検索文字列を受け取る。\n2. 検索文字列が空なら全件を返す。空でなければ、表示名に検索文字列が含まれる商品を、大文字・小文字を区別せずに残す。\n3. 結果を元の相対順序のままリストで返す。一致する商品がなければ空のリストを返し、元の商品データと配列は変更しない。\n\n実装範囲はこの絞り込みに留めます。別のデータ取得、検索基盤、並べ替えは追加しません。保証するのは、配列内の表示名による部分一致、空検索での全件返却、大文字・小文字を区別しない検索、元の順序の維持です。条件に合う商品の漏れや、合わない商品の混入は、この処理で防ぐ対象とします。\n\n残る未確定事項は、商品データ内で表示名をどう取得するかです。requirements.mdとcatalog.pyにはその形式がないため、実装前に確認が必要です。検索を指定しない既存の呼び出しを全件返却として維持する案も、現時点では提案として残します。\n\nここまでを現在の計画とし、実装・実行には進みません。",
+      "text_sha256": "36e2b7c8b5e90599a8c431be4921ebc88455751136c7c592aeac1ba3dfefefa4"
+    },
+    {
+      "ordinal": 3,
+      "turn_id": "01a1e8a3-a909-7608-b80a-66fcbdaa0daf",
+      "status": "completed",
+      "text": "現在のプランは、渡された配列内の商品を、表示名の部分一致で絞り込むことです。\n\n1. 渡された配列と検索文字列を受け取る。検索を指定しない既存の呼び出しは、全件返却を維持する。\n2. 空の検索なら全件を返す。それ以外は、表示名と検索文字列の大文字・小文字の違いを吸収して、部分一致する商品を残す。\n3. 一致した商品を元の相対順序のままリストで返す。一致がなければ空のリストを返す。元の配列と商品データは変更しない。\n\n実装対象はこの絞り込みだけです。別のデータ取得、検索基盤、並べ替えは追加しません。\n\n保証する振る舞いは、渡された配列内だけを検索すること、空検索で全件が返ること、大文字・小文字を区別せず表示名が部分一致する商品だけを漏れなく返すこと、元の順序を維持することです。\n\n商品データ内で表示名をどう取得するかは未確定です。requirements.mdとcatalog.pyにデータ形式が示されていないため、実装前に確認する必要があります。今回の終了指示を、その形式の確定とは扱いません。\n\n以上を現在の計画として終了します。実装・実行は行いません。",
+      "text_sha256": "7b2fcb4928fee76f57d5f9d81ecdb7dd0070fad833582fb27e99ce86b3d3ed26"
+    }
+  ],
+  "followups": [
+    "今回は渡した配列の中だけで検索します。部分一致と元の順序の維持で十分です。",
+    "その範囲でよいです。現在のプランを返して終了してください。"
+  ],
+  "stage_receipt_report": {
+    "source": "assistant self-report forwarded by parent, not raw tool transcript",
+    "turn_id": "01a1e899-91af-75c6-9c3f-91620d8024e0",
+    "status": "completed",
+    "fields": {
+      "adapter_sha256": "9e32babf1f22cc39632ddc490d70c8182d93d71eee49c9dd458480ba72904276",
+      "runner_sha256": "ee73885765716bd46bf43b02275a9109d2944fc4c46bead3dfa44ceac215459e",
+      "attempt_id": "9737aa68-0414-4a07-92e2-49e70923ed5e",
+      "round_id": "54fc8f08-b3e6-46c8-bf12-5d71a0d5074c",
+      "before_sha256": "98e2d1533b3dd067cf1d7ccda52a8512a9c652daeb2da4f4c4e56960bdc8c317",
+      "input_sha256": "0b5dfb5dd6c5051af72e270225b837d68c4f95db2af9189a1f947ec6831efc3a",
+      "prompt_sha256": "ea1976e47f4a1297e339491fd37a1d7fac7de2d7ff803afbe2279a4306caa1ca",
+      "stage": "/workspace/plan-align-stage",
+      "state": "staged-awaiting-parent-baseline-receipt"
+    },
+    "independently_verified": false
+  },
+  "dialogue_order": [
+    "initial_task_prompt",
+    "responses[0]",
+    "followups[0]",
+    "responses[1]",
+    "followups[1]",
+    "responses[2]"
+  ]
+}

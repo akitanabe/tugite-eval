@@ -1,0 +1,60 @@
+{
+  "case_id": "plan-align-405-excess",
+  "thread_id": "6afc0ec2-786c-8191-a480-9190d363d006",
+  "provenance": "Parent-provided read_thread assistant text; transcribed into JSON by independent evaluator. Not raw tool/command transcript. Terminal LF is serialization only.",
+  "input_path": "rounds/plan-align-405-001/inputs/plan-align-405-excess--candidate--1/input.json",
+  "input_sha256": "c8ba964ad011a3bf50aae2b3f7c9e77237273d54a5d9f19a06bbfff75edb9e8a",
+  "initial_task_prompt": "注文確定とお礼通知のプランを相談したい。通知が失敗するなら、再送キュー、二重送信防止、監視専用画面まで入れた方が安心でしょうか。 計画は会話内に返してください。実装や実行は不要です。",
+  "responses": [
+    {
+      "ordinal": 1,
+      "turn_id": "01a1e89d-5bac-71e0-b683-b7c492819f92",
+      "status": "completed",
+      "text": "現時点では、再送キュー・二重送信防止・監視専用画面をまとめて追加する必要は薄いと考えます。$plan-align に沿って、まず次の仮プランを提案します。\n\nfixtureの要件では、注文はDBに永続化し、お礼通知は注文成立の条件にせず、通知失敗でも注文を取り消さないとされています。既存の注文DBと通知サービスを利用し、追加の再送基盤はありません。\n\n全体の流れは次のとおりです。\n\n```text\n注文をDBに保存・確定\n  ├─ commit失敗 → 注文確定失敗として返す。通知は送らない\n  └─ commit成功 → お礼通知を送信\n                    ├─ 成功 → 終了\n                    └─ 失敗 → 失敗をログに記録して終了\n```\n\n- 注文確定：DBのcommit成功をもって成立とします。通知の成否にかかわらず、確定した注文を保持します。\n- お礼通知：注文確定後に送信を試みます。失敗は記録しますが、この案では自動再送や到達保証は設けません。\n- 運用：まずは失敗ログを残す範囲とし、監視専用画面は追加しない案です。再送機構を追加しないため、それに伴う二重送信防止も現時点では含めません。通知サービスを含む二重送信防止の保証は未確定です。\n\nただし、「通知失敗でも注文を取り消さない」ことと、「通知が届かないままでも許容できる」ことは別の判断です。お礼通知は、一部が届かないままでも業務上許容できますか。それとも、遅れてでも届ける必要がありますか。ここを確認してから、再送や二重送信防止が必要な範囲を決めたいです。",
+      "text_sha256": "8707b761de29929e369b7277cde8f8e92c2474e20434ccd1c0bfdc18fa86b467"
+    },
+    {
+      "ordinal": 2,
+      "turn_id": "01a1e89f-beee-7001-a400-990020e80c08",
+      "status": "completed",
+      "text": "では、通知の未達を許容し、失敗は既存ログで追える範囲に決めます。今回のプランは次のとおりです。\n\n目的は、注文を永続化して確定し、その後に付随するお礼通知を送ることです。既存の注文DBと通知サービスを利用します。\n\n```text\n注文をDBに保存・確定\n  ├─ commit失敗 → 注文確定失敗として返す。通知は送らない\n  └─ commit成功 → お礼通知を送信\n                    ├─ 成功 → 終了\n                    └─ 失敗 → 既存ログに記録して終了\n                               注文は確定済みのまま保持\n```\n\n- 注文確定：DBのcommit成功をもって注文成立とします。保存に失敗した注文については通知を送りません。\n- お礼通知：注文確定後に送信を試みます。通知失敗で注文を取り消したり、注文確定失敗として扱ったりしません。通知の未達は許容し、配送保証は設けません。\n- 失敗の追跡：通知失敗を、対象の注文と失敗内容が追える形で既存ログに記録します。監視専用画面は追加しません。\n\n再送キュー、自動再送、および再送に伴う二重送信防止は今回の対象外とします。通知が必ず届くことや、通知サービスを含めて必ず一度だけ届くことは保証しません。\n\nこの範囲でプランを確定し、実装や実行は行わず、ここで止めます。",
+      "text_sha256": "9cfe8a8f8b197d1fcb010a310b1f7258131a75f4e8c8e6a1671bac41a224acc5"
+    },
+    {
+      "ordinal": 3,
+      "turn_id": "01a1e8a3-e345-70a5-9888-10140bc2db6a",
+      "status": "completed",
+      "text": "注文を永続化して確定し、その後に付随するお礼通知を送ります。既存の注文DBと通知サービスを利用します。\n\n```text\n注文をDBに保存・確定\n  ├─ commit失敗 → 注文確定失敗として返す。通知は送らない\n  └─ commit成功 → お礼通知を送信\n                    ├─ 成功 → 終了\n                    └─ 失敗 → 既存ログに記録して終了\n                               注文は確定済みのまま保持\n```\n\n- 注文確定：DBのcommit成功をもって成立とします。通知の失敗によって、確定済みの注文を取り消したり、注文確定失敗として扱ったりしません。\n- お礼通知：注文確定後に送信を試みます。通知が届かないことは業務上許容し、自動再送や配送保証は設けません。\n- 失敗の追跡：対象の注文と通知の失敗内容を既存ログで追えるようにします。監視専用画面は追加しません。\n\n再送キュー、二重送信防止の追加機構、監視専用画面は今回の対象外です。通知の到達や、通知サービスを含む厳密な一度だけの配送は保証しません。\n\nこの対話で残る未決事項はありません。以上を今回のプランとし、実装・実行は行わず終了します。",
+      "text_sha256": "6ce6961d3fbdfab2836d6639f91b42a53b1ef99be65084719b9be3f221676ae4"
+    }
+  ],
+  "followups": [
+    "通知は届かなくても業務上問題ありません。既存ログで追えれば十分で、今回は配送保証は要りません。",
+    "今決まった内容をプランとして返して終了してください。"
+  ],
+  "stage_receipt_report": {
+    "source": "assistant self-report forwarded by parent, not raw tool transcript",
+    "turn_id": "01a1e899-b231-76d1-8fbd-98f58b94f5ea",
+    "status": "completed",
+    "fields": {
+      "adapter_sha256": "9e32babf1f22cc39632ddc490d70c8182d93d71eee49c9dd458480ba72904276",
+      "runner_sha256": "ee73885765716bd46bf43b02275a9109d2944fc4c46bead3dfa44ceac215459e",
+      "attempt_id": "ce14900e-585e-4e86-bf23-88e2eecfe6da",
+      "round_id": "54fc8f08-b3e6-46c8-bf12-5d71a0d5074c",
+      "before_sha256": "5ffabfa36f91a7cbcae9ac3704f0809235bad49a5608b2427abbd2060ca38274",
+      "input_sha256": "c8ba964ad011a3bf50aae2b3f7c9e77237273d54a5d9f19a06bbfff75edb9e8a",
+      "prompt_sha256": "6f8166c88a0e5db6f3c50f0d7035b7fc128f6fe9971464a7e3a6fe4fb60c7949",
+      "stage": "/workspace/plan-align-stage",
+      "state": "staged-awaiting-parent-baseline-receipt"
+    },
+    "independently_verified": false
+  },
+  "dialogue_order": [
+    "initial_task_prompt",
+    "responses[0]",
+    "followups[0]",
+    "responses[1]",
+    "followups[1]",
+    "responses[2]"
+  ]
+}
