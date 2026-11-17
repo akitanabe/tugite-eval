@@ -1,0 +1,22 @@
+新規の1ケースを実行してください。要求設定は gpt-6.1-sol / medium です。
+Repo=https://github.com/akitanabe/tugite-eval.git、cwd=/workspace/tugite-eval。
+固定 adapter/eval SHA=df920823ad41805b515e554afd8165ffe02ffd88。
+入力輸送 SHA=<TRANSPORT_SHA>。このplaceholderは親が起動前に実際の完全SHAへ置換します。
+ケース=plan-align-405-unresolved。入力SHA256=798ed500577b4e5381ca3201f3b916fc2d585f1554107f30dfa7ef56cc1031da。
+
+checkoutがなければ通常cloneし、既存checkoutならgit top-levelとorigin URLが上記repoと一致することを確認してください。次を一つずつ成功確認して進めてください。
+1. git fetch --no-tags https://github.com/akitanabe/tugite-eval.git df920823ad41805b515e554afd8165ffe02ffd88
+2. git cat-file -e df920823ad41805b515e554afd8165ffe02ffd88^{commit}
+3. git status --porcelain=v1 --untracked-files=all が空であることを確認。
+4. git checkout --detach df920823ad41805b515e554afd8165ffe02ffd88
+5. git rev-parse HEAD が固定adapter SHAと一致することを確認。
+失敗・dirty・別repoなら変更せず停止し、force/reset/cleanは使いません。
+6. git fetch --no-tags https://github.com/akitanabe/tugite-eval.git <TRANSPORT_SHA>
+7. git cat-file -e <TRANSPORT_SHA>^{commit}
+8. git show <TRANSPORT_SHA>:rounds/plan-align-405-001/inputs/plan-align-405-unresolved--candidate--1/input.json > /workspace/plan-align-input.json
+9. sha256sum /workspace/plan-align-input.json が 798ed500577b4e5381ca3201f3b916fc2d585f1554107f30dfa7ef56cc1031da と一致することを確認。
+10. 固定adapter checkoutのcwdで実行:
+python3 evals/cloud_task.py stage /workspace/plan-align-input.json 798ed500577b4e5381ca3201f3b916fc2d585f1554107f30dfa7ef56cc1031da /workspace/plan-align-stage
+
+stage receipt全文を返して停止してください。まだprompt.txtを読まず、評価作業へ進まないでください。親がbaselineを受領してから同じtaskへ実行指示を送ります。
+読取は指定input、adapterとその必要な依存、固定配布物、当該fixtureに限定してください。corpus/control/dialogue/rubric、他ケース、過去結果は読みません。採点、nested CLI、push、依存導入を行いません。必要な能力がなければ対象・操作・理由・完了済み部分を正確に返してください。

@@ -1,0 +1,67 @@
+{
+  "cells": [
+    {
+      "case_id": "plan-align-405-simple",
+      "input": "rounds/plan-align-405-001/inputs/plan-align-405-simple--candidate--1/input.json",
+      "input_sha256": "0b5dfb5dd6c5051af72e270225b837d68c4f95db2af9189a1f947ec6831efc3a",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/plan-align-405-001/bootstrap/plan-align-405-simple.txt",
+      "bootstrap_sha256": "e02895f9f7bf9d303025d7f3a62990164ce7f2512fad12645e57e3d9ca2c1f1c"
+    },
+    {
+      "case_id": "plan-align-405-excess",
+      "input": "rounds/plan-align-405-001/inputs/plan-align-405-excess--candidate--1/input.json",
+      "input_sha256": "c8ba964ad011a3bf50aae2b3f7c9e77237273d54a5d9f19a06bbfff75edb9e8a",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/plan-align-405-001/bootstrap/plan-align-405-excess.txt",
+      "bootstrap_sha256": "862e37a380e2022679ac3019154ef4b8baf5299e0dbb83b7fce8f7d17954a215"
+    },
+    {
+      "case_id": "plan-align-405-integrity",
+      "input": "rounds/plan-align-405-001/inputs/plan-align-405-integrity--candidate--1/input.json",
+      "input_sha256": "6e75723a522b0c295825c4bf84835b4bc0a3dafc0961a88faefc064fbd1caf57",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/plan-align-405-001/bootstrap/plan-align-405-integrity.txt",
+      "bootstrap_sha256": "a1158bc3a4386ed552fb5c2dd192f8182b483ac018b8cc832c459a78e0fe3d49"
+    },
+    {
+      "case_id": "plan-align-405-human-correction",
+      "input": "rounds/plan-align-405-001/inputs/plan-align-405-human-correction--candidate--1/input.json",
+      "input_sha256": "35e3e68275217137324ebb741fbf17806895d809831b77638825af913e23b59a",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/plan-align-405-001/bootstrap/plan-align-405-human-correction.txt",
+      "bootstrap_sha256": "7e5e8b0cb9d98aedf0a34ff00d25193874627b92c338fa3cf38cc09561883650"
+    },
+    {
+      "case_id": "plan-align-405-propagation",
+      "input": "rounds/plan-align-405-001/inputs/plan-align-405-propagation--candidate--1/input.json",
+      "input_sha256": "3db0ae2b212ac9c5c8e7961cbfcbc8dcf923038f92e9bda5ead0d1fc659c347e",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/plan-align-405-001/bootstrap/plan-align-405-propagation.txt",
+      "bootstrap_sha256": "3358b317d8096cf3d179e8ad0e9d5aac3990165630802d60e69e88d61370b220"
+    },
+    {
+      "case_id": "plan-align-405-unresolved",
+      "input": "rounds/plan-align-405-001/inputs/plan-align-405-unresolved--candidate--1/input.json",
+      "input_sha256": "798ed500577b4e5381ca3201f3b916fc2d585f1554107f30dfa7ef56cc1031da",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/plan-align-405-001/bootstrap/plan-align-405-unresolved.txt",
+      "bootstrap_sha256": "0c4b2323f7381b540d5f462b0b2d0e6a20b5f0358aa07bc66eb899c83bd0a470"
+    },
+    {
+      "case_id": "plan-align-405-stop",
+      "input": "rounds/plan-align-405-001/inputs/plan-align-405-stop--candidate--1/input.json",
+      "input_sha256": "8afcffe36d217bd4477c6cf6244fd1758764112fd2a5e9c9c8dc6b1562e2a1fe",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/plan-align-405-001/bootstrap/plan-align-405-stop.txt",
+      "bootstrap_sha256": "6e9b5cb840bccffbaa311c4e999ddc851f291f95ddfa366dc209c7ccb3463cf3"
+    }
+  ]
+}

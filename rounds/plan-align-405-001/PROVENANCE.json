@@ -1,0 +1,12 @@
+{
+  "state": "prepared-not-executed",
+  "source_sha": "cf4a8571c7f71e0069ad8b21c4d7929a0ceef46d",
+  "eval_adapter_sha": "df920823ad41805b515e554afd8165ffe02ffd88",
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "input_bytes": "Exact copies of .local/plan-align-405-001 prepared inputs; hashes unchanged.",
+  "bootstrap": "Replace <TRANSPORT_SHA> with this transport commit SHA. Adapter stays at original eval SHA. Parent must capture receipt before releasing prompt read.",
+  "parent_only": "Use fixed cases/plan-align-405/dialogue.json and corpus.json in parent only. Never send them to evaluated tasks."
+}
