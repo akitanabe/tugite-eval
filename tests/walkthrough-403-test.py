@@ -69,7 +69,7 @@ else:
 assert b.free == 5 and b.holds == {"a": 3}
 '''
         for case in CORPUS["cases"]:
-            if case["skill"] == "code-explain":
+            if case["skill"] == "explain-code":
                 with self.subTest(case=case["id"]):
                     result = run_fixture(files_for(case), probe)
                     self.assertEqual(result.returncode, 0, result.stderr)
@@ -126,7 +126,7 @@ else:
     def test_new_skills_require_explicit_version_map(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            for skill in ("code-explain", "walkthrough-assist"):
+            for skill in ("code-explain", "explain-code", "walkthrough-assist"):
                 path = root / "candidate/plugins/codex/skills" / skill / "SKILL.md"
                 path.parent.mkdir(parents=True)
                 path.write_text("A synthetic specification quote.")

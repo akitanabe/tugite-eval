@@ -1,4 +1,4 @@
-# Issue #403: code-explain / walkthrough-assist
+# Issue #403: explain-code / walkthrough-assist
 
 新しい座席予約fixtureによる単独達成評価。正本は `corpus.json` と親だけが読む `dialogue.json`。
 固定SHAをGit経由で独立した `tugite-eval-container` へ取得し、fresh 10ケース・30応答の実評価と独立判定を完了した。旧ケースや旧出力を流用せず、旧結果を本評価の証拠に含めない。
@@ -9,6 +9,8 @@
 出力品質の観測を内部遵守・権限操作の全面的な保証に読み替えない。
 その後の本体 `53fdd1ef797a0c178651aab4b82902f4a608c2ef` はv7.6.0の版表記のみの変更であり、このHEAD自体の実モデル再評価は未実施。
 
+現在のcorpusは `explain-code` を対象とする。上記10ケース・30応答は旧名称 `code-explain`、参照例復元前の固定候補の結果であり、参照例復元・改名後の最新候補は実モデル未再評価。ケースIDの `code-explain` は過去記録との対応のため維持し、対象Skill名・配布path・引用は現在の名称へ更新した。runnerは過去の固定corpusを扱えるよう旧名称も受け付ける。
+
 ## 対象と判断
 
 | ケース | 観測する境界 |
@@ -18,7 +20,7 @@
 | tests-stale | 古い実装判定の更新と、生きているテスト指摘の保持 |
 | human-merge | 重複指摘の統合、新指摘、要求変更の伝聞と未確定 |
 | skip-scope | Humanの分類・範囲指定、skip/nextと承認の区別 |
-| code-no-explanation | code-explain先行、通知失敗と確定状態 |
+| code-no-explanation | explain-code先行、通知失敗と確定状態 |
 | code-current | 説明再利用、指定箇所の深掘り、次・終了 |
 | code-unknown | 未提供通知内部とHumanの推測・承認の区別 |
 | code-explain-separated | 全体→実経路→意味単位、複数関数にまたがる役割 |

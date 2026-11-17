@@ -39,7 +39,7 @@
           "basis": {
             "candidate": {
               "path": "skills/walkthrough-assist/SKILL.md",
-              "quote": "適切な成果がない場合は、コードなら `code-explain`、テストなら `test-report` をそのSkillの指示に従って先行実行する。"
+              "quote": "適切な成果がない場合は、コードなら `explain-code`、テストなら `test-report` をそのSkillの指示に従って先行実行する。"
             }
           }
         },
@@ -362,7 +362,7 @@
           "versions": [
             "candidate"
           ],
-          "expectation": "code-explainで全体→実経路→意味単位の基礎を作成して対話へ。",
+          "expectation": "explain-codeで全体→実経路→意味単位の基礎を作成して対話へ。",
           "requirement_basis": {
             "url": "https://github.com/akitanabe/tugite/issues/403",
             "observed_date": "2026-11-16",
@@ -371,7 +371,7 @@
           "basis": {
             "candidate": {
               "path": "skills/walkthrough-assist/SKILL.md",
-              "quote": "適切な成果がない場合は、コードなら `code-explain`、テストなら `test-report` をそのSkillの指示に従って先行実行する。"
+              "quote": "適切な成果がない場合は、コードなら `explain-code`、テストなら `test-report` をそのSkillの指示に従って先行実行する。"
             }
           }
         },
@@ -549,7 +549,7 @@
     },
     {
       "id": "walkthrough-403-code-explain-separated",
-      "skill": "code-explain",
+      "skill": "explain-code",
       "category": "normal",
       "track": "issue403-attainment",
       "versions": [
@@ -574,7 +574,7 @@
           },
           "basis": {
             "candidate": {
-              "path": "skills/code-explain/SKILL.md",
+              "path": "skills/explain-code/SKILL.md",
               "quote": "全体説明、コード実行経路、各処理の詳細説明の順に示す。"
             }
           }
@@ -592,7 +592,7 @@
           },
           "basis": {
             "candidate": {
-              "path": "skills/code-explain/SKILL.md",
+              "path": "skills/explain-code/SKILL.md",
               "quote": "単位は関数・クラスや操作列から決めず、対象機能の中で一つの役割として説明できる意味から決める。"
             }
           }
@@ -609,7 +609,7 @@
     },
     {
       "id": "walkthrough-403-code-explain-mixed",
-      "skill": "code-explain",
+      "skill": "explain-code",
       "category": "boundary",
       "track": "issue403-attainment",
       "versions": [
@@ -636,7 +636,7 @@
           },
           "basis": {
             "candidate": {
-              "path": "skills/code-explain/SKILL.md",
+              "path": "skills/explain-code/SKILL.md",
               "quote": "全体説明、コード実行経路、各処理の詳細説明の順に示す。"
             }
           }
@@ -654,7 +654,7 @@
           },
           "basis": {
             "candidate": {
-              "path": "skills/code-explain/SKILL.md",
+              "path": "skills/explain-code/SKILL.md",
               "quote": "単位は関数・クラスや操作列から決めず、対象機能の中で一つの役割として説明できる意味から決める。"
             }
           }
