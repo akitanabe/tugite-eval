@@ -31,7 +31,7 @@ VERSIONS = {
 }
 CONTINUING = {"impl-lead", "test-report", "test-verify", "visualize-that"}
 NEW = {"explain-this", "review-propose", "impl-plan", "impl-review"}
-EXPLICIT_VERSION_SKILLS = {"code-explain", "explain-code", "walkthrough-assist"}
+EXPLICIT_VERSION_SKILLS = {"code-explain", "explain-code", "walkthrough-assist", "plan-align"}
 RESULTS = {"pass", "fail", "indeterminate"}
 
 

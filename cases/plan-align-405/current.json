@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "source_repository": "https://github.com/akitanabe/tugite.git",
+  "source_branch": "feat/405-plan-align",
+  "source_sha": "cf4a8571c7f71e0069ad8b21c4d7929a0ceef46d",
+  "stack_base_sha": "7a9d6bbdbc2a9be28f23a0c71c4a74aafe420710",
+  "eval_base_sha": "935218446442864fb27beaa42fa92b6647dd343a",
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "model_evaluation": "not-run",
+  "inputs": {
+    "corpus.json": "e322cde413917dbf5be84582e3ee751facba9a209d3ef3ce45eb151cc9427322",
+    "dialogue.json": "5e98c1632c2c8a45639f1ee32835d81a9fe66813b136d5cfe9b99ee4ac72f3bf"
+  },
+  "case_ids": [
+    "plan-align-405-simple",
+    "plan-align-405-excess",
+    "plan-align-405-integrity",
+    "plan-align-405-human-correction",
+    "plan-align-405-propagation",
+    "plan-align-405-unresolved",
+    "plan-align-405-stop"
+  ]
+}

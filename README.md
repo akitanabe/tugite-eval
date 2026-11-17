@@ -27,3 +27,5 @@ Python 3.12+ / Git / Bashが必要です。固定版は別のTugite repository�
 生成round、実行ログ、credential、Tugite本体のGit履歴はこのrepositoryに保存しません。
 
 #403 の追加評価は [walkthrough / explain-code の10ケース](cases/walkthrough-403/README.md)。旧名称 `code-explain`・参照例復元前の固定SHAをGit経由で独立eval環境へ取得し、10ケース・30応答の実評価と独立判定を完了しました。現在の改名後候補は実モデル未再評価です。出力上の不合格は0件で、内部Skill利用・権限操作の確認には未確定事項が残ります。評価対象SHA・詳細結果・限界はリンク先を参照してください。これは単独達成評価であり、#399 の通常対象は変更しません。
+
+#405 の追加評価は [plan-align の7ケース](cases/plan-align-405/README.md)。固定候補の入力と評価基準を準備済みで、独立tugite-eval-containerでの実モデル評価は未実施です。
