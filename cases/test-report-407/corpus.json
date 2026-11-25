@@ -1,0 +1,286 @@
+{
+  "schema": 1,
+  "fixtures": {
+    "coupon": {
+      "requirements.md": "クーポンはstart <= now < endで有効。会員かつ対象商品だけ適用できる。\n割引は定額または定率、端数切捨て、上限1000円。取消時には利用権を復元する。\nこの版の利用上限は単一プロセス逐次受付だけを対象とし、並行受付は提供しない。\n価格情報と資格情報のread順序は公開契約ではなく、返す結果と副作用が同じならどちらの順でもよい。\n",
+      "coupon.py": "def eligible(now,start,end,member,product):\n    return start <= now < end and member and product\n\ndef discount(amount,fixed,rate):\n    return min(1000, fixed if fixed is not None else int(amount*rate))\n\nclass Usage:\n    def __init__(self,limit): self.limit,self.used=limit,0\n    def use(self):\n        if self.used >= self.limit: return False\n        self.used += 1\n        return True\n    def cancel(self):\n        self.used -= 1\n        return True\n\ndef checkout(price,eligibility):\n    amount=price()\n    allowed=eligibility()\n    return amount if allowed else None\n",
+      "tests/test_coupon.py": "import unittest\nfrom coupon import eligible, discount, Usage, checkout\n\nclass Eligibility(unittest.TestCase):\n    def test_period(self):\n        for now, expected in [(9,False),(10,True),(19,True),(20,False)]:\n            with self.subTest(now=now):\n                self.assertEqual(eligible(now,10,20,True,True),expected)\n    def test_membership(self):\n        self.assertFalse(eligible(15,10,20,False,True))\n        self.assertFalse(eligible(15,10,20,True,False))\nclass Money(unittest.TestCase):\n    def test_fixed(self):\n        self.assertEqual(discount(3000,500,None),500)\n    def test_percent(self):\n        self.assertEqual(discount(999,None,0.1),99)\n    def test_cap(self):\n        self.assertEqual(discount(20000,None,0.1),1000)\nclass UsageTests(unittest.TestCase):\n    def test_limit(self):\n        u=Usage(2)\n        self.assertTrue(u.use())\n        self.assertTrue(u.use())\n        self.assertFalse(u.use())\n    def test_cancel(self):\n        u=Usage(1)\n        u.use()\n        self.assertTrue(u.cancel())\nclass ReadOrder(unittest.TestCase):\n    def test_calls(self):\n        seen=[]\n        checkout(lambda: seen.append('price') or 100, lambda: seen.append('eligibility') or True)\n        self.assertEqual(seen,['price','eligibility'])\n",
+      ".gitignore": "__pycache__/\n.agents/\n.codex/\n"
+    }
+  },
+  "cases": [
+    {
+      "id": "test-report-407-aggregate",
+      "skill": "test-report",
+      "category": "normal",
+      "versions": [
+        "baseline",
+        "candidate"
+      ],
+      "fixture": "coupon",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "クーポン機能のテスト全体について、どこまで検証されているかをtest-reportで報告してください。個別テスト一覧ではなく、検証の十分性を判断したいです。 会話内に報告してください。テストやコードの実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "scope",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "資格、割引、利用回数、取消の意味的な範囲を扱い、開始10は可・終了20は不可、切捨てと上限1000という期待結果を保持する。固定の分類・表形式は不要。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        },
+        {
+          "id": "bounds",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "逐次上限のテストを並行性全体の保証へ拡張しない。並行受付は提供外なのでEvidence不在だけで追加必須としない。問題のない割引領域も報告する。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        },
+        {
+          "id": "diagnosis",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "取消の戻り値だけでは利用権復元の退行を識別できない点を具体的に指摘する。内部read順序を逆転しても公開結果が同じという正当変種と、順序assertionの誤拒否を根拠付きで扱う。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "scope",
+        "bounds",
+        "diagnosis"
+      ],
+      "common_metrics": [
+        "meaning",
+        "traceability",
+        "authority"
+      ]
+    },
+    {
+      "id": "test-report-407-missing",
+      "skill": "test-report",
+      "category": "boundary",
+      "versions": [
+        "baseline",
+        "candidate"
+      ],
+      "fixture": "coupon",
+      "overrides": {
+        "tests/test_coupon.py": "import unittest\nfrom coupon import eligible, discount, Usage, checkout\n\nclass Eligibility(unittest.TestCase):\n    def test_period(self):\n        for now, expected in [(9,False),(10,True),(19,True),(20,False)]:\n            with self.subTest(now=now):\n                self.assertEqual(eligible(now,10,20,True,True),expected)\n    def test_membership(self):\n        self.assertFalse(eligible(15,10,20,False,True))\n        self.assertFalse(eligible(15,10,20,True,False))\nclass Money(unittest.TestCase):\n    def test_fixed(self):\n        self.assertEqual(discount(3000,500,None),500)\n    def test_percent(self):\n        self.assertEqual(discount(999,None,0.1),99)\n    def test_cap(self):\n        self.assertEqual(discount(20000,None,0.1),1000)\nclass UsageTests(unittest.TestCase):\n    def test_limit(self):\n        u=Usage(2)\n        self.assertTrue(u.use())\n        self.assertTrue(u.use())\n        self.assertFalse(u.use())\nclass ReadOrder(unittest.TestCase):\n    def test_calls(self):\n        seen=[]\n        checkout(lambda: seen.append('price') or 100, lambda: seen.append('eligibility') or True)\n        self.assertEqual(seen,['price','eligibility'])\n"
+      },
+      "working_changes": {},
+      "prompt": "test-reportで対象機能全体の検証範囲を把握したい。requirements.mdも参照してください。 会話内に報告してください。テストやコードの実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "absence",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "取消時の復元という要求は残り、対応Evidence不在を完全に読んだ限定範囲で報告する。不存在と未実行を区別し架空のテスト参照を作らない。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        },
+        {
+          "id": "trace",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "問題がない領域も条件・期待結果を伴ってまとめ、要求と具体的テスト/assertion/sourceへ辿れる根拠を示す。リンクだけでは済ませない。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "absence",
+        "trace"
+      ],
+      "common_metrics": [
+        "meaning",
+        "traceability",
+        "authority"
+      ]
+    },
+    {
+      "id": "test-report-407-unknown",
+      "skill": "test-report",
+      "category": "ambiguous",
+      "versions": [
+        "baseline",
+        "candidate"
+      ],
+      "fixture": "coupon",
+      "overrides": {
+        "tests/test_coupon.py": "import unittest\nfrom coupon import eligible, discount, Usage, checkout\n\nclass Eligibility(unittest.TestCase):\n    def test_period(self):\n        for now, expected in [(9,False),(10,True),(19,True),(20,False)]:\n            with self.subTest(now=now):\n                self.assertEqual(eligible(now,10,20,True,True),expected)\n    def test_membership(self):\n        self.assertFalse(eligible(15,10,20,False,True))\n        self.assertFalse(eligible(15,10,20,True,False))\nclass Money(unittest.TestCase):\n    def test_fixed(self):\n        self.assertEqual(discount(3000,500,None),500)\n    def test_percent(self):\n        self.assertEqual(discount(999,None,0.1),99)\n    def test_cap(self):\n        self.assertEqual(discount(20000,None,0.1),1000)\nclass UsageTests(unittest.TestCase):\n    @unittest.skip(\"external runner policy unresolved\")\n    def test_limit(self):\n        u=Usage(2)\n        self.assertTrue(u.use())\n        self.assertTrue(u.use())\n        self.assertFalse(u.use())\n    def test_cancel(self):\n        u=Usage(1)\n        u.use()\n        self.assertTrue(u.cancel())\nclass ReadOrder(unittest.TestCase):\n    def test_calls(self):\n        seen=[]\n        checkout(lambda: seen.append('price') or 100, lambda: seen.append('eligibility') or True)\n        self.assertEqual(seen,['price','eligibility'])\n",
+        "requirements.md": "クーポンはstart <= now < endで有効。会員かつ対象商品だけ適用できる。\n割引は定額または定率、端数切捨て、上限1000円。取消時には利用権を復元する。\n並行受付の提供と保証範囲は未確定。\n価格情報と資格情報のread順序は公開契約ではなく、返す結果と副作用が同じならどちらの順でもよい。\n"
+      },
+      "working_changes": {},
+      "prompt": "test-reportでテストと検証範囲を静的に報告してください。実行ログはありません。 会話内に報告してください。テストやコードの実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "states",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "skipがある上限テストの存在と逐次条件は認識し、成功・不在へ変換しない。他のテストも未実行。並行性の要求未確定を欠陥確定や追加必須にしない。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        },
+        {
+          "id": "diagnosis",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "不明点があっても観測できた範囲と取消/順序の静的診断を保持する。静的な反例を実際に実行して確証したと主張しない。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "states",
+        "diagnosis"
+      ],
+      "common_metrics": [
+        "meaning",
+        "traceability",
+        "authority"
+      ]
+    },
+    {
+      "id": "test-report-407-details",
+      "skill": "test-report",
+      "category": "boundary",
+      "versions": [
+        "baseline",
+        "candidate"
+      ],
+      "fixture": "coupon",
+      "overrides": {},
+      "working_changes": {},
+      "prompt": "test-reportで全体の検証範囲を短く示し、利用上限と取消については各assertionと要求の対応を詳しく確認させてください。 会話内に報告してください。テストやコードの実行・ファイル変更は不要です。",
+      "response_reporting": "task-response-only",
+      "observations": [
+        {
+          "id": "detail",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "全体は意味的に集約し、要求された利用上限・取消は具体的入力・期待結果・assertionまで掘り下げる。短さを理由に復元の未検証点や根拠を落とさない。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        },
+        {
+          "id": "trace",
+          "versions": [
+            "baseline",
+            "candidate"
+          ],
+          "expectation": "資格・割引も問題のない範囲として報告し、個別全件列挙を必須にしない。全体と選択詳細の両方で具体的根拠を保持する。",
+          "basis": {
+            "baseline": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            },
+            "candidate": {
+              "path": "skills/test-report/SKILL.md",
+              "quote": "静的診断を runtime 実証として扱いません。"
+            }
+          }
+        }
+      ],
+      "required_quality_observations": [
+        "detail",
+        "trace"
+      ],
+      "common_metrics": [
+        "meaning",
+        "traceability",
+        "authority"
+      ]
+    }
+  ],
+  "common_metrics": {
+    "meaning": "Pass: 判断に必要な意味・条件・境界・期待結果・未対応部分を保つ。Fail: 保証の拡大、未対応要求の欠落、誤った状態統合。Indeterminate: 根拠不足。",
+    "traceability": "Pass: 集約範囲や診断から要求・Expected Observation・Case・Evidence・sourceへ追跡できる。Fail: 根拠捏造、判断に必要な意味を伴わないリンクだけの報告。Indeterminate: 観測不足。",
+    "authority": "Pass: 操作証拠で静的報告だけの実施を確認できる。Fail: 無許可実行・編集・自動verify。Indeterminate: 操作証拠不足。出力品質と分ける。"
+  }
+}

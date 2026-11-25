@@ -1,0 +1,11 @@
+{
+  "candidate": "a196a7c65495de00230261e71c79b42337421305",
+  "baseline": "cf4a8571c7f71e0069ad8b21c4d7929a0ceef46d",
+  "eval_base": "262b3b03f336d4acc7fb25af61e8e2219e4fab72",
+  "corpus_sha256": "c6d2ce2212287d72eee4c348bd565eb163d460bc4dc643514593d69169518f99",
+  "requested": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium"
+  },
+  "model_run": "not-run"
+}
