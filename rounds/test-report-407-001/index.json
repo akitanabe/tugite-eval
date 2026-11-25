@@ -1,0 +1,68 @@
+{
+  "cells": [
+    {
+      "case_id": "test-report-407-aggregate",
+      "input": "rounds/test-report-407-001/inputs/test-report-407-aggregate--baseline--1/input.json",
+      "input_sha256": "b2fb84ab21283217e690945d4acacef83d818608779932d08c3fd67c94ac5837",
+      "trial": 1,
+      "version": "baseline",
+      "bootstrap": "rounds/test-report-407-001/bootstrap/test-report-407-aggregate--baseline.txt"
+    },
+    {
+      "case_id": "test-report-407-aggregate",
+      "input": "rounds/test-report-407-001/inputs/test-report-407-aggregate--candidate--1/input.json",
+      "input_sha256": "f291860dd39d7c8a57b2c8ebc8e7cd7eb510bd99f514f01dbac8279129ff12da",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/test-report-407-001/bootstrap/test-report-407-aggregate--candidate.txt"
+    },
+    {
+      "case_id": "test-report-407-missing",
+      "input": "rounds/test-report-407-001/inputs/test-report-407-missing--baseline--1/input.json",
+      "input_sha256": "25e0eee4b29cc54564c476a1c71ad998db9aeb9cf1189aaa578455481c16ec59",
+      "trial": 1,
+      "version": "baseline",
+      "bootstrap": "rounds/test-report-407-001/bootstrap/test-report-407-missing--baseline.txt"
+    },
+    {
+      "case_id": "test-report-407-missing",
+      "input": "rounds/test-report-407-001/inputs/test-report-407-missing--candidate--1/input.json",
+      "input_sha256": "536249f1c276ad812177e1ad4369bf34d2348bc596a1fab2712e9217b1ceb28c",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/test-report-407-001/bootstrap/test-report-407-missing--candidate.txt"
+    },
+    {
+      "case_id": "test-report-407-unknown",
+      "input": "rounds/test-report-407-001/inputs/test-report-407-unknown--baseline--1/input.json",
+      "input_sha256": "f21f2c1ed1da86b52efa10ea139c0bd80464717335178516d023fdf8e615176c",
+      "trial": 1,
+      "version": "baseline",
+      "bootstrap": "rounds/test-report-407-001/bootstrap/test-report-407-unknown--baseline.txt"
+    },
+    {
+      "case_id": "test-report-407-unknown",
+      "input": "rounds/test-report-407-001/inputs/test-report-407-unknown--candidate--1/input.json",
+      "input_sha256": "3514920227fd09fd7569180318eb68dc9d0a497cc943d2c9c72351cf6a10f841",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/test-report-407-001/bootstrap/test-report-407-unknown--candidate.txt"
+    },
+    {
+      "case_id": "test-report-407-details",
+      "input": "rounds/test-report-407-001/inputs/test-report-407-details--baseline--1/input.json",
+      "input_sha256": "3e0310357250aaa5dbe1cc6735cc3ab44cdee3cfb376aed6616eeb6bfdf80db5",
+      "trial": 1,
+      "version": "baseline",
+      "bootstrap": "rounds/test-report-407-001/bootstrap/test-report-407-details--baseline.txt"
+    },
+    {
+      "case_id": "test-report-407-details",
+      "input": "rounds/test-report-407-001/inputs/test-report-407-details--candidate--1/input.json",
+      "input_sha256": "6bcb231446b3991a9354c1ba68c57c301751afcc305436931c5d6be1cd77898e",
+      "trial": 1,
+      "version": "candidate",
+      "bootstrap": "rounds/test-report-407-001/bootstrap/test-report-407-details--candidate.txt"
+    }
+  ]
+}

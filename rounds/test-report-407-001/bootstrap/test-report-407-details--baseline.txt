@@ -1,0 +1,19 @@
+新規の1試行を実行してください。要求設定 gpt-6.1-sol / medium。ケース test-report-407-details--baseline、one-shot、後続Human発言なし。
+Repository=https://github.com/akitanabe/tugite-eval.git、cwd=/workspace/tugite-eval。
+固定adapter/定義SHA=e3afe178eafc4255e0ca856bd37636643d54b758。入力輸送SHA=<TRANSPORT_SHA>。
+checkoutがなければ通常clone。既存ならtop-levelとorigin URLが上記repoと一致することを確認。次を一つずつ成功確認して進めます。
+git fetch --no-tags https://github.com/akitanabe/tugite-eval.git e3afe178eafc4255e0ca856bd37636643d54b758
+git cat-file -e e3afe178eafc4255e0ca856bd37636643d54b758^{commit}
+git status --porcelain=v1 --untracked-files=all
+statusが空なら git checkout --detach e3afe178eafc4255e0ca856bd37636643d54b758 を行い、git rev-parse HEAD が指定SHAと一致することを確認。dirty・別repo・失敗なら保持して停止。force/reset/cleanは使いません。
+git fetch --no-tags https://github.com/akitanabe/tugite-eval.git <TRANSPORT_SHA>
+git cat-file -e <TRANSPORT_SHA>^{commit}
+git show <TRANSPORT_SHA>:rounds/test-report-407-001/inputs/test-report-407-details--baseline--1/input.json > /workspace/test-report-input.json
+sha256sum /workspace/test-report-input.json が 3e0310357250aaa5dbe1cc6735cc3ab44cdee3cfb376aed6616eeb6bfdf80db5 と一致することを確認。
+固定adapter checkoutで実行:
+python3 evals/cloud_task.py stage /workspace/test-report-input.json 3e0310357250aaa5dbe1cc6735cc3ab44cdee3cfb376aed6616eeb6bfdf80db5 /workspace/test-report-stage
+stage成功後 /workspace/test-report-stage/prompt.txt を読み、指定固定配布物のtest-report Skillを最初に読んで /workspace/test-report-stage/workspace で作業。
+corpus/control/rubric/snapshot、他ケース・他版・過去結果は読みません。テストや対象コードの実行、ファイル変更、依存導入、push、nested CLI、採点は行いません。固定SHAのGit fetchとstage/collectおよびharness応答保存だけは管理操作として許可します。
+完全なtask応答を /workspace/test-report-response.txt に保存。元のeval repo cwdで次を実行:
+python3 evals/cloud_task.py collect /workspace/test-report-stage 3e0310357250aaa5dbe1cc6735cc3ab44cdee3cfb376aed6616eeb6bfdf80db5 /workspace/test-report-response.txt /workspace/test-report-result --quality
+最終返却にはtask応答全文を省略せず示し、別にstage receipt、result-seal.json全文とSHA256、実際に読んだSkill/参照、観測できた制約を付けてください。task応答とharness情報は区切ってください。実効model/effortや内部遵守を推測しません。失敗は対象・操作・理由・完了部分を正確に報告。
